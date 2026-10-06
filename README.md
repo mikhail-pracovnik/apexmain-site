@@ -51,6 +51,15 @@ npm run check:names  # проверка на названия сторонних
 Чтобы перейти на бота: реализовать `LeadSender` (POST в серверную функцию, где хранится токен)
 и вернуть его из `getSender()` в `src/lib/lead/index.ts`. Токен в репозиторий не класть.
 
+## Публикация
+Сейчас: `npm run deploy` — собирает сайт и отправляет `dist/` в ветку `gh-pages`
+(GitHub Pages → Deploy from a branch → `gh-pages`).
+
+Автоматическая публикация при каждом push в `main` уже подготовлена в `.github/deploy.yml.disabled`.
+Чтобы включить: `gh auth refresh -s workflow`, затем
+`git mv .github/deploy.yml.disabled .github/workflows/deploy.yml`, push, и в настройках Pages
+выбрать Source: GitHub Actions.
+
 ## Шрифты
 Geologica (заголовки), Onest (текст), IBM Plex Mono (метки) — OFL. Подмножества с латиницей,
 кириллицей и казахскими буквами собираются скриптом `npm run fonts` из `fonts-src/`

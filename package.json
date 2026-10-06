@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "check:names": "node scripts/check-third-party.mjs",
+    "deploy": "node scripts/deploy-pages.mjs",
     "fonts": "python scripts/subset-fonts.py"
   },
   "dependencies": {
