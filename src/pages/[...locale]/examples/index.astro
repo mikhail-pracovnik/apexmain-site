@@ -11,8 +11,8 @@ const { locale } = Astro.props as { locale: Locale };
 const d = t(locale);
 const examples = await getExamples();
 const allNiches = await getNiches();
-// Only niches that have at least one example appear in the filter.
-const niches = allNiches.filter((n) => examples.some((e) => e.data.niche === n.id));
+// All general categories are in the filter; empty ones show a short "nothing yet" note.
+const niches = allNiches;
 const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.label[locale] ?? id;
 ---
 
@@ -20,8 +20,7 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
   <section class="section theme-light ex-page" data-label={d.sections.examples} aria-labelledby="ex-title">
     <div class="container-x">
       <header class="ex-page-head">
-        <p class="eyebrow">{d.examples.eyebrow}</p>
-        <h1 id="ex-title" class="ex-page-title">{d.examplesPage.title}</h1>
+        <h1 id="ex-title" class="h-page">{d.examplesPage.title}</h1>
         <p class="lead-text">{d.examplesPage.lead}</p>
       </header>
 
@@ -93,9 +92,6 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
     display: grid;
     gap: 1.25rem;
     margin-bottom: 2.5rem;
-  }
-  .ex-page-title {
-    font-size: clamp(2.4rem, 7.5vw, 5rem);
   }
   .filter {
     display: flex;

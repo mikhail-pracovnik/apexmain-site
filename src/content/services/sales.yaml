@@ -11,10 +11,33 @@ title:
   kk: Сатылымды баптау
   en: Sales setup
 description:
-  ru: Наводим порядок в заявках, чтобы ни один клиент не потерялся. CRM, быстрые ответы, скрипты для администратора и напоминания, чтобы клиенты возвращались.
-  kk: Бірде-бір клиент жоғалмауы үшін өтінімдерді ретке келтіреміз. CRM, жылдам жауаптар, әкімшіге арналған скрипттер және клиенттер қайта оралуы үшін еске салғыштар.
-  en: We put requests in order so no customer gets lost. CRM, quick replies, scripts for your administrator and reminders that bring customers back.
+  ru: Наводим порядок в том, как вы отвечаете клиентам. Быстрые ответы, скрипты для администратора и напоминания, чтобы клиенты записывались и возвращались.
+  kk: Клиенттерге қалай жауап беретініңізді ретке келтіреміз. Клиенттер жазылып, қайта оралуы үшін жылдам жауаптар, әкімшіге арналған скрипттер және еске салғыштар.
+  en: We put order into how you answer customers. Quick replies, scripts for your administrator and reminders, so customers book and come back.
 tags:
-  ru: [CRM, Быстрые ответы, Скрипты, Повторные продажи]
-  kk: [CRM, Жылдам жауаптар, Скрипттер, Қайталама сатылым]
-  en: [CRM, Quick replies, Scripts, Repeat sales]
+  ru: [Быстрые ответы, Скрипты, Напоминания, Повторные продажи]
+  kk: [Жылдам жауаптар, Скрипттер, Еске салғыштар, Қайталама сатылым]
+  en: [Quick replies, Scripts, Reminders, Repeat sales]
+forWhom:
+  ru: Тем, у кого заявки есть, но часть клиентов не доходит до записи или не возвращается.
+  kk: Өтінімдері бар, бірақ клиенттердің бір бөлігі жазылуға дейін жетпейтін немесе қайта оралмайтындарға.
+  en: Those who get requests, but some customers never book or never come back.
+includes:
+  ru:
+    - Разбор переписок и звонков
+    - Скрипты ответов для администратора
+    - Шаблоны быстрых ответов в WhatsApp и Instagram
+    - Напоминания о записи и повторном визите
+    - Рассылки для постоянных клиентов
+  kk:
+    - Хат алмасулар мен қоңырауларды талдау
+    - Әкімшіге арналған жауап скрипттері
+    - WhatsApp пен Instagram-дағы жылдам жауап үлгілері
+    - Жазылу және қайта келу туралы еске салғыштар
+    - Тұрақты клиенттерге арналған таратылымдар
+  en:
+    - Review of chats and calls
+    - Answer scripts for your administrator
+    - Quick-reply templates in WhatsApp and Instagram
+    - Booking and return-visit reminders
+    - Messages for regular customers

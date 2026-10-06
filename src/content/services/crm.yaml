@@ -1,0 +1,43 @@
+order: 5
+draft: true
+hidden: false
+priceFrom: null
+video:
+  webm: media/services/crm.webm
+  mp4: media/services/crm.mp4
+  poster: media/services/crm.jpg
+title:
+  ru: CRM
+  kk: CRM
+  en: CRM
+description:
+  ru: Все клиенты и заявки в одном месте вместо тетрадки и переписок. Видно, кто написал, кто записался, кто пропал — и кому пора напомнить о себе.
+  kk: Дәптер мен хат алмасудың орнына барлық клиенттер мен өтінімдер бір жерде. Кім жазды, кім жазылды, кім жоғалды — және кімге еске салу керек екені көрінеді.
+  en: All customers and requests in one place instead of a notebook and chats. You see who wrote, who booked, who went quiet — and who needs a reminder.
+tags:
+  ru: [Внедрение, Воронка, Интеграции, Обучение]
+  kk: [Енгізу, Воронка, Интеграциялар, Оқыту]
+  en: [Implementation, Pipeline, Integrations, Training]
+forWhom:
+  ru: Бизнесу, где заявки приходят из нескольких мест, а клиентская база живёт в телефоне администратора.
+  kk: Өтінімдер бірнеше жерден келетін, ал клиенттер базасы әкімшінің телефонында тұратын бизнеске.
+  en: Businesses where requests come from several places and the customer base lives in the administrator's phone.
+includes:
+  ru:
+    - Выбор CRM под ваши задачи и бюджет
+    - Воронка от заявки до оплаты
+    - Подключение сайта, WhatsApp, Instagram и телефонии
+    - Перенос существующей базы клиентов
+    - Обучение сотрудников
+  kk:
+    - Міндеттеріңіз бен бюджетіңізге сай CRM таңдау
+    - Өтінімнен төлемге дейінгі воронка
+    - Сайтты, WhatsApp, Instagram және телефонияны қосу
+    - Бар клиенттер базасын көшіру
+    - Қызметкерлерді оқыту
+  en:
+    - Choosing a CRM for your needs and budget
+    - A pipeline from request to payment
+    - Connecting the website, WhatsApp, Instagram and telephony
+    - Moving your existing customer base
+    - Staff training

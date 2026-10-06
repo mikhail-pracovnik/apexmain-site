@@ -45,7 +45,7 @@
     en: We polish your 2GIS and map listings and connect them to your website and Instagram, so anyone who finds you can book right away.
 - id: slow-replies
   order: 5
-  service: sales
+  service: crm
   quote:
     ru: Администратор не успевает отвечать, клиенты уходят
     kk: Әкімші жауап беріп үлгермейді, клиенттер кетіп қалады

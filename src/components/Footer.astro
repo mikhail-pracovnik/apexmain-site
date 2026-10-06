@@ -18,26 +18,16 @@ const year = new Date().getFullYear();
   <section class="quotes container-x" aria-label={d.footer.quotesLabel} data-quotes>
     <div class="quotes-stage" aria-live="polite">
       {
-        quotes.map((q, i) => {
-          const main = locale === 'ru' ? q.data.translation.ru : q.data.original;
-          return (
-            <figure class="quote" data-quote hidden={i !== 0 ? true : undefined} lang={locale === 'ru' ? 'ru' : 'en'}>
-              <blockquote>
-                <p>«{main}»</p>
-              </blockquote>
-              <figcaption>
-                {locale === 'ru' && (
-                  <span class="quote-original" lang="en">
-                    {q.data.original}
-                  </span>
-                )}
-                <span lang={locale}>
-                  {q.data.character[locale]}, «{q.data.film[locale]}», {q.data.year}
-                </span>
-              </figcaption>
-            </figure>
-          );
-        })
+        quotes.map((q, i) => (
+          <figure class="quote" data-quote hidden={i !== 0 ? true : undefined} lang="en">
+            <blockquote>
+              <p>«{q.data.original}»</p>
+            </blockquote>
+            <figcaption>
+              <cite>{q.data.film}</cite>, {q.data.year}
+            </figcaption>
+          </figure>
+        ))
       }
     </div>
     <div class="quotes-controls">
@@ -122,7 +112,7 @@ const year = new Date().getFullYear();
     };
     const schedule = () => {
       window.clearInterval(timer);
-      if (!paused && !hovering && items.length > 1) timer = window.setInterval(() => show(index + 1), 7000);
+      if (!paused && !hovering && items.length > 1) timer = window.setInterval(() => show(index + 1), 5000);
     };
     const syncPause = () => {
       pauseBtn?.setAttribute('aria-pressed', String(paused));
@@ -193,16 +183,13 @@ const year = new Date().getFullYear();
     text-wrap: balance;
   }
   .quote figcaption {
-    display: grid;
-    gap: 0.35rem;
     margin-top: 1.5rem;
     font-family: var(--font-mono);
     font-size: 0.875rem;
     color: var(--color-muted);
   }
-  .quote-original {
-    color: var(--color-paper);
-    opacity: 0.85;
+  .quote cite {
+    font-style: normal;
   }
   .quotes-controls {
     display: flex;

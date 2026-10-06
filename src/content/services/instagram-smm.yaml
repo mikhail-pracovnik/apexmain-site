@@ -18,3 +18,26 @@ tags:
   ru: [Оформление профиля, Контент-план, Reels, Сторис]
   kk: [Профильді рәсімдеу, Контент-жоспар, Reels, Сторис]
   en: [Profile setup, Content plan, Reels, Stories]
+forWhom:
+  ru: Тем, у кого Instagram есть и подписчики есть, а записей из него мало.
+  kk: Instagram-ы да, жазылушылары да бар, бірақ одан жазылулар аз келетіндерге.
+  en: Those who have Instagram and followers, but few bookings from it.
+includes:
+  ru:
+    - Разбор профиля глазами клиента
+    - Шапка, хайлайты и закреплённые посты
+    - Контент-план на месяц
+    - Сценарии Reels и сторис
+    - Ссылка на запись и быстрые ответы в директе
+  kk:
+    - Профильді клиент көзімен талдау
+    - Профиль басы, хайлайттар және бекітілген посттар
+    - Бір айлық контент-жоспар
+    - Reels пен сторис сценарийлері
+    - Жазылу сілтемесі және директтегі жылдам жауаптар
+  en:
+    - Profile review through a customer's eyes
+    - Bio, highlights and pinned posts
+    - A one-month content plan
+    - Scripts for Reels and stories
+    - Booking link and quick replies in DMs

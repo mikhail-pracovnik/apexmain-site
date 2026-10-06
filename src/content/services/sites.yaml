@@ -19,3 +19,29 @@ tags:
   ru: [Лендинг, Каталог, Онлайн-запись, Три языка]
   kk: [Лендинг, Каталог, Онлайн жазылу, Үш тіл]
   en: [Landing page, Catalog, Online booking, Three languages]
+forWhom:
+  ru: Бизнесу, у которого клиенты пишут в мессенджеры и теряются, а в 2ГИС и Instagram нет понятной ссылки «куда записаться».
+  kk: Клиенттері мессенджерге жазып, жоғалып кететін, ал 2ГИС пен Instagram-да «қайда жазылу керек» деген түсінікті сілтемесі жоқ бизнеске.
+  en: Businesses whose customers write in messengers and get lost, with no clear "where to book" link on 2GIS or Instagram.
+includes:
+  ru:
+    - Структура и тексты простым языком
+    - Дизайн под ваш бренд, сначала для телефона
+    - Цены, работы, отзывы и контакты
+    - Заявки в WhatsApp и Telegram
+    - Русский, казахский и английский
+    - Домен, хостинг и публикация — на нас
+  kk:
+    - Қарапайым тілмен құрылым және мәтіндер
+    - Брендіңізге сай, алдымен телефонға арналған дизайн
+    - Бағалар, жұмыстар, пікірлер және байланыстар
+    - WhatsApp пен Telegram-ға өтінімдер
+    - Орыс, қазақ және ағылшын тілдері
+    - Домен, хостинг және жариялау — біздің мойнымызда
+  en:
+    - Structure and copy in plain language
+    - Design in your brand, phone first
+    - Prices, work, reviews and contacts
+    - Requests to WhatsApp and Telegram
+    - Russian, Kazakh and English
+    - Domain, hosting and publishing — on us

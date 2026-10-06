@@ -1,0 +1,43 @@
+order: 7
+draft: true
+hidden: false
+priceFrom: null
+video:
+  webm: media/services/acquiring.webm
+  mp4: media/services/acquiring.mp4
+  poster: media/services/acquiring.jpg
+title:
+  ru: Подключение эквайринга
+  kk: Эквайрингті қосу
+  en: Payment acquiring setup
+description:
+  ru: Принимаем оплату картой и QR на сайте и в точке продаж. Помогаем выбрать банк, подключаем оплату к сайту, CRM и учёту, проверяем, что деньги и чеки доходят.
+  kk: Сайтта және сауда нүктесінде карта мен QR арқылы төлем қабылдаймыз. Банк таңдауға көмектесеміз, төлемді сайтқа, CRM мен есепке қосамыз, ақша мен чектің жеткенін тексереміз.
+  en: Card and QR payments on your website and at the point of sale. We help you choose a bank, connect payments to the website, CRM and accounting, and check that money and receipts arrive.
+tags:
+  ru: [Онлайн-оплата, QR, Терминал, Чеки]
+  kk: [Онлайн төлем, QR, Терминал, Чектер]
+  en: [Online payment, QR, Terminal, Receipts]
+forWhom:
+  ru: Тем, кто хочет принимать предоплату на сайте или навести порядок в оплатах в точке продаж.
+  kk: Сайтта алдын ала төлем қабылдағысы немесе сауда нүктесіндегі төлемдерді ретке келтіргісі келетіндерге.
+  en: Those who want to take prepayments on the website or put payments at the point of sale in order.
+includes:
+  ru:
+    - Сравнение условий банков под ваш оборот
+    - Подключение онлайн-оплаты к сайту
+    - Оплата по QR и через терминал
+    - Связка оплат с CRM и учётом
+    - Проверка платежей и чеков перед запуском
+  kk:
+    - Айналымыңызға сай банктердің шарттарын салыстыру
+    - Сайтқа онлайн төлемді қосу
+    - QR және терминал арқылы төлем
+    - Төлемдерді CRM мен есеппен байланыстыру
+    - Іске қосар алдында төлемдер мен чектерді тексеру
+  en:
+    - Comparing bank terms for your turnover
+    - Connecting online payment to the website
+    - QR and terminal payments
+    - Linking payments with CRM and accounting
+    - Testing payments and receipts before launch

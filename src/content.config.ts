@@ -26,6 +26,9 @@ const services = defineCollection({
     title: localized(z.string()),
     description: localized(z.string()),
     tags: localized(z.array(z.string())).optional(),
+    /** Extended info for the services page. */
+    forWhom: localized(z.string()).optional(),
+    includes: localized(z.array(z.string())).optional(),
   }),
 });
 
@@ -71,10 +74,10 @@ const quotes = defineCollection({
   loader: file('./src/content/quotes.yaml'),
   schema: z.object({
     order: z.number(),
+    /** Exact original line in English. */
     original: z.string(),
-    translation: z.object({ ru: z.string() }),
-    character: localized(z.string()),
-    film: localized(z.string()),
+    /** Original film title in English. */
+    film: z.string(),
     year: z.number(),
     sources: z.array(z.url()).min(1),
   }),

@@ -1,7 +1,7 @@
 order: 3
 hidden: false
 featured: true        # показывать на главной (первые 4)
-niche: cosmetics               # id из src/content/niches.yaml
+niche: retail               # id из src/content/niches.yaml
 layout: 3               # вид болванки, пока нет картинок (1–6)
 images:
   desktop: null         # например media/examples/example-3-desktop.webp

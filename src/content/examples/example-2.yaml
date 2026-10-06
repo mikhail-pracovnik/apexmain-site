@@ -1,7 +1,7 @@
 order: 2
 hidden: false
 featured: true        # показывать на главной (первые 4)
-niche: clinic               # id из src/content/niches.yaml
+niche: medicine               # id из src/content/niches.yaml
 layout: 2               # вид болванки, пока нет картинок (1–6)
 images:
   desktop: null         # например media/examples/example-2-desktop.webp

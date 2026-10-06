@@ -1,22 +1,29 @@
-# Ниши для фильтра примеров и для формы заявки. id — ключ, на который ссылаются примеры.
-- id: flowers
+# Общие категории бизнеса: фильтр примеров и поле «Ниша» в форме заявки.
+# id — ключ, на который ссылаются примеры (src/content/examples/*.yaml).
+- id: services
   order: 1
-  label: { ru: Цветы, kk: Гүлдер, en: Florist }
-- id: clinic
+  label: { ru: Услуги, kk: Қызметтер, en: Services }
+- id: retail
   order: 2
-  label: { ru: Косметология, kk: Косметология, en: Cosmetology clinic }
-- id: cosmetics
+  label: { ru: Торговля, kk: Сауда, en: Retail }
+- id: medicine
   order: 3
-  label: { ru: Магазин косметики, kk: Косметика дүкені, en: Cosmetics store }
-- id: salon
+  label: { ru: Медицина, kk: Медицина, en: Medicine }
+- id: beauty
   order: 4
-  label: { ru: Салон красоты, kk: Сұлулық салоны, en: Beauty salon }
-- id: barber
-  order: 5
-  label: { ru: Барбершоп, kk: Барбершоп, en: Barbershop }
+  label: { ru: Красота, kk: Сұлулық, en: Beauty }
 - id: food
+  order: 5
+  label: { ru: Общепит, kk: Қоғамдық тамақтану, en: Food and drink }
+- id: auto
   order: 6
-  label: { ru: Кафе и доставка еды, kk: Кафе және тамақ жеткізу, en: Café and food delivery }
+  label: { ru: Авто, kk: Авто, en: Auto }
+- id: education
+  order: 7
+  label: { ru: Образование, kk: Білім беру, en: Education }
+- id: b2b
+  order: 8
+  label: { ru: B2B, kk: B2B, en: B2B }
 - id: other
   order: 99
   label: { ru: Другое, kk: Басқа, en: Other }

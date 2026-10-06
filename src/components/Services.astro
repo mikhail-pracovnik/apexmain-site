@@ -57,5 +57,21 @@ const services = await getServices();
       grid-template-columns: repeat(2, 1fr);
       gap: 1.25rem;
     }
+    /* odd number of services: the last card spans the full row */
+    .services-grid > :global(:last-child:nth-child(odd)) {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (min-width: 64rem) {
+    .services-grid > :global(:last-child:nth-child(odd)) {
+      flex-direction: row;
+    }
+    .services-grid > :global(:last-child:nth-child(odd) > .service-media) {
+      flex: 0 0 50%;
+      aspect-ratio: auto;
+      min-height: 22rem;
+      border-bottom: 0;
+      border-right: 1px solid var(--color-line);
+    }
   }
 </style>

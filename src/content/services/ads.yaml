@@ -18,3 +18,26 @@ tags:
   ru: [Таргет, Поиск, 2ГИС и карты, Аналитика]
   kk: [Таргет, Іздеу, 2ГИС және карталар, Аналитика]
   en: [Targeting, Search, 2GIS and maps, Analytics]
+forWhom:
+  ru: Тем, кто уже платит за рекламу и не видит, что из этого приводит клиентов, или только собирается её запускать.
+  kk: Жарнамаға ақша төлеп жүрген, бірақ қайсысы клиент әкелетінін көрмейтін немесе оны енді ғана іске қосқысы келетіндерге.
+  en: Those who already pay for ads and cannot see what brings customers, or who are about to start.
+includes:
+  ru:
+    - Настройка рекламы в Instagram и поиске
+    - Карточки в 2ГИС и на картах
+    - Отслеживание заявок с сайта и мессенджеров
+    - Отчёт простым языком — сколько стоит заявка
+    - Отключение того, что не окупается
+  kk:
+    - Instagram мен іздеудегі жарнаманы баптау
+    - 2ГИС пен карталардағы карточкалар
+    - Сайт пен мессенджерлерден келетін өтінімдерді бақылау
+    - Қарапайым тілдегі есеп — бір өтінім қанша тұрады
+    - Өзін ақтамайтынын өшіру
+  en:
+    - Ads setup on Instagram and in search
+    - 2GIS and map listings
+    - Tracking requests from the website and messengers
+    - A plain-language report — what one request costs
+    - Switching off what does not pay off

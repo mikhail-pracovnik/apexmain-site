@@ -1,7 +1,7 @@
 order: 4
 hidden: false
 featured: true        # показывать на главной (первые 4)
-niche: salon               # id из src/content/niches.yaml
+niche: beauty               # id из src/content/niches.yaml
 layout: 4               # вид болванки, пока нет картинок (1–6)
 images:
   desktop: null         # например media/examples/example-4-desktop.webp

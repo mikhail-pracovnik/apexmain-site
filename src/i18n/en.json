@@ -74,7 +74,7 @@
   "examples": {
     "eyebrow": "03 — Examples",
     "title": "What we can do",
-    "lead": "This is how a website for your niche could look. Real projects will appear here — for now we show the approach on concepts.",
+    "lead": "Website concepts for different niches.",
     "cta": "I want one like this",
     "all": "All examples",
     "filterLabel": "Niche",
@@ -100,8 +100,8 @@
         "text": "We make the website, ads or sales setup. You see work-in-progress versions and give feedback."
       },
       {
-        "title": "Launch and support",
-        "text": "We launch, check that requests come in, and stay in touch for edits and next steps."
+        "title": "Turnkey launch",
+        "text": "Hosting, domain, setup and deployment are entirely on us. You get a technically finished website that already works and takes requests. After launch we stay in touch for edits and next steps."
       }
     ]
   },
