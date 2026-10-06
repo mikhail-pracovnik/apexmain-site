@@ -49,15 +49,14 @@
     "hint": "Листайте вниз"
   },
   "hero": {
-    "eyebrow": "Агентство ApexMain · Алматы",
+    "eyebrow": "Design · Performance · Sales Systems",
     "line1": "Клиенты ищут.",
     "line2Before": "Пусть ",
     "accent": "находят",
     "line2After": " вас.",
     "sub": "Сайты, реклама и продажи для бизнеса в Казахстане — от первой заявки до постоянных клиентов.",
     "ctaPrimary": "Получить бесплатный разбор",
-    "ctaSecondary": "Посмотреть примеры",
-    "particlesLabel": "Знак ApexMain из частиц, реагирует на курсор и касание"
+    "ctaSecondary": "Посмотреть примеры"
   },
   "pains": {
     "eyebrow": "01 — Знакомо?",

@@ -5,7 +5,8 @@
  *   step 2 — the mark fills in, the turquoise peak lights up,
  *   step 3 — the mark flies into the header and the hero opens.
  * One wheel notch / swipe / arrow key = one step (see scripts/stage.ts).
- * Without JS or with reduced motion there is no intro and the hero shows a solid mark.
+ * Behind the hero lies a dim "apex / main" wordmark made of dust (scripts/dust-wordmark.ts).
+ * Without JS or with reduced motion there is no intro and the wordmark is static text with the same brightness.
  */
 import BrandMark from './BrandMark.astro';
 import brand from '../data/brand-mark.json';
@@ -20,20 +21,23 @@ const peak = brand.shapes.find((s) => s.id === 'peak')!;
 const [vx, vy, vw, vh] = brand.viewBox;
 ---
 
-<section class="stage glow" id="top" data-label={d.sections.hero} data-stage>
+<section class="stage glow" id="top" data-label={d.sections.hero} data-stage data-dust="stacked-shift">
+  <div class="hero-dust hero-in" aria-hidden="true">
+    <canvas data-dust-canvas></canvas>
+  </div>
+  <p class="hero-static" aria-hidden="true">
+    <span>apex</span>
+    <span class="hero-static-main">main</span>
+  </p>
   <div class="hero container-x">
-    <div class="hero-visual">
-      <canvas class="hero-canvas" data-particles role="img" aria-label={d.hero.particlesLabel}></canvas>
-      <BrandMark class="hero-static" title={d.hero.particlesLabel} />
-    </div>
     <p class="eyebrow hero-eyebrow hero-in">{d.hero.eyebrow}</p>
-    <h1 class="hero-title">
+    <h1 class="hero-title" data-dust-title>
       <span class="hero-in">{d.hero.line1}</span>
       <span class="hero-in">{d.hero.line2Before}<span class="accent">{d.hero.accent}</span>{d.hero.line2After}</span>
     </h1>
     <div class="hero-bottom hero-in">
-      <p class="hero-sub">{d.hero.sub}</p>
-      <div class="hero-ctas">
+      <p class="hero-sub" data-dust-clear>{d.hero.sub}</p>
+      <div class="hero-ctas" data-dust-clear>
         <a href="#lead" class="btn btn-primary">
           {d.hero.ctaPrimary}
           <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
@@ -79,75 +83,43 @@ const [vx, vy, vw, vh] = brand.viewBox;
   }
 
   /* ---------- Hero ---------- */
+  .stage {
+    overflow: hidden;
+  }
+  /* dust wordmark behind the content */
+  .hero-dust {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .hero-dust canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
   .hero {
     position: relative;
+    z-index: 1;
     display: grid;
-    grid-template-rows: minmax(9rem, 1fr) auto auto auto;
-    grid-template-areas: 'visual' 'eyebrow' 'title' 'bottom';
+    align-content: start;
     /* first screen ends above the phone dock */
     min-height: calc(100svh - var(--dock-h));
-    padding-top: 5.25rem;
+    /* phones/tablets: the wordmark sits behind and above the headline, which starts mid-wordmark */
+    padding-top: calc(5rem + 18vw);
     padding-bottom: max(2rem, env(safe-area-inset-bottom));
   }
   @media (min-width: 64rem) {
     .hero {
-      grid-template-columns: 1fr minmax(0, 30rem);
-      grid-template-rows: 1fr auto auto;
-      grid-template-areas: 'eyebrow visual' 'title title' 'bottom bottom';
-      column-gap: 3rem;
-      padding-top: 6.5rem;
-      padding-bottom: 3rem;
+      align-content: center;
+      padding-top: 7rem;
+      padding-bottom: 4rem;
     }
   }
-  .hero-visual {
-    grid-area: visual;
-    position: relative;
-    max-height: 32svh;
-    margin-bottom: 1rem;
-  }
-  @media (min-width: 64rem) {
-    .hero-visual {
-      max-height: none;
-      height: min(40vh, 22rem);
-      align-self: center;
-      margin-bottom: 0;
-    }
-  }
-  .hero-canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    touch-action: pan-y;
-  }
-  /* Solid mark: fallback only (no JS, or reduced motion). */
-  .hero-visual :global(.hero-static) {
-    position: absolute;
-    inset: 8%;
-    width: 84%;
-    height: 84%;
-  }
-  :global(html.js.motion) .hero-visual :global(.hero-static) {
-    display: none;
-  }
-  :global(html:not(.js)) .hero-canvas,
-  :global(html.js:not(.motion)) .hero-canvas {
-    display: none;
-  }
-
   .hero-eyebrow {
-    grid-area: eyebrow;
-    align-self: end;
-    margin-top: 0.4rem;
     margin-bottom: 1rem;
-  }
-  @media (min-width: 64rem) {
-    .hero-eyebrow {
-      margin-bottom: 1.6rem;
-    }
   }
   .hero-title {
-    grid-area: title;
     display: grid;
     /* phones: 38–40px */
     font-size: clamp(2.375rem, 10.4vw, 4.5rem);
@@ -156,27 +128,25 @@ const [vx, vy, vw, vh] = brand.viewBox;
   }
   @media (min-width: 64rem) {
     .hero-title {
-      font-size: min(6.8vw, 8.5rem);
+      max-width: 62rem;
+      font-size: min(5.6vw, 7.5rem);
     }
   }
   .hero-title > span {
     display: block;
   }
   .hero-bottom {
-    grid-area: bottom;
     display: grid;
     gap: 1.25rem;
     margin-top: 1.5rem;
   }
   @media (min-width: 64rem) {
     .hero-bottom {
-      grid-template-columns: minmax(0, 34rem) auto;
-      justify-content: space-between;
-      align-items: end;
-      margin-top: 2.5rem;
+      margin-top: 2.25rem;
     }
   }
   .hero-sub {
+    max-width: 34rem;
     font-size: 1.125rem;
     color: var(--color-muted);
   }
@@ -189,11 +159,52 @@ const [vx, vy, vw, vh] = brand.viewBox;
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
+    width: fit-content;
   }
   @media (max-width: 30rem) {
+    .hero-ctas {
+      width: 100%;
+    }
     .hero-ctas .btn {
       flex: 1 1 100%;
     }
+  }
+
+  /* Static wordmark: no JS or reduced motion (same brightness as the dust: apex 25%, main 30%). */
+  .hero-static {
+    position: absolute;
+    z-index: 0;
+    left: 1rem;
+    top: 5.1rem;
+    display: grid;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: calc((100vw - 2rem) / 3.1);
+    line-height: 0.8;
+    letter-spacing: -0.01em;
+    color: rgb(236 240 241 / 0.25);
+    pointer-events: none;
+    user-select: none;
+  }
+  .hero-static-main {
+    padding-left: 0.57em; /* one letter */
+    color: rgb(70 200 217 / 0.3);
+  }
+  @media (min-width: 64rem) {
+    .hero-static {
+      left: auto;
+      right: 3vw;
+      top: 50%;
+      font-size: min(16vw, 52vh);
+      transform: translateY(-45%);
+    }
+  }
+  :global(html.dust-ready) .hero-static {
+    display: none;
+  }
+  :global(html.js.motion:not(.dust-ready)) .hero-static {
+    visibility: hidden; /* JS + motion: the dust takes over as soon as it is ready */
   }
 
   /* ---------- Intro overlay (fixed over everything while it plays) ---------- */

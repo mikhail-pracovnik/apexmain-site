@@ -8,7 +8,7 @@
  * Going back from the hero needs a deliberate push upward at the very top of the page.
  * Opening the page scrolled or with a #hash skips the intro.
  */
-import { ParticleMark } from './particles';
+import { startDust, type DustSettings } from './dust-wordmark';
 
 type Gsap = typeof import('gsap').gsap;
 
@@ -17,23 +17,27 @@ const GESTURE_GAP = 120; // ms of wheel silence that starts a new gesture
 const SWIPE_START = 8; // px of finger travel that triggers a step
 const BACK_WHEEL = 360; // accumulated upward wheel delta (px) needed to bring the intro back
 const BACK_SWIPE = 160; // downward finger travel (px) at the top needed to bring the intro back
+/** Dust wordmark behind the hero: brightness of each word (share of the text colour) and dot size. */
+const DUST: DustSettings = { apex: 0.25, main: 0.3, size: 1 };
 
 export function initStage() {
   const root = document.documentElement;
   const stage = document.querySelector<HTMLElement>('[data-stage]');
   if (!stage) return;
   const motion = root.classList.contains('motion');
-  const lite = root.classList.contains('lite');
-  const canvas = stage.querySelector<HTMLCanvasElement>('[data-particles]');
 
-  // Reduced motion / no canvas: the CSS shows the solid mark; nothing else to do.
-  if (!motion || !canvas || !('getContext' in canvas)) {
+  // Reduced motion: no intro; the CSS shows the static wordmark.
+  if (!motion) {
     root.classList.add('intro-done');
     return;
   }
 
-  const wide = window.matchMedia('(min-width: 64rem)').matches;
-  const particles = new ParticleMark(canvas, { count: lite ? 650 : wide ? 2200 : 1200, maxDpr: lite ? 1.5 : 2 });
+  let dustStarted = false;
+  const ensureDust = () => {
+    if (dustStarted) return;
+    dustStarted = true;
+    startDust(stage, DUST, 'stacked-shift');
+  };
 
   const intro = stage.querySelector<HTMLElement>('[data-intro]')!;
   const anchor = intro.querySelector<HTMLElement>('[data-intro-anchor]')!;
@@ -52,7 +56,7 @@ export function initStage() {
   const finishInstantly = () => {
     root.classList.add('intro-done');
     root.classList.remove('intro-flying');
-    particles.assemble();
+    ensureDust();
   };
 
   // Deep link or restored scroll position: no intro.
@@ -60,6 +64,9 @@ export function initStage() {
     finishInstantly();
     return;
   }
+  // The dust is prepared under the intro overlay while the browser is idle, so it is ready for step 3.
+  if ('requestIdleCallback' in window) requestIdleCallback(ensureDust, { timeout: 1500 });
+  else setTimeout(ensureDust, 400);
 
   let gsap: Gsap | null = null;
   let step = 0;
@@ -130,7 +137,7 @@ export function initStage() {
       g.to(glow, { opacity: 0, duration: 0.25 });
       g.to(bg, { opacity: 0, duration: dur * 0.7, delay: dur * 0.2, ease: 'power1.inOut' });
       g.fromTo(heroIn, { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: 0.55, stagger: 0.05, delay: dur * 0.4, ease: 'power3.out' });
-      particles.assemble();
+      ensureDust();
       g.to(fly, {
         x: tg.x,
         y: tg.y,
