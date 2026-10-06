@@ -22,6 +22,10 @@ const jobs = [
   ['service-crm', 'services/crm'],
   ['service-databases', 'services/databases'],
   ['service-acquiring', 'services/acquiring'],
+  ['mini-sites', 'services/mini/sites'],
+  ['mini-instagram-smm', 'services/mini/instagram-smm'],
+  ['mini-ads', 'services/mini/ads'],
+  ['mini-sales', 'services/mini/sales'],
   ...[1, 2, 3, 4, 5, 6].map((n) => [`example-${n}`, `examples/example-${n}`]),
 ];
 

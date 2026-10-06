@@ -4,8 +4,10 @@ import { asset } from '../i18n';
 interface Props {
   video: { webm: string; mp4: string; poster: string };
   class?: string;
+  /** 'visible' — small loops that may play together while on screen; default — only the most visible one plays. */
+  play?: 'visible' | 'solo';
 }
-const { video, class: className } = Astro.props;
+const { video, class: className, play = 'solo' } = Astro.props;
 ---
 
 <!-- Decorative loop: loads and plays only while on screen (see scripts/common.ts). -->
@@ -18,6 +20,7 @@ const { video, class: className } = Astro.props;
   preload="none"
   poster={asset(video.poster)}
   data-lazy
+  data-play={play}
   aria-hidden="true"
   tabindex="-1"
   width="640"

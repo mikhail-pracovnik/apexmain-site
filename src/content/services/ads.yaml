@@ -1,11 +1,16 @@
 order: 3
 draft: true
 hidden: false
+group: core
 priceFrom: null
 video:
   webm: media/services/ads.webm
   mp4: media/services/ads.mp4
   poster: media/services/ads.jpg
+videoMini:
+  webm: media/services/mini/ads.webm
+  mp4: media/services/mini/ads.mp4
+  poster: media/services/mini/ads.jpg
 title:
   ru: Реклама и продвижение
   kk: Жарнама және жылжыту

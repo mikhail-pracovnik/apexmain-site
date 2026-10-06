@@ -20,9 +20,13 @@ const services = defineCollection({
     draft: z.boolean().default(false),
     /** Hide from the site entirely without deleting the file. */
     hidden: z.boolean().default(false),
+    /** core — shown on the home page; tech — integrations & technical setup (services page only). */
+    group: z.enum(['core', 'tech']).default('core'),
     /** Starting price in tenge; null shows "price after the free audit". */
     priceFrom: z.number().nullable().default(null),
     video,
+    /** Small square loop for the compact home-page card (one big, simple image). */
+    videoMini: video,
     title: localized(z.string()),
     description: localized(z.string()),
     tags: localized(z.array(z.string())).optional(),

@@ -14,14 +14,14 @@ const home = url(locale);
 const year = new Date().getFullYear();
 ---
 
-<footer class="footer" data-label={d.sections.footer}>
+<footer class="footer glow" data-label={d.sections.footer}>
   <section class="quotes container-x" aria-label={d.footer.quotesLabel} data-quotes>
     <div class="quotes-stage" aria-live="polite">
       {
         quotes.map((q, i) => (
           <figure class="quote" data-quote hidden={i !== 0 ? true : undefined} lang="en">
             <blockquote>
-              <p>«{q.data.original}»</p>
+              <p>“{q.data.original}”</p>
             </blockquote>
             <figcaption>
               <cite>{q.data.film}</cite>, {q.data.year}
@@ -133,7 +133,6 @@ const year = new Date().getFullYear();
   .footer {
     position: relative;
     border-top: 1px solid var(--color-line);
-    background: var(--color-ink);
   }
   .quotes {
     padding-block: 5.5rem 4rem;

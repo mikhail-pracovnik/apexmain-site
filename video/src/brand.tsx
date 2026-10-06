@@ -1,10 +1,11 @@
 import React from 'react';
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 
+// Palette (в): dark with a cold blue undertone (matches the site tokens).
 export const C = {
-  ink: '#0A0C11',
-  ink2: '#10141B',
-  ink3: '#171C25',
+  ink: '#05070D',
+  ink2: '#0A0F1A',
+  ink3: '#101828',
   paper: '#ECF0F1',
   apex: '#46C8D9',
 };
@@ -41,15 +42,19 @@ export const loopOut = (frame: number, total: number, dur = 14) =>
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 /** Brand background: ink, faint grid, soft turquoise glow. */
-export const Backdrop: React.FC = () => (
+export const Backdrop: React.FC<{ w?: number; h?: number }> = ({ w = W, h = H }) => (
   <>
     <defs>
       <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
-        <path d="M32 0H0V32" fill="none" stroke={C.paper} strokeOpacity={0.045} />
+        <path d="M32 0H0V32" fill="none" stroke="#94B2DC" strokeOpacity={0.05} />
       </pattern>
       <radialGradient id="glow" cx="0.75" cy="0.2" r="0.8">
-        <stop offset="0" stopColor={C.apex} stopOpacity={0.16} />
+        <stop offset="0" stopColor={C.apex} stopOpacity={0.14} />
         <stop offset="1" stopColor={C.apex} stopOpacity={0} />
+      </radialGradient>
+      <radialGradient id="glow2" cx="0.1" cy="0.95" r="0.7">
+        <stop offset="0" stopColor="#285AA0" stopOpacity={0.16} />
+        <stop offset="1" stopColor="#285AA0" stopOpacity={0} />
       </radialGradient>
       <linearGradient id="img" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stopColor={C.paper} stopOpacity={0.1} />
@@ -59,9 +64,10 @@ export const Backdrop: React.FC = () => (
         <path d="M2 22 14 4l8 12M18 22l10-14 10 14" fill="none" stroke={C.paper} strokeOpacity={0.32} strokeWidth={2} />
       </symbol>
     </defs>
-    <rect width={W} height={H} fill={C.ink2} />
-    <rect width={W} height={H} fill="url(#grid)" />
-    <rect width={W} height={H} fill="url(#glow)" />
+    <rect width={w} height={h} fill={C.ink2} />
+    <rect width={w} height={h} fill="url(#grid)" />
+    <rect width={w} height={h} fill="url(#glow)" />
+    <rect width={w} height={h} fill="url(#glow2)" />
   </>
 );
 

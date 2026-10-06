@@ -1,6 +1,7 @@
 order: 5
 draft: true
 hidden: false
+group: tech
 priceFrom: null
 video:
   webm: media/services/crm.webm

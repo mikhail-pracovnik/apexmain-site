@@ -1,5 +1,5 @@
 ---
-import { t, type Locale } from '../i18n';
+import { t, url, type Locale } from '../i18n';
 import { getPains, getServices } from '../lib/content';
 
 interface Props {
@@ -33,7 +33,7 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
               <p class="pain-label">{d.pains.solution}</p>
               <p>{p.data.answer[locale]}</p>
               {serviceTitle(p.data.service) && (
-                <a class="pain-link" href={`#service-${p.data.service}`}>
+                <a class="pain-link" href={`${url(locale, 'services')}#${p.data.service}`}>
                   {serviceTitle(p.data.service)}
                   <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
                     <path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none" />

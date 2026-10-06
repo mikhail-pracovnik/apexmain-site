@@ -26,20 +26,20 @@ const uid = `ph${n}`;
       <stop offset="1" stop-color="#46C8D9" stop-opacity="0"></stop>
     </radialGradient>
     <pattern id={`${uid}-grid`} width="32" height="32" patternUnits="userSpaceOnUse">
-      <path d="M32 0H0V32" fill="none" stroke="#ECF0F1" stroke-opacity="0.045"></path>
+      <path d="M32 0H0V32" fill="none" stroke="#94B2DC" stroke-opacity="0.05"></path>
     </pattern>
     <symbol id={`${uid}-peak`} viewBox="0 0 40 24">
       <path d="M2 22 14 4l8 12M18 22l10-14 10 14" fill="none" stroke="#ECF0F1" stroke-opacity="0.32" stroke-width="2"></path>
     </symbol>
   </defs>
 
-  <rect width="960" height="600" fill="#10141B"></rect>
+  <rect width="960" height="600" fill="#0A0F1A"></rect>
   <rect width="960" height="600" fill={`url(#${uid}-grid)`}></rect>
   <rect width="960" height="600" fill={`url(#${uid}-glow)`}></rect>
 
   <!-- Desktop browser -->
   <g transform="translate(40 48)">
-    <rect width="720" height="480" rx="14" fill="#0A0C11" stroke="#ECF0F1" stroke-opacity="0.12"></rect>
+    <rect width="720" height="480" rx="14" fill="#05070D" stroke="#ECF0F1" stroke-opacity="0.12"></rect>
     <circle cx="20" cy="17" r="4.5" fill="#ECF0F1" fill-opacity="0.18"></circle>
     <circle cx="36" cy="17" r="4.5" fill="#ECF0F1" fill-opacity="0.18"></circle>
     <circle cx="52" cy="17" r="4.5" fill="#ECF0F1" fill-opacity="0.18"></circle>
@@ -86,8 +86,8 @@ const uid = `ph${n}`;
 
   <!-- Phone -->
   <g transform="translate(736 158)">
-    <rect x="-6" y="-6" width="192" height="388" rx="30" fill="#0A0C11" fill-opacity="0.6"></rect>
-    <rect width="180" height="376" rx="26" fill="#0A0C11" stroke="#ECF0F1" stroke-opacity="0.16"></rect>
+    <rect x="-6" y="-6" width="192" height="388" rx="30" fill="#05070D" fill-opacity="0.6"></rect>
+    <rect width="180" height="376" rx="26" fill="#05070D" stroke="#ECF0F1" stroke-opacity="0.16"></rect>
     <rect x="66" y="10" width="48" height="12" rx="6" fill="#ECF0F1" fill-opacity="0.1"></rect>
     <g transform="translate(8 34)">
       {

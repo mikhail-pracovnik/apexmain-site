@@ -132,12 +132,20 @@ if (videos.length && canAutoplay && 'IntersectionObserver' in window) {
     let best: HTMLVideoElement | null = null;
     let bestRatio = 0.35; // must be at least a third visible to play
     ratios.forEach((r, v) => {
-      if (r > bestRatio) {
+      if (v.dataset.play !== 'visible' && r > bestRatio) {
         best = v;
         bestRatio = r;
       }
     });
     videos.forEach((v) => {
+      if (v.dataset.play === 'visible') {
+        // small loops (home service tiles) play whenever they are on screen
+        if ((ratios.get(v) ?? 0) > 0.5) {
+          load(v);
+          if (v.paused) v.play().catch(() => {});
+        } else if (!v.paused) v.pause();
+        return;
+      }
       if (v === best) {
         load(v);
         if (v.paused) v.play().catch(() => {});

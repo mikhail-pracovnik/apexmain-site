@@ -1,11 +1,16 @@
 order: 2
 draft: true
 hidden: false
+group: core
 priceFrom: null
 video:
   webm: media/services/instagram-smm.webm
   mp4: media/services/instagram-smm.mp4
   poster: media/services/instagram-smm.jpg
+videoMini:
+  webm: media/services/mini/instagram-smm.webm
+  mp4: media/services/mini/instagram-smm.mp4
+  poster: media/services/mini/instagram-smm.jpg
 title:
   ru: Instagram и SMM
   kk: Instagram және SMM

@@ -1,5 +1,6 @@
 ---
-import ServiceCard from './ServiceCard.astro';
+/** Home page: the four core services as compact tiles (2×2 on phones, 4 in a row on desktop). */
+import ServiceTile from './ServiceTile.astro';
 import { t, url, type Locale } from '../i18n';
 import { getServices } from '../lib/content';
 
@@ -8,24 +9,22 @@ interface Props {
 }
 const { locale } = Astro.props;
 const d = t(locale);
-const services = await getServices();
+const services = (await getServices()).filter((s) => s.data.group === 'core');
 ---
 
-<section class="section" id="services" data-label={d.sections.services} aria-labelledby="services-title">
+<section class="section glow" id="services" data-label={d.sections.services} aria-labelledby="services-title">
   <div class="container-x">
     <header class="sec-head">
-      <div class="grid gap-5">
-        <p class="eyebrow reveal">{d.services.eyebrow}</p>
-        <h2 id="services-title" class="h-section reveal" style="--i:1">{d.services.title}</h2>
-      </div>
+      <p class="eyebrow reveal">{d.services.eyebrow}</p>
+      <h2 id="services-title" class="h-section reveal" style="--i:1">{d.services.title}</h2>
       <p class="lead-text reveal" style="--i:2">{d.services.lead}</p>
     </header>
-    <div class="services-grid">
-      {services.map((s, i) => <ServiceCard service={s} locale={locale} index={i} />)}
+    <div class="tiles">
+      {services.map((s, i) => <ServiceTile service={s} locale={locale} index={i} />)}
     </div>
-    <p class="mt-10">
+    <p class="mt-8">
       <a href={url(locale, 'services')} class="btn btn-ghost">
-        {d.services.catalog}
+        {d.services.showAll}
         <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
           ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
         >
@@ -38,38 +37,28 @@ const services = await getServices();
   .sec-head {
     display: grid;
     gap: 1.5rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
   }
   @media (min-width: 64rem) {
     .sec-head {
       gap: 2rem;
-      margin-bottom: 4.5rem;
+      margin-bottom: 4rem;
     }
   }
-  .services-grid {
+  .tiles {
     display: grid;
-    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
   }
   @media (min-width: 48rem) {
-    .services-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.25rem;
-    }
-    /* odd number of services: the last card spans the full row */
-    .services-grid > :global(:last-child:nth-child(odd)) {
-      grid-column: 1 / -1;
+    .tiles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
     }
   }
-  @media (min-width: 64rem) {
-    .services-grid > :global(:last-child:nth-child(odd)) {
-      flex-direction: row;
-    }
-    .services-grid > :global(:last-child:nth-child(odd) > .service-media) {
-      flex: 0 0 50%;
-      aspect-ratio: auto;
-      min-height: 22rem;
-      border-bottom: 0;
-      border-right: 1px solid var(--color-line);
+  @media (min-width: 80rem) {
+    .tiles {
+      gap: 1.25rem;
     }
   }
 </style>

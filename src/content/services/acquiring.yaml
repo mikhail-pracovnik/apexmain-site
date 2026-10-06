@@ -1,6 +1,7 @@
 order: 7
 draft: true
 hidden: false
+group: tech
 priceFrom: null
 video:
   webm: media/services/acquiring.webm

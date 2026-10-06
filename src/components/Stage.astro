@@ -20,7 +20,7 @@ const peak = brand.shapes.find((s) => s.id === 'peak')!;
 const [vx, vy, vw, vh] = brand.viewBox;
 ---
 
-<section class="stage" id="top" data-label={d.sections.hero} data-stage>
+<section class="stage glow" id="top" data-label={d.sections.hero} data-stage>
   <div class="hero container-x">
     <div class="hero-visual">
       <canvas class="hero-canvas" data-particles role="img" aria-label={d.hero.particlesLabel}></canvas>
@@ -215,6 +215,7 @@ const [vx, vy, vw, vh] = brand.viewBox;
     inset: 0;
     background:
       radial-gradient(55% 45% at 50% 46%, rgb(70 200 217 / 0.07), transparent 70%),
+      radial-gradient(60% 50% at 10% 100%, rgb(40 80 160 / 0.12), transparent 70%),
       var(--color-ink);
   }
   .intro-anchor {

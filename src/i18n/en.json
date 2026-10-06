@@ -74,7 +74,8 @@
     "priceOnRequest": "Price — after the free audit",
     "currency": "₸",
     "discuss": "Discuss",
-    "catalog": "All services"
+    "catalog": "All services",
+    "showAll": "Show all services"
   },
   "examples": {
     "eyebrow": "03 — Examples",
@@ -175,7 +176,8 @@
     "forWhom": "Who it is for",
     "includes": "What is included",
     "cta": "Discuss this service",
-    "back": "Home"
+    "back": "Home",
+    "tech": "Integrations and technical setup"
   },
   "examplesPage": {
     "title": "What we can do",
@@ -267,12 +269,13 @@
   "integrations": {
     "eyebrow": "Integrations",
     "title": "We integrate and set up",
-    "lead": "We connect your website to the tools you already use: banks for payments, CRM, point of sale and accounting.",
+    "lead": "We connect your website to the tools you already use: card payments through banks, CRM implementation, custom databases — all linked to your point of sale and accounting.",
     "note": "Names and trademarks belong to their owners.",
     "groups": {
       "bank": "Banks and acquiring",
       "crm": "CRM",
       "pos": "Point of sale and accounting"
-    }
+    },
+    "more": "Learn more:"
   }
 }
