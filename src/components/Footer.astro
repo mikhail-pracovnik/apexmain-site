@@ -88,8 +88,9 @@ const year = new Date().getFullYear();
     const motion = document.documentElement.classList.contains('motion');
     let index = 0;
     let timer: number | undefined;
-    let paused = !motion; // reduced motion: no auto-rotation
-    let hovering = false;
+    // Rotation starts right away and runs every 5 s; it stops only with the pause button
+    // or while the tab is hidden. (Reduced motion: quotes switch without the fade.)
+    let paused = false;
 
     const show = (next: number) => {
       const prev = items[index];
@@ -113,7 +114,7 @@ const year = new Date().getFullYear();
     };
     const schedule = () => {
       window.clearInterval(timer);
-      if (!paused && !hovering && items.length > 1) timer = window.setInterval(() => show(index + 1), 5000);
+      if (!paused && !document.hidden && items.length > 1) timer = window.setInterval(() => show(index + 1), 5000);
     };
     const syncPause = () => {
       pauseBtn?.setAttribute('aria-pressed', String(paused));
@@ -123,16 +124,7 @@ const year = new Date().getFullYear();
 
     dots.forEach((d, i) => d.addEventListener('click', () => { show(i); schedule(); }));
     pauseBtn?.addEventListener('click', () => { paused = !paused; syncPause(); });
-    box.addEventListener('pointerenter', () => { hovering = true; schedule(); });
-    box.addEventListener('pointerleave', () => { hovering = false; schedule(); });
-    box.addEventListener('focusin', () => { hovering = true; schedule(); });
-    box.addEventListener('focusout', () => { hovering = false; schedule(); });
-
-    // Only rotate while the footer is on screen.
-    new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) schedule();
-      else window.clearInterval(timer);
-    }).observe(box);
+    document.addEventListener('visibilitychange', schedule);
     syncPause();
   }
 </script>

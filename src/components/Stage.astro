@@ -84,7 +84,8 @@ const [vx, vy, vw, vh] = brand.viewBox;
     display: grid;
     grid-template-rows: minmax(9rem, 1fr) auto auto auto;
     grid-template-areas: 'visual' 'eyebrow' 'title' 'bottom';
-    min-height: 100svh;
+    /* first screen ends above the phone dock */
+    min-height: calc(100svh - var(--dock-h));
     padding-top: 5.25rem;
     padding-bottom: max(2rem, env(safe-area-inset-bottom));
   }

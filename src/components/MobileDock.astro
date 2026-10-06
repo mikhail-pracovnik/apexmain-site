@@ -1,8 +1,7 @@
 ---
 /**
- * Phone-only bottom dock with messenger buttons and back-to-top.
- * The page reserves its height (body padding), it hides while scrolling down and
- * while the lead form is on screen, so it never sits on top of text or buttons for long.
+ * Phone-only bottom dock with messenger buttons and back-to-top. Always visible once the intro is done;
+ * the page reserves its height (body padding + shorter first screen), so it never covers page content.
  */
 import { site } from '../config/site';
 import { t, type Locale } from '../i18n';
@@ -27,7 +26,7 @@ const greeting = encodeURIComponent(d.messenger.greeting);
   <a href={`https://wa.me/${site.contacts.whatsapp}?text=${greeting}`} target="_blank" rel="noopener" class="dock-btn">
     {d.messenger.whatsapp}
   </a>
-  <button type="button" class="dock-top" data-to-top aria-label={d.toTop}>
+  <button type="button" class="dock-top" data-dock-top aria-label={d.toTop}>
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
       ><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" stroke="currentColor" stroke-width="1.9" fill="none"></path></svg
     >
@@ -50,9 +49,6 @@ const greeting = encodeURIComponent(d.messenger.greeting);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     transition: transform 0.4s var(--ease-out-expo);
-  }
-  .dock:global(.is-hidden) {
-    transform: translateY(110%);
   }
   :global(html.js.motion.has-intro:not(.intro-done)) .dock {
     transform: translateY(110%);
@@ -84,9 +80,6 @@ const greeting = encodeURIComponent(d.messenger.greeting);
     width: 2.75rem;
     border: 1px solid rgb(236 240 241 / 0.25);
     border-radius: 0.5rem;
-    visibility: hidden;
-  }
-  .dock-top:global(.is-visible) {
-    visibility: visible;
+    color: var(--color-paper);
   }
 </style>

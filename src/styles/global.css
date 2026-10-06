@@ -298,9 +298,15 @@ html.js.motion .reveal.is-in {
   }
 }
 
-/* Phones: reserve space for the bottom dock so the end of the page is never covered. */
+/* Phones: the bottom dock is always on screen; reserve its height so it never covers content. */
+:root {
+  --dock-h: 0px;
+}
 @media (max-width: 47.99rem) {
+  :root {
+    --dock-h: calc(3.8rem + env(safe-area-inset-bottom));
+  }
   body {
-    padding-bottom: calc(3.75rem + env(safe-area-inset-bottom));
+    padding-bottom: var(--dock-h);
   }
 }

@@ -26,8 +26,6 @@ if (menu && menuOpener) {
 /* ---------- Scroll progress + back-to-top ---------- */
 const progress = document.querySelector<HTMLElement>('[data-progress]');
 const toTops = document.querySelectorAll<HTMLElement>('[data-to-top]');
-const dock = document.querySelector<HTMLElement>('[data-dock]');
-let lastY = window.scrollY;
 let ticking = false;
 function onScroll() {
   if (ticking) return;
@@ -37,24 +35,15 @@ function onScroll() {
     const max = root.scrollHeight - window.innerHeight;
     const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
     progress?.style.setProperty('--progress', p.toFixed(4));
+    // header back-to-top appears after 50% of the page (the phone dock keeps its button visible)
     toTops.forEach((b) => b.classList.toggle('is-visible', p >= 0.5));
-    // Phone dock: not on the first screen (it has its own buttons), hidden while scrolling down,
-    // shown when scrolling up or at the end of the page; never over the lead form.
-    if (dock) {
-      const firstScreen = y < window.innerHeight * 0.6;
-      const atEnd = y > max - 80;
-      if (y > lastY + 4 && !atEnd) dock.classList.add('is-hidden');
-      else if (y < lastY - 4 || atEnd) dock.classList.remove('is-hidden');
-      if (firstScreen || root.classList.contains('lead-in-view')) dock.classList.add('is-hidden');
-    }
-    lastY = y;
     ticking = false;
   });
 }
 window.addEventListener('scroll', onScroll, { passive: true });
 window.addEventListener('resize', onScroll, { passive: true });
 onScroll();
-toTops.forEach((b) =>
+[...toTops, ...document.querySelectorAll<HTMLElement>('[data-dock-top]')].forEach((b) =>
   b.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: motionOk() ? 'smooth' : 'auto' });
     document.getElementById('main')?.focus({ preventScroll: true });
@@ -203,18 +192,6 @@ document.addEventListener('click', (e) => {
   );
   form.scrollIntoView({ behavior: motionOk() ? 'smooth' : 'auto', block: 'start' });
 });
-
-/* ---------- Phone dock steps aside while the lead form is on screen ---------- */
-const leadSection = document.getElementById('lead');
-if (leadSection && 'IntersectionObserver' in window) {
-  new IntersectionObserver(
-    ([e]) => {
-      root.classList.toggle('lead-in-view', e.isIntersecting);
-      onScroll(); // re-evaluate the dock
-    },
-    { rootMargin: '-20% 0px -20% 0px' },
-  ).observe(leadSection);
-}
 
 /* ---------- Deep links: land exactly on #section after fonts settle the layout ---------- */
 if (location.hash.length > 1) {

@@ -1,18 +1,22 @@
 /**
  * Intro + hero controller.
  *
- * The intro has three steps; one wheel notch, one swipe or one arrow/PageDown/Space press moves
- * one step. While the intro is active the page does not scroll; after step 3 normal scrolling
- * resumes. Scrolling up at the very top of the page (wheel / swipe / keys) walks the steps back.
+ * The intro has three steps. The smallest input moves one step: one wheel notch, the first ~8px of a
+ * swipe, or an arrow / PageDown / Space press. Input that arrives while a step is playing (or before
+ * the animation library has loaded) is remembered — one step ahead. While the intro is active the page
+ * does not scroll; after step 3 normal scrolling resumes.
+ * Going back from the hero needs a deliberate push upward at the very top of the page.
  * Opening the page scrolled or with a #hash skips the intro.
  */
 import { ParticleMark } from './particles';
 
 type Gsap = typeof import('gsap').gsap;
 
-const STEP_DUR = [0, 0.9, 0.8, 0.95]; // seconds to reach step n
-const GESTURE_GAP = 140; // ms of wheel silence that separates two gestures
-const MIN_INTERVAL = 650; // ms between steps within one continuous gesture (trackpad inertia)
+const STEP_DUR = [0, 0.55, 0.5, 0.7]; // seconds to reach step n
+const GESTURE_GAP = 120; // ms of wheel silence that starts a new gesture
+const SWIPE_START = 8; // px of finger travel that triggers a step
+const BACK_WHEEL = 360; // accumulated upward wheel delta (px) needed to bring the intro back
+const BACK_SWIPE = 160; // downward finger travel (px) at the top needed to bring the intro back
 
 export function initStage() {
   const root = document.documentElement;
@@ -59,11 +63,8 @@ export function initStage() {
 
   let gsap: Gsap | null = null;
   let step = 0;
-  let busyUntil = 0; // input is ignored until the current step has (almost) played
-  const busy = () => performance.now() < busyUntil;
-  let lastWheel = 0;
-  let lastStep = 0;
-  let touchY: number | null = null;
+  let busy = false;
+  let queued: 1 | -1 | null = null; // one remembered step
 
   /** Where the big mark must land: the small mark in the header. */
   const target = () => {
@@ -79,35 +80,56 @@ export function initStage() {
 
   const setDots = (n: number) => dots.forEach((d, i) => d.classList.toggle('is-on', i < n));
 
+  /** Ask for one step forward (+1) or back (-1). Remembered if a step is playing. */
+  function request(dir: 1 | -1) {
+    if (busy || !gsap) {
+      queued = dir;
+      return;
+    }
+    run(dir);
+  }
+
+  function run(dir: 1 | -1) {
+    const next = step + dir;
+    if (next < 0 || next > 3) return;
+    animateTo(next);
+  }
+
   function animateTo(next: number) {
-    if (!gsap || next === step || next < 0 || next > 3) return;
-    const g = gsap;
+    const g = gsap!;
     const forward = next > step;
     const dur = STEP_DUR[Math.max(next, step)];
-    lastStep = performance.now();
-    busyUntil = lastStep + dur * 850;
+    busy = true;
+    window.setTimeout(() => {
+      busy = false;
+      if (queued !== null) {
+        const q = queued;
+        queued = null;
+        run(q);
+      }
+    }, dur * 900);
 
     if (forward && next === 1) {
       // step 1: the full outline
-      g.to(paper.concat(peak), { strokeDashoffset: 0, duration: dur, stagger: 0.05, ease: 'power2.inOut' });
+      g.to(paper.concat(peak), { strokeDashoffset: 0, duration: dur, stagger: 0.03, ease: 'power2.inOut' });
       g.to(ghost, { opacity: 0.12, duration: dur });
     } else if (forward && next === 2) {
       // step 2: fill, then the turquoise peak lights up
-      g.to(paper, { fillOpacity: 1, duration: dur * 0.6, stagger: 0.04, ease: 'power2.out' });
-      g.to(peak, { fillOpacity: 1, duration: dur * 0.5, delay: dur * 0.35, ease: 'power2.out' });
+      g.to(paper, { fillOpacity: 1, duration: dur * 0.6, stagger: 0.03, ease: 'power2.out' });
+      g.to(peak, { fillOpacity: 1, duration: dur * 0.5, delay: dur * 0.3, ease: 'power2.out' });
       g.to(ghost, { opacity: 0, duration: dur * 0.5 });
       g.timeline()
-        .to(glow, { opacity: 0.7, duration: dur * 0.45, delay: dur * 0.35 })
+        .to(glow, { opacity: 0.7, duration: dur * 0.4, delay: dur * 0.3 })
         .to(glow, { opacity: 0.22, duration: dur * 0.5 });
     } else if (forward && next === 3) {
       // step 3: the mark flies into the header, the hero opens
       const tg = target();
       root.classList.add('intro-done', 'intro-flying'); // header fades in while the mark flies
       if (headerMark) g.set(headerMark, { opacity: 0 });
-      g.to(hint, { autoAlpha: 0, duration: 0.25 });
-      g.to(glow, { opacity: 0, duration: 0.3 });
+      g.to(hint, { autoAlpha: 0, duration: 0.2 });
+      g.to(glow, { opacity: 0, duration: 0.25 });
       g.to(bg, { opacity: 0, duration: dur * 0.7, delay: dur * 0.2, ease: 'power1.inOut' });
-      g.fromTo(heroIn, { autoAlpha: 0, y: 32 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.06, delay: dur * 0.45, ease: 'power3.out' });
+      g.fromTo(heroIn, { autoAlpha: 0, y: 28 }, { autoAlpha: 1, y: 0, duration: 0.55, stagger: 0.05, delay: dur * 0.4, ease: 'power3.out' });
       particles.assemble();
       g.to(fly, {
         x: tg.x,
@@ -131,9 +153,9 @@ export function initStage() {
       g.set(fly, { autoAlpha: 1 });
       if (headerMark) g.set(headerMark, { opacity: 0 });
       g.to(bg, { opacity: 1, duration: dur * 0.6 });
-      g.to(hint, { autoAlpha: 1, duration: 0.3, delay: dur * 0.6 });
-      g.to(heroIn, { autoAlpha: 0, duration: 0.3 });
-      g.to(glow, { opacity: 0.22, duration: 0.3, delay: dur * 0.7 });
+      g.to(hint, { autoAlpha: 1, duration: 0.25, delay: dur * 0.6 });
+      g.to(heroIn, { autoAlpha: 0, duration: 0.25 });
+      g.to(glow, { opacity: 0.22, duration: 0.25, delay: dur * 0.7 });
       g.to(fly, {
         x: 0,
         y: 0,
@@ -147,7 +169,7 @@ export function initStage() {
       g.to(glow, { opacity: 0, duration: dur * 0.4 });
       g.to(ghost, { opacity: 0.12, duration: dur * 0.6 });
     } else {
-      g.to(paper.concat(peak), { strokeDashoffset: 1, duration: dur, stagger: 0.03, ease: 'power2.inOut' });
+      g.to(paper.concat(peak), { strokeDashoffset: 1, duration: dur, stagger: 0.02, ease: 'power2.inOut' });
       g.to(ghost, { opacity: 0.26, duration: dur });
     }
     step = next;
@@ -157,32 +179,76 @@ export function initStage() {
   /** The intro owns the input while it is not finished (or while the mark is in flight). */
   const active = () => step < 3 || root.classList.contains('intro-flying');
 
+  /* ---------- Wheel ---------- */
+  let lastWheel = 0;
+  let lastAbs = 0;
+  let backAcc = 0;
   const onWheel = (e: WheelEvent) => {
     const now = performance.now();
-    const newGesture = now - lastWheel > GESTURE_GAP;
+    const abs = Math.abs(e.deltaY);
+    const gap = now - lastWheel;
+    // A discrete mouse-wheel notch, a pause, or a fresh push inside trackpad inertia = new gesture.
+    const notch = e.deltaMode !== 0 || (abs >= 50 && Number.isInteger(e.deltaY) && gap > 25);
+    const fresh = gap > GESTURE_GAP || notch || (abs > lastAbs * 1.8 && abs > 6);
     lastWheel = now;
-    if (active()) e.preventDefault();
-    else if (!(window.scrollY <= 0 && e.deltaY < 0)) return; // normal page scrolling
-    if (busy() || Math.abs(e.deltaY) < 2) return;
-    if (!newGesture && now - lastStep < MIN_INTERVAL) return;
-    animateTo(step + (e.deltaY > 0 ? 1 : -1));
+    lastAbs = abs;
+
+    if (active()) {
+      e.preventDefault();
+      if (abs > 0 && fresh) request(e.deltaY > 0 ? 1 : -1);
+      return;
+    }
+    // Finished: only a deliberate upward push at the very top brings the intro back.
+    if (window.scrollY > 0 || e.deltaY >= 0) {
+      backAcc = 0;
+      return;
+    }
+    if (gap > 400) backAcc = 0;
+    backAcc += abs * (e.deltaMode === 1 ? 33 : 1);
+    if (backAcc >= BACK_WHEEL) {
+      e.preventDefault();
+      backAcc = 0;
+      request(-1);
+    }
   };
 
+  /* ---------- Touch ---------- */
+  let touchY: number | null = null;
+  let touchFired = false;
+  let touchAtTop = false;
   const onTouchStart = (e: TouchEvent) => {
     touchY = e.touches[0]?.clientY ?? null;
-  };
-  const onTouchMove = (e: TouchEvent) => {
-    if (active()) e.preventDefault();
+    touchFired = false;
+    touchAtTop = window.scrollY <= 0;
+    // While the intro owns the input, take the touch: browsers (Chrome) otherwise hold back the first
+    // ~15px of touchmove, which made small swipes do nothing.
+    if (active() && e.cancelable) e.preventDefault();
   };
   const onTouchEnd = (e: TouchEvent) => {
-    if (touchY === null) return;
-    const dy = touchY - (e.changedTouches[0]?.clientY ?? touchY);
+    // Fallback for a very short flick that ended before any touchmove arrived.
+    if (touchY !== null && !touchFired && active()) {
+      const dy = touchY - (e.changedTouches[0]?.clientY ?? touchY);
+      if (Math.abs(dy) >= SWIPE_START) request(dy > 0 ? 1 : -1);
+    }
     touchY = null;
-    if (Math.abs(dy) < 24 || busy()) return;
-    if (active()) animateTo(step + (dy > 0 ? 1 : -1));
-    else if (window.scrollY <= 0 && dy < 0) animateTo(2);
+  };
+  const onTouchMove = (e: TouchEvent) => {
+    const y = e.touches[0]?.clientY;
+    if (touchY === null || y === undefined) return;
+    const dy = touchY - y; // > 0: finger moves up = forward
+    if (active()) {
+      e.preventDefault();
+      if (!touchFired && Math.abs(dy) >= SWIPE_START) {
+        touchFired = true;
+        request(dy > 0 ? 1 : -1);
+      }
+    } else if (touchAtTop && !touchFired && dy <= -BACK_SWIPE && window.scrollY <= 0) {
+      touchFired = true;
+      request(-1);
+    }
   };
 
+  /* ---------- Keys ---------- */
   const onKey = (e: KeyboardEvent) => {
     const fwd = ['ArrowDown', 'PageDown', ' ', 'Spacebar'].includes(e.key);
     const back = ['ArrowUp', 'PageUp'].includes(e.key);
@@ -190,15 +256,14 @@ export function initStage() {
     if ((e.target as HTMLElement | null)?.closest?.('input, textarea, select, [contenteditable]')) return;
     if (active()) {
       e.preventDefault();
-      if (!busy()) animateTo(step + (fwd ? 1 : -1));
-    } else if (back && window.scrollY <= 0 && !busy()) {
-      e.preventDefault();
-      animateTo(2);
+      request(fwd ? 1 : -1);
     }
   };
 
   function setFinalState() {
     step = 3;
+    queued = null;
+    busy = false;
     setDots(3);
     if (gsap) {
       gsap.killTweensOf([outline, ghost, glow, bg, hint, fly, heroIn, headerMark].flat().filter(Boolean) as Element[]);
@@ -208,7 +273,6 @@ export function initStage() {
       gsap.set(heroIn, { autoAlpha: 1, y: 0 });
       if (headerMark) gsap.set(headerMark, { opacity: 1 });
     } else if (headerMark) headerMark.style.opacity = '1';
-    busyUntil = 0;
     finishInstantly();
     unlock();
   }
@@ -226,21 +290,26 @@ export function initStage() {
     { passive: true },
   );
 
+  // The page is locked (no native scrolling) while the intro owns the input.
   let locked = false;
+  const blockTouch = (e: TouchEvent) => {
+    if (active()) e.preventDefault();
+  };
   function lock() {
     if (locked) return;
     locked = true;
-    window.addEventListener('touchmove', onTouchMove, { passive: false });
+    window.addEventListener('touchmove', blockTouch, { passive: false });
   }
   function unlock() {
     if (!locked) return;
     locked = false;
-    window.removeEventListener('touchmove', onTouchMove);
+    window.removeEventListener('touchmove', blockTouch);
   }
 
-  // Wheel / touch / key listeners stay for the page lifetime: they also walk the intro back at the top.
+  // Input listeners stay for the page lifetime: they also handle bringing the intro back at the top.
   window.addEventListener('wheel', onWheel, { passive: false });
-  window.addEventListener('touchstart', onTouchStart, { passive: true });
+  window.addEventListener('touchstart', onTouchStart, { passive: false });
+  window.addEventListener('touchmove', onTouchMove, { passive: false });
   window.addEventListener('touchend', onTouchEnd, { passive: true });
   window.addEventListener('keydown', onKey);
   lock();
@@ -248,6 +317,12 @@ export function initStage() {
   import('gsap')
     .then((m) => {
       gsap = m.gsap;
+      // Input that arrived before the library loaded is not lost.
+      if (queued !== null) {
+        const q = queued;
+        queued = null;
+        run(q);
+      }
     })
     .catch((err) => {
       // Animation library unavailable: show the finished hero.
