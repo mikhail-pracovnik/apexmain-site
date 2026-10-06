@@ -11,7 +11,8 @@ export default defineConfig({
   integrations: [
     sitemap({
       i18n: { defaultLocale: 'ru', locales: { ru: 'ru-KZ', kk: 'kk-KZ', en: 'en' } },
-      filter: (page) => !page.includes('/services/') && !page.includes('/404'),
+      // Stub and noindex pages stay out of the sitemap.
+      filter: (page) => !/\/(services|privacy|404)\/?$/.test(page),
     }),
   ],
   vite: { plugins: [tailwindcss()] },
