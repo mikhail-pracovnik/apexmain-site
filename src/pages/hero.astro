@@ -1,0 +1,163 @@
+---
+/**
+ * Hidden test page: three variants of the new hero with a particle wordmark (APEX / MAIN).
+ * Not linked anywhere, noindex, excluded from the sitemap. The main site is not affected.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { t, url } from '../i18n';
+
+const d = t('ru');
+const variants = [
+  { id: 'a', layout: 'stacked', title: '(а) APEX сверху, MAIN снизу, по левому краю' },
+  { id: 'b', layout: 'stacked-shift', title: '(б) MAIN сдвинут вправо на ширину одной буквы' },
+  { id: 'c', layout: 'inline', title: '(в) APEXMAIN в одну строку' },
+];
+---
+
+<BaseLayout locale="ru" title="Hero — тест" description="Скрытая страница сравнения вариантов hero." path="hero" noindex>
+  <h1 class="sr-only">Варианты hero</h1>
+  {
+    variants.map((v) => (
+      <section class:list={['hv', `hv-${v.id}`]} data-label={`Вариант ${v.id}`} aria-label={v.title}>
+        <div class="container-x hv-grid">
+          <p class="hv-tag">{v.title}</p>
+          <div class="hv-mark">
+            <canvas data-wordmark={v.layout} role="img" aria-label="ApexMain" />
+            <p class:list={['hv-static', `hv-static-${v.id}`]} aria-hidden="true">
+              <span>APEX</span>
+              <span class="hv-main">MAIN</span>
+            </p>
+          </div>
+          <div class="hv-text">
+            <p class="eyebrow hv-eyebrow">{d.hero.eyebrow}</p>
+            <h2 class="hv-title">
+              <span>{d.hero.line1}</span>
+              <span>
+                {d.hero.line2Before}
+                <span class="accent">{d.hero.accent}</span>
+                {d.hero.line2After}
+              </span>
+            </h2>
+            <p class="hv-sub">{d.hero.sub}</p>
+            <div class="hv-ctas">
+              <a href={`${url('ru')}#lead`} class="btn btn-primary">
+                {d.hero.ctaPrimary}
+              </a>
+              <a href={url('ru', 'examples')} class="btn btn-ghost">
+                {d.hero.ctaSecondary}
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    ))
+  }
+</BaseLayout>
+
+<script>
+  import { initWordmarks } from '../scripts/text-particles';
+  initWordmarks();
+</script>
+
+<style>
+  .hv {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100svh - var(--dock-h));
+    padding-block: 6rem 3rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .hv-tag {
+    grid-column: 1 / -1;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-apex);
+  }
+  .hv-grid {
+    display: grid;
+    gap: 1.25rem;
+    align-items: center;
+  }
+  /* Desktop: the headline leads on the left, the wordmark sits in the right column. */
+  @media (min-width: 64rem) {
+    .hv-grid {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      column-gap: 4rem;
+    }
+    .hv-mark {
+      order: 2;
+    }
+    .hv-tag {
+      order: 0;
+    }
+  }
+  .hv-mark {
+    position: relative;
+  }
+  .hv-mark canvas {
+    display: block;
+    width: 100%;
+    touch-action: pan-y;
+    cursor: crosshair;
+  }
+  /* Static wordmark: no JS or reduced motion */
+  .hv-static {
+    display: grid;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(3.5rem, 22vw, 9rem);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    color: #bac3ca;
+  }
+  .hv-static .hv-main {
+    color: var(--color-apex);
+  }
+  .hv-static-b .hv-main {
+    padding-left: 0.72em; /* about one letter */
+  }
+  .hv-static-c {
+    display: flex;
+    font-size: clamp(2rem, 11vw, 5rem);
+  }
+  :global(html.wordmark-ready) .hv-static {
+    display: none;
+  }
+  :global(html:not(.wordmark-ready)) .hv-mark canvas {
+    display: none;
+  }
+
+  .hv-text {
+    display: grid;
+    gap: 1.1rem;
+  }
+  .hv-title {
+    display: grid;
+    font-size: clamp(2.375rem, 10.4vw, 4.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+  @media (min-width: 64rem) {
+    .hv-title {
+      font-size: min(5vw, 7rem);
+    }
+  }
+  .hv-sub {
+    max-width: 34rem;
+    font-size: 1.125rem;
+    color: var(--color-muted);
+  }
+  .hv-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  @media (max-width: 30rem) {
+    .hv-ctas .btn {
+      flex: 1 1 100%;
+    }
+  }
+</style>

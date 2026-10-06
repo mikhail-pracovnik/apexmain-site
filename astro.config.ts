@@ -12,7 +12,7 @@ export default defineConfig({
     sitemap({
       i18n: { defaultLocale: 'ru', locales: { ru: 'ru-KZ', kk: 'kk-KZ', en: 'en' } },
       // Stub and noindex pages stay out of the sitemap.
-      filter: (page) => !/\/(privacy|palette|404)\/?$/.test(page),
+      filter: (page) => !/\/(privacy|palette|hero|404)\/?$/.test(page),
     }),
   ],
   vite: { plugins: [tailwindcss()] },
