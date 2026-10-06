@@ -1,0 +1,48 @@
+# Блок «Интегрируем и настраиваем» на главной.
+# logo — путь к монохромному SVG из официального брендбука в public/media/logos/ (null — показываем название текстом).
+# group: bank | crm | pos
+- id: halyk
+  order: 1
+  group: bank
+  name: { ru: Halyk Bank, kk: Halyk Bank, en: Halyk Bank }
+  logo: null
+- id: kaspi
+  order: 2
+  group: bank
+  name: { ru: Kaspi Bank, kk: Kaspi Bank, en: Kaspi Bank }
+  logo: null
+- id: bcc
+  order: 3
+  group: bank
+  name: { ru: Банк ЦентрКредит, kk: Банк ЦентрКредит, en: Bank CenterCredit }
+  logo: null
+- id: forte
+  order: 4
+  group: bank
+  name: { ru: ForteBank, kk: ForteBank, en: ForteBank }
+  logo: null
+- id: freedom
+  order: 5
+  group: bank
+  name: { ru: Freedom Bank, kk: Freedom Bank, en: Freedom Bank }
+  logo: null
+- id: bitrix24
+  order: 6
+  group: crm
+  name: { ru: Bitrix24, kk: Bitrix24, en: Bitrix24 }
+  logo: null
+- id: paloma365
+  order: 7
+  group: pos
+  name: { ru: Paloma365, kk: Paloma365, en: Paloma365 }
+  logo: null
+- id: 1c
+  order: 8
+  group: pos
+  name: { ru: 1С, kk: 1С, en: 1C }
+  logo: null
+- id: iiko
+  order: 9
+  group: pos
+  name: { ru: iiko, kk: iiko, en: iiko }
+  logo: null

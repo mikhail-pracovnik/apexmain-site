@@ -20,7 +20,7 @@ const video = usableVideo(e.video);
 const desktop = inPublic(e.images.desktop) ? e.images.desktop : null;
 const mobile = inPublic(e.images.mobile) ? e.images.mobile : null;
 const title = e.title[locale];
-const wantHref = `${url(locale)}?niche=${encodeURIComponent(e.niche)}&example=${encodeURIComponent(title)}#lead`;
+const wantHref = `${url(locale, 'contact')}?niche=${encodeURIComponent(e.niche)}&example=${encodeURIComponent(title)}#lead`;
 ---
 
 <article class="example reveal" data-niche={e.niche} style={`--i:${index % 2}`}>

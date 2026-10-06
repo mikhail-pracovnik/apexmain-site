@@ -1,0 +1,84 @@
+---
+/** Request page: what happens after the request + the lead form (prefilled from ?service / ?niche / ?example). */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import LeadForm from '../../../components/LeadForm.astro';
+import { t, localeStaticPaths, type Locale } from '../../../i18n';
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props as { locale: Locale };
+const d = t(locale);
+---
+
+<BaseLayout locale={locale} title={d.meta.contactTitle} description={d.meta.contactDescription} path="contact">
+  <section class="section contact-page" data-label={d.nav.lead} aria-labelledby="contact-title">
+    <div class="container-x contact-inner">
+      <header class="contact-head">
+        <h1 id="contact-title" class="h-page">{d.contactPage.title}</h1>
+        <p class="lead-text">{d.contactPage.lead}</p>
+      </header>
+      <div class="contact-next">
+        <h2 class="contact-next-title">{d.contactPage.nextTitle}</h2>
+        <ol>
+          {
+            d.contactPage.next.map((x, i) => (
+              <li>
+                <span aria-hidden="true">0{i + 1}</span>
+                {x}
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+  <LeadForm locale={locale} />
+</BaseLayout>
+
+<style>
+  .contact-page {
+    padding-top: 8.5rem;
+    padding-bottom: 3rem;
+  }
+  .contact-inner {
+    display: grid;
+    gap: 3rem;
+  }
+  @media (min-width: 64rem) {
+    .contact-inner {
+      grid-template-columns: 1.2fr 1fr;
+      align-items: end;
+    }
+  }
+  .contact-head {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .contact-next-title {
+    margin-bottom: 1rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-apex);
+  }
+  .contact-next ol {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .contact-next li {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.5rem;
+    background: var(--color-ink-2);
+  }
+  .contact-next li span {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+</style>

@@ -1,41 +1,82 @@
 ---
-/**
- * Future services catalog. While site.servicesCatalogReady is false the page is a stub:
- * it is excluded from the sitemap, marked noindex and not linked from navigation.
- */
+/** Services page: every service from src/content/services with who it is for and what is included. */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import ServiceCard from '../../../components/ServiceCard.astro';
-import { site } from '../../../config/site';
-import { t, url, localeStaticPaths, type Locale } from '../../../i18n';
-import { getServices } from '../../../lib/content';
+import LoopVideo from '../../../components/LoopVideo.astro';
+import { t, url, fill, localeStaticPaths, type Locale } from '../../../i18n';
+import { getServices, formatPrice } from '../../../lib/content';
+import { usableVideo } from '../../../lib/media';
 
 export const getStaticPaths = localeStaticPaths;
 
 const { locale } = Astro.props as { locale: Locale };
 const d = t(locale);
 const services = await getServices();
+const contact = url(locale, 'contact');
 ---
 
-<BaseLayout
-  locale={locale}
-  title={d.meta.servicesTitle}
-  description={d.meta.servicesDescription}
-  path="services"
-  noindex={!site.servicesCatalogReady}
->
-  <section class="section svc-page" data-label={d.sections.services} aria-labelledby="svc-title">
+<BaseLayout locale={locale} title={d.meta.servicesTitle} description={d.meta.servicesDescription} path="services">
+  <section class="section svc-page" data-label={d.nav.services} aria-labelledby="svc-title">
     <div class="container-x">
       <header class="svc-head">
-        <p class="eyebrow">{d.services.eyebrow}</p>
-        <h1 id="svc-title" class="svc-title">{d.servicesPage.title}</h1>
+        <h1 id="svc-title" class="h-page">{d.servicesPage.title}</h1>
         <p class="lead-text">{d.servicesPage.lead}</p>
       </header>
-      <div class="svc-grid">
-        {services.map((s, i) => <ServiceCard service={s} locale={locale} index={i} formOnPage={false} />)}
+
+      <nav class="svc-index" aria-label={d.servicesPage.title}>
+        {
+          services.map((s, i) => (
+            <a href={`#${s.id}`}>
+              <span>0{i + 1}</span>
+              {s.data.title[locale]}
+            </a>
+          ))
+        }
+      </nav>
+
+      <div class="svc-list">
+        {
+          services.map((s, i) => {
+            const v = usableVideo(s.data.video);
+            const price = s.data.priceFrom
+              ? fill(d.services.priceFrom, { price: formatPrice(s.data.priceFrom, d.services.currency) })
+              : d.services.priceOnRequest;
+            return (
+              <article class="svc reveal" id={s.id} aria-labelledby={`${s.id}-t`}>
+                <div class="svc-media">{v && <LoopVideo video={v} class="svc-video" />}</div>
+                <div class="svc-body">
+                  <p class="eyebrow">0{i + 1}</p>
+                  <h2 id={`${s.id}-t`} class="svc-title">
+                    {s.data.title[locale]}
+                  </h2>
+                  <p class="svc-desc">{s.data.description[locale]}</p>
+                  {s.data.forWhom && (
+                    <div class="svc-block">
+                      <h3>{d.servicesPage.forWhom}</h3>
+                      <p>{s.data.forWhom[locale]}</p>
+                    </div>
+                  )}
+                  {s.data.includes && (
+                    <div class="svc-block">
+                      <h3>{d.servicesPage.includes}</h3>
+                      <ul class="svc-includes">
+                        {s.data.includes[locale].map((x) => (
+                          <li>{x}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <div class="svc-foot">
+                    <span class="svc-price">{price}</span>
+                    <a href={`${contact}?service=${encodeURIComponent(s.data.title[locale])}#lead`} class="btn btn-primary">
+                      {d.servicesPage.cta}
+                    </a>
+                  </div>
+                </div>
+              </article>
+            );
+          })
+        }
       </div>
-      <p class="mt-12">
-        <a href={url(locale)} class="btn btn-ghost">{d.servicesPage.back}</a>
-      </p>
     </div>
   </section>
 </BaseLayout>
@@ -46,20 +87,129 @@ const services = await getServices();
   }
   .svc-head {
     display: grid;
-    gap: 1.25rem;
+    gap: 1.5rem;
     margin-bottom: 3rem;
   }
-  .svc-title {
-    font-size: clamp(2.4rem, 7.5vw, 5rem);
+  .svc-index {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 4rem;
   }
-  .svc-grid {
+  .svc-index a {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: border-color 0.2s;
+  }
+  .svc-index a:hover {
+    border-color: var(--color-paper);
+  }
+  .svc-index span {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+  .svc-list {
     display: grid;
-    gap: 1rem;
+    gap: 1.25rem;
   }
-  @media (min-width: 48rem) {
-    .svc-grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.25rem;
+  .svc {
+    display: grid;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-card);
+    background: var(--color-ink-2);
+    overflow: hidden;
+    scroll-margin-top: 6rem;
+  }
+  @media (min-width: 64rem) {
+    .svc {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
     }
+  }
+  .svc-media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: var(--color-ink);
+    border-bottom: 1px solid var(--color-line);
+  }
+  @media (min-width: 64rem) {
+    .svc-media {
+      aspect-ratio: auto;
+      min-height: 100%;
+      border-bottom: 0;
+      border-right: 1px solid var(--color-line);
+    }
+  }
+  .svc-media :global(.svc-video) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .svc-body {
+    display: grid;
+    gap: 1.25rem;
+    align-content: start;
+    padding: 1.5rem;
+  }
+  @media (min-width: 64rem) {
+    .svc-body {
+      padding: 2.5rem;
+    }
+  }
+  .svc-title {
+    font-size: clamp(1.9rem, 4vw, 3.25rem);
+  }
+  .svc-desc {
+    font-size: 1.125rem;
+    color: var(--color-muted);
+  }
+  .svc-block h3 {
+    margin-bottom: 0.5rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-apex);
+  }
+  .svc-block p {
+    color: var(--color-muted);
+  }
+  .svc-includes {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .svc-includes li {
+    position: relative;
+    padding-left: 1.25rem;
+  }
+  .svc-includes li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.7em;
+    width: 0.5rem;
+    height: 1px;
+    background: var(--color-apex);
+  }
+  .svc-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .svc-price {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
   }
 </style>

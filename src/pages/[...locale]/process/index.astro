@@ -1,0 +1,156 @@
+---
+/** How we work: the four steps in detail and what the client gets at the end. */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { t, url, localeStaticPaths, type Locale } from '../../../i18n';
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props as { locale: Locale };
+const d = t(locale);
+const steps = d.process.steps.map((s, i) => ({ ...s, details: d.processPage.details[i] ?? [] }));
+---
+
+<BaseLayout locale={locale} title={d.meta.processTitle} description={d.meta.processDescription} path="process">
+  <section class="section proc-page" data-label={d.nav.process} aria-labelledby="proc-title">
+    <div class="container-x">
+      <header class="proc-head">
+        <h1 id="proc-title" class="h-page">{d.processPage.title}</h1>
+        <p class="lead-text">{d.processPage.lead}</p>
+      </header>
+
+      <ol class="proc-steps">
+        {
+          steps.map((s, i) => (
+            <li class="proc-step reveal">
+              <span class="proc-num" aria-hidden="true">
+                0{i + 1}
+              </span>
+              <div class="proc-main">
+                <h2 class="proc-title">{s.title}</h2>
+                <p class="proc-text">{s.text}</p>
+              </div>
+              <ul class="proc-details">
+                {s.details.map((x) => (
+                  <li>{x}</li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section theme-light proc-result" data-label={d.processPage.resultTitle} aria-labelledby="proc-result-title">
+    <div class="container-x proc-result-inner">
+      <h2 id="proc-result-title" class="h-section">{d.processPage.resultTitle}</h2>
+      <ul class="proc-result-list">
+        {
+          d.processPage.result.map((x, i) => (
+            <li class="reveal" style={`--i:${i}`}>
+              <span aria-hidden="true">0{i + 1}</span>
+              {x}
+            </li>
+          ))
+        }
+      </ul>
+      <p>
+        <a href={url(locale, 'contact')} class="btn btn-dark">
+          {d.processPage.cta}
+          <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
+            ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
+          >
+        </a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .proc-page {
+    padding-top: 8.5rem;
+  }
+  .proc-head {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 3.5rem;
+  }
+  .proc-steps {
+    border-top: 1px solid var(--color-line);
+  }
+  .proc-step {
+    display: grid;
+    gap: 1.25rem;
+    padding-block: 2.25rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  @media (min-width: 64rem) {
+    .proc-step {
+      grid-template-columns: 5rem minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 2.5rem;
+      padding-block: 3.5rem;
+    }
+  }
+  .proc-num {
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    color: var(--color-apex);
+  }
+  .proc-title {
+    font-size: clamp(1.75rem, 4vw, 3.5rem);
+  }
+  .proc-text {
+    margin-top: 0.9rem;
+    max-width: 40rem;
+    font-size: 1.125rem;
+    color: var(--color-muted);
+  }
+  .proc-details {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+  }
+  .proc-details li {
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.5rem;
+    background: var(--color-ink-2);
+  }
+  .proc-result-inner {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .proc-result-list {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 48rem) {
+    .proc-result-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 80rem) {
+    .proc-result-list {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  .proc-result-list li {
+    display: grid;
+    gap: 1.5rem;
+    align-content: space-between;
+    min-height: 10rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-card);
+    background: #fff;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  .proc-result-list span {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    color: var(--color-apex-deep);
+  }
+</style>

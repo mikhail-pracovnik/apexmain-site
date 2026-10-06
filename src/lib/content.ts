@@ -18,6 +18,10 @@ export async function getPains() {
   return (await getCollection('pains')).sort(byOrder);
 }
 
+export async function getIntegrations() {
+  return (await getCollection('integrations')).sort(byOrder);
+}
+
 export async function getQuotes() {
   return (await getCollection('quotes')).sort(byOrder);
 }

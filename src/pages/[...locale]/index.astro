@@ -5,6 +5,7 @@ import Pains from '../../components/Pains.astro';
 import Services from '../../components/Services.astro';
 import Examples from '../../components/Examples.astro';
 import Process from '../../components/Process.astro';
+import Integrations from '../../components/Integrations.astro';
 import LeadForm from '../../components/LeadForm.astro';
 import { t, localeStaticPaths, type Locale } from '../../i18n';
 
@@ -19,6 +20,7 @@ const d = t(locale);
   <Pains locale={locale} />
   <Services locale={locale} />
   <Examples locale={locale} />
+  <Integrations locale={locale} />
   <Process locale={locale} />
-  <LeadForm locale={locale} />
+  <LeadForm locale={locale} numbered />
 </BaseLayout>

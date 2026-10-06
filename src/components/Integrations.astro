@@ -1,0 +1,132 @@
+---
+/**
+ * "We integrate and set up": a half-screen row of monochrome marks of the systems we connect to.
+ * Names are rendered as text until an official logo file is set in src/content/integrations.yaml.
+ */
+import { t, asset, type Locale } from '../i18n';
+import { getIntegrations } from '../lib/content';
+import { inPublic } from '../lib/media';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const d = t(locale);
+const items = await getIntegrations();
+---
+
+<section class="section integ" id="integrations" data-label={d.sections.integrations} aria-labelledby="integ-title">
+  <div class="container-x integ-inner">
+    <header class="integ-head">
+      <p class="eyebrow reveal">{d.integrations.eyebrow}</p>
+      <h2 id="integ-title" class="integ-title reveal" style="--i:1">{d.integrations.title}</h2>
+      <p class="lead-text reveal" style="--i:2">{d.integrations.lead}</p>
+    </header>
+
+    <ul class="integ-row reveal" style="--i:3">
+      {
+        items.map((it) => (
+          <li class="integ-item" title={d.integrations.groups[it.data.group]}>
+            {inPublic(it.data.logo) ? (
+              <img src={asset(it.data.logo!)} alt={it.data.name[locale]} loading="lazy" decoding="async" class="integ-logo" />
+            ) : (
+              <span class="integ-name" lang={/[А-Яа-яЁё]/.test(it.data.name[locale]) ? 'ru' : 'en'}>
+                {it.data.name[locale]}
+              </span>
+            )}
+            <span class="integ-group">{d.integrations.groups[it.data.group]}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="integ-note">{d.integrations.note}</p>
+  </div>
+</section>
+
+<style>
+  .integ {
+    display: flex;
+    align-items: center;
+    min-height: 50svh;
+    border-top: 1px solid var(--color-line);
+  }
+  .integ-inner {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .integ-head {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 60rem;
+  }
+  .integ-title {
+    font-size: clamp(2rem, 5.5vw, 4.5rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .integ-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--color-line);
+    border-left: 1px solid var(--color-line);
+  }
+  @media (min-width: 48rem) {
+    .integ-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 80rem) {
+    .integ-row {
+      grid-template-columns: repeat(9, minmax(0, 1fr));
+    }
+  }
+  .integ-item {
+    position: relative;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 0.4rem;
+    min-height: 6.5rem;
+    padding: 1rem 0.75rem;
+    border-right: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    text-align: center;
+    transition: background-color 0.3s;
+  }
+  .integ-item:hover {
+    background: rgb(236 240 241 / 0.03);
+  }
+  .integ-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--color-paper);
+    filter: grayscale(1);
+    opacity: 0.82;
+    transition: opacity 0.3s;
+  }
+  .integ-item:hover .integ-name,
+  .integ-item:hover .integ-logo {
+    opacity: 1;
+  }
+  .integ-logo {
+    max-width: 7.5rem;
+    max-height: 2rem;
+    filter: grayscale(1) brightness(1.6);
+    opacity: 0.75;
+    transition: opacity 0.3s;
+  }
+  .integ-group {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+  }
+  .integ-note {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+</style>

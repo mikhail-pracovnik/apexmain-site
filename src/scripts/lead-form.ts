@@ -40,8 +40,12 @@ export function initLeadForm() {
   };
   window.addEventListener('lead:prefill', (e) => prefill((e as CustomEvent).detail ?? {}));
   const params = new URLSearchParams(location.search);
-  if (params.has('niche') || params.has('example')) {
-    prefill({ niche: params.get('niche') ?? undefined, example: params.get('example') ?? undefined });
+  if (params.has('niche') || params.has('example') || params.has('service')) {
+    prefill({
+      niche: params.get('niche') ?? undefined,
+      example: params.get('example') ?? undefined,
+      service: params.get('service') ?? undefined,
+    });
   }
 
   /* ---------- Validation ---------- */

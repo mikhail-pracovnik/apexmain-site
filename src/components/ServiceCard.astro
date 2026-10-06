@@ -9,7 +9,7 @@ interface Props {
   service: CollectionEntry<'services'>;
   locale: Locale;
   index: number;
-  /** Link "Discuss" to the form on this page (#lead) or to the home page form. */
+  /** Link "Discuss" to the form on this page (#lead) or to the contact page form. */
   formOnPage?: boolean;
 }
 const { service, locale, index, formOnPage = true } = Astro.props;
@@ -17,7 +17,7 @@ const d = t(locale);
 const s = service.data;
 const video = usableVideo(s.video);
 const price = s.priceFrom ? fill(d.services.priceFrom, { price: formatPrice(s.priceFrom, d.services.currency) }) : d.services.priceOnRequest;
-const leadHref = formOnPage ? '#lead' : `${url(locale)}#lead`;
+const leadHref = formOnPage ? '#lead' : `${url(locale, 'contact')}?service=${encodeURIComponent(s.title[locale])}#lead`;
 ---
 
 <article class="service spot reveal" id={`service-${service.id}`} style={`--i:${index % 2}`}>

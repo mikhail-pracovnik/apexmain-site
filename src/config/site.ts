@@ -14,8 +14,6 @@ export const site = {
    */
   demo: true,
 
-  /** Services catalog page is a stub until the final list of services is ready. */
-  servicesCatalogReady: false,
 
   contacts: {
     telegram: 'apexxmain',

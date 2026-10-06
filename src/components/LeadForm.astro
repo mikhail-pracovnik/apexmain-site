@@ -5,8 +5,10 @@ import { getNiches } from '../lib/content';
 
 interface Props {
   locale: Locale;
+  /** Show the numbered eyebrow ("05 — …") used on the home page. */
+  numbered?: boolean;
 }
-const { locale } = Astro.props;
+const { locale, numbered = false } = Astro.props;
 const d = t(locale);
 const niches = await getNiches();
 const config = {
@@ -22,7 +24,7 @@ const config = {
 <section class="section theme-light" id="lead" data-label={d.sections.lead} aria-labelledby="lead-title">
   <div class="container-x lead-grid">
     <header class="lead-head">
-      <p class="eyebrow reveal">{d.lead.eyebrow}</p>
+      {numbered && <p class="eyebrow reveal">{d.lead.eyebrow}</p>}
       <h2 id="lead-title" class="h-section reveal" style="--i:1">{d.lead.title}</h2>
       <p class="lead-text reveal" style="--i:2">{d.lead.lead}</p>
       <ul class="lead-direct reveal" style="--i:3">

@@ -67,9 +67,10 @@ const year = new Date().getFullYear();
       <div>
         <h2 class="footer-h">{site.name}</h2>
         <ul>
-          <li><a href={`${home}#services`}>{d.nav.services}</a></li>
+          <li><a href={url(locale, 'services')}>{d.nav.services}</a></li>
           <li><a href={url(locale, 'examples')}>{d.nav.examples}</a></li>
-          <li><a href={`${home}#lead`}>{d.nav.lead}</a></li>
+          <li><a href={url(locale, 'process')}>{d.nav.process}</a></li>
+          <li><a href={url(locale, 'contact')}>{d.nav.lead}</a></li>
           <li><a href={url(locale, 'privacy')}>{d.footer.privacy}</a></li>
         </ul>
       </div>

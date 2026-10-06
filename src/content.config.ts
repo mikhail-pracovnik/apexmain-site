@@ -83,4 +83,15 @@ const quotes = defineCollection({
   }),
 });
 
-export const collections = { services, examples, niches, pains, quotes };
+/** Systems we connect sites to (home page block). Names are shown as text until an official logo file is added. */
+const integrations = defineCollection({
+  loader: file('./src/content/integrations.yaml'),
+  schema: z.object({
+    order: z.number(),
+    group: z.enum(['bank', 'crm', 'pos']),
+    name: localized(z.string()),
+    logo: z.string().nullable().default(null),
+  }),
+});
+
+export const collections = { services, examples, niches, pains, quotes, integrations };

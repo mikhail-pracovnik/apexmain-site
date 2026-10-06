@@ -10,7 +10,11 @@
     "servicesTitle": "Services — ApexMain",
     "servicesDescription": "Websites, Instagram and SMM, ads and promotion, sales setup.",
     "privacyTitle": "Privacy policy — ApexMain",
-    "notFoundTitle": "Page not found — ApexMain"
+    "notFoundTitle": "Page not found — ApexMain",
+    "processTitle": "How we work — ApexMain",
+    "processDescription": "Four steps from a free audit to a turnkey launch. Publishing and all the technical work are on us.",
+    "contactTitle": "Request a free audit — ApexMain",
+    "contactDescription": "Send a request via Telegram or WhatsApp: we will look at your Instagram, 2GIS and website and tell you where to start."
   },
   "a11y": {
     "skip": "Skip to content",
@@ -38,7 +42,8 @@
     "examples": "Examples",
     "process": "How we work",
     "lead": "Contact",
-    "footer": "Contacts"
+    "footer": "Contacts",
+    "integrations": "Integrations"
   },
   "intro": {
     "hint": "Scroll down"
@@ -166,7 +171,10 @@
   },
   "servicesPage": {
     "title": "Services",
-    "lead": "The full catalog of services is coming soon. For now, here are the main directions.",
+    "lead": "Take one service or several together. In the free audit we will tell you where it makes sense to start.",
+    "forWhom": "Who it is for",
+    "includes": "What is included",
+    "cta": "Discuss this service",
     "back": "Home"
   },
   "examplesPage": {
@@ -209,5 +217,62 @@
     "title": "This page does not exist",
     "text": "The link may be outdated. Start from the home page — everything important is there.",
     "back": "Home"
+  },
+  "more": "Learn more",
+  "processPage": {
+    "title": "How we work",
+    "lead": "Four clear steps. You always know what is happening, what it costs and when it will be ready.",
+    "details": [
+      [
+        "A call or a chat — whichever suits you",
+        "We look at Instagram, 2GIS, the website and ads",
+        "We show where customers get lost"
+      ],
+      [
+        "A prioritised list of work",
+        "Cost and timeline before any work starts",
+        "A contract and a clear payment schedule"
+      ],
+      [
+        "Work-in-progress versions for approval",
+        "Edits within the contract",
+        "Copy, photos and video — we help you prepare them"
+      ],
+      [
+        "Domain, hosting, SSL and publishing",
+        "Requests, analytics and payments connected",
+        "Checked on phones and computers",
+        "A short guide and handover of all access"
+      ]
+    ],
+    "resultTitle": "What you get in the end",
+    "result": [
+      "A working website, hosted and published by us",
+      "Requests arrive in messengers or your CRM",
+      "All access and rights are yours",
+      "Support after launch"
+    ],
+    "cta": "Start with a free audit"
+  },
+  "contactPage": {
+    "title": "Request",
+    "lead": "Tell us about your business in a couple of words — we will reply in the messenger and suggest a time for the audit.",
+    "nextTitle": "What happens next",
+    "next": [
+      "We reply in Telegram or WhatsApp and clarify a couple of details.",
+      "We look at your Instagram, 2GIS and website, if you have one.",
+      "We show where customers get lost and suggest what to do first."
+    ]
+  },
+  "integrations": {
+    "eyebrow": "Integrations",
+    "title": "We integrate and set up",
+    "lead": "We connect your website to the tools you already use: banks for payments, CRM, point of sale and accounting.",
+    "note": "Names and trademarks belong to their owners.",
+    "groups": {
+      "bank": "Banks and acquiring",
+      "crm": "CRM",
+      "pos": "Point of sale and accounting"
+    }
   }
 }
