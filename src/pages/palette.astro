@@ -1,0 +1,275 @@
+---
+/**
+ * Hidden test page: three colour variants of the same screen, for choosing the site palette.
+ * Not linked anywhere, noindex, excluded from the sitemap. The main site is not affected.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BrandMark from '../components/BrandMark.astro';
+import { t } from '../i18n';
+
+const d = t('ru');
+
+const variants = [
+  {
+    id: 'a',
+    title: '(а) Текущий',
+    note: 'Фон и поверхности как сейчас на сайте.',
+    tokens: { bg: '#0A0C11', s1: '#10141B', s2: '#171C25', line: 'rgb(236 240 241 / 0.12)', text: '#ECF0F1', muted: '#9BA6B2' },
+  },
+  {
+    id: 'b',
+    title: '(б) Темнее на тон',
+    note: 'Та же палитра, фон и поверхности на ступень темнее.',
+    tokens: { bg: '#06070A', s1: '#0C0E13', s2: '#12151C', line: 'rgb(236 240 241 / 0.1)', text: '#ECF0F1', muted: '#96A0AB' },
+  },
+  {
+    id: 'c',
+    title: '(в) Холодный синий подтон',
+    note: 'Тёмный фон с синим подтоном, слои поверхностей, тонкие границы, мягкое свечение и лёгкое зерно.',
+    tokens: { bg: '#05070D', s1: '#0A0F1A', s2: '#101828', line: 'rgb(148 178 220 / 0.13)', text: '#EAF0F6', muted: '#93A3B8' },
+  },
+];
+---
+
+<BaseLayout locale="ru" title="Палитра — тест" description="Скрытая страница сравнения палитры." path="palette" noindex>
+  <section class="section palette-page" data-label="Палитра">
+    <div class="container-x">
+      <h1 class="h-page">Палитра</h1>
+      <p class="lead-text mt-6">
+        Три варианта одного экрана. Бирюза, шрифты и сетка одинаковые — меняются только фон, поверхности, границы и
+        фактура. Выберите букву, и я перенесу вариант на весь сайт.
+      </p>
+    </div>
+
+    {
+      variants.map((v) => (
+        <div
+          class:list={['pv', `pv-${v.id}`]}
+          style={`--bg:${v.tokens.bg};--s1:${v.tokens.s1};--s2:${v.tokens.s2};--ln:${v.tokens.line};--tx:${v.tokens.text};--mu:${v.tokens.muted}`}
+        >
+          <div class="container-x pv-inner">
+            <div class="pv-label">
+              <span>{v.title}</span>
+              <span class="pv-note">{v.note}</span>
+              <code>
+                bg {v.tokens.bg} · surface {v.tokens.s1} / {v.tokens.s2} · text {v.tokens.text} · muted {v.tokens.muted}
+              </code>
+            </div>
+
+            <div class="pv-plate">
+              <BrandMark class="h-[18px] w-auto" />
+              <span class="pv-sep" />
+              <span class="pv-mono">{d.sections.services}</span>
+              <span class="pv-cta">{d.nav.cta}</span>
+            </div>
+
+            <div class="pv-hero">
+              <div>
+                <p class="pv-mono">{d.hero.eyebrow}</p>
+                <p class="pv-title">
+                  {d.hero.line1}
+                  <br />
+                  {d.hero.line2Before}
+                  <span class="pv-accent">{d.hero.accent}</span>
+                  {d.hero.line2After}
+                </p>
+                <p class="pv-sub">{d.hero.sub}</p>
+                <div class="pv-btns">
+                  <span class="pv-btn pv-btn-primary">{d.hero.ctaPrimary}</span>
+                  <span class="pv-btn">{d.hero.ctaSecondary}</span>
+                </div>
+              </div>
+              <div class="pv-card">
+                <div class="pv-card-media">
+                  <BrandMark class="pv-card-mark" />
+                </div>
+                <div class="pv-card-body">
+                  <p class="pv-card-title">Сайты</p>
+                  <p class="pv-sub">Сайт, который понятно объясняет, что вы делаете, сколько это стоит и как записаться.</p>
+                  <div class="pv-chips">
+                    <span>Лендинг</span>
+                    <span>Каталог</span>
+                    <span>Онлайн-запись</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .palette-page {
+    padding-top: 8.5rem;
+    padding-bottom: 0;
+  }
+  .pv {
+    position: relative;
+    margin-top: 4rem;
+    padding-block: 3rem 4rem;
+    background: var(--bg);
+    color: var(--tx);
+    border-top: 1px solid var(--ln);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  /* (в): soft glow + grain */
+  .pv-c::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(40% 50% at 82% 18%, rgb(70 200 217 / 0.1), transparent 70%),
+      radial-gradient(50% 60% at 10% 90%, rgb(40 80 160 / 0.16), transparent 70%);
+  }
+  .pv-c::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .pv-inner {
+    display: grid;
+    gap: 2rem;
+  }
+  .pv-label {
+    display: grid;
+    gap: 0.35rem;
+    font-weight: 600;
+  }
+  .pv-note {
+    font-weight: 400;
+    color: var(--mu);
+  }
+  .pv-label code {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--mu);
+    overflow-wrap: anywhere;
+  }
+  .pv-plate {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 3.5rem;
+    padding: 0 0.5rem 0 1rem;
+    border: 1px solid var(--ln);
+    border-radius: 0.5rem;
+    background: var(--s1);
+  }
+  .pv-sep {
+    width: 1px;
+    height: 1.1rem;
+    background: var(--ln);
+  }
+  .pv-mono {
+    flex: 1;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mu);
+  }
+  .pv-cta {
+    padding: 0.6rem 1rem;
+    border-radius: 0.375rem;
+    background: var(--color-apex);
+    color: var(--color-ink);
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  .pv-hero {
+    display: grid;
+    gap: 2rem;
+  }
+  @media (min-width: 64rem) {
+    .pv-hero {
+      grid-template-columns: 1.3fr 1fr;
+      align-items: center;
+    }
+  }
+  .pv-title {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2rem, 6vw, 5.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+  .pv-accent {
+    color: var(--color-apex);
+  }
+  .pv-sub {
+    margin-top: 1rem;
+    color: var(--mu);
+  }
+  .pv-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .pv-btn {
+    padding: 0.85rem 1.4rem;
+    border: 1px solid var(--ln);
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .pv-btn-primary {
+    border-color: var(--color-apex);
+    background: var(--color-apex);
+    color: var(--color-ink);
+  }
+  .pv-card {
+    border: 1px solid var(--ln);
+    border-radius: 1.25rem;
+    background: var(--s1);
+    overflow: hidden;
+  }
+  .pv-c .pv-card {
+    box-shadow:
+      0 0 0 1px rgb(148 178 220 / 0.04) inset,
+      0 30px 80px -40px rgb(70 200 217 / 0.25);
+  }
+  .pv-card-media {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    background: var(--s2);
+    border-bottom: 1px solid var(--ln);
+  }
+  .pv-card-media :global(.pv-card-mark) {
+    width: 30%;
+    opacity: 0.9;
+  }
+  .pv-card-body {
+    padding: 1.5rem;
+  }
+  .pv-card-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.75rem;
+  }
+  .pv-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+  .pv-chips span {
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--ln);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--mu);
+  }
+</style>

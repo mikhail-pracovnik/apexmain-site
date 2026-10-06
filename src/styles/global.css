@@ -90,7 +90,7 @@
 @layer components {
   .container-x {
     width: 100%;
-    max-width: 82rem;
+    max-width: 100rem;
     margin-inline: auto;
     padding-inline: 1rem;
   }
@@ -128,8 +128,17 @@
     color: var(--color-muted-dark);
   }
 
+  /* Section titles: ~1.5× on laptops, ~1.75× on large screens vs. the first version. */
   .h-section {
-    font-size: clamp(2.1rem, 6.4vw, 4.25rem);
+    font-size: clamp(2.4rem, 8vw, 7.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+  /* Page titles (H1 on inner pages). */
+  .h-page {
+    font-size: clamp(2.6rem, 9vw, 9rem);
+    line-height: 0.96;
+    letter-spacing: -0.04em;
   }
 
   .lead-text {

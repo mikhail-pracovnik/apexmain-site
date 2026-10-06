@@ -12,7 +12,7 @@ const services = await getServices();
 const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.title[locale];
 ---
 
-<section class="section" id="pains" data-label={d.sections.pains} aria-labelledby="pains-title">
+<section class="section theme-light" id="pains" data-label={d.sections.pains} aria-labelledby="pains-title">
   <div class="container-x pains-grid">
     <header class="pains-head">
       <p class="eyebrow reveal">{d.pains.eyebrow}</p>
@@ -23,7 +23,7 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
     <div class="pains-list">
       {
         pains.map((p, i) => (
-          <details class="pain reveal" name="pains" style={`--i:${i % 3}`} open={i === 0 ? true : undefined}>
+          <details class="pain reveal" name="pains" style={`--i:${i % 3}`}>
             <summary>
               <span class="pain-num">0{i + 1}</span>
               <span class="pain-quote">«{p.data.quote[locale]}»</span>
@@ -55,24 +55,18 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
   }
   @media (min-width: 64rem) {
     .pains-grid {
-      grid-template-columns: 0.85fr 1.15fr;
-      gap: 5rem;
-      align-items: start;
-    }
-    .pains-head {
-      position: sticky;
-      top: 8rem;
+      gap: 4.5rem;
     }
   }
   .pains-head {
     display: grid;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
   .pains-list {
-    border-top: 1px solid var(--color-line);
+    border-top: 1px solid var(--color-line-dark);
   }
   .pain {
-    border-bottom: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line-dark);
   }
   .pain summary {
     display: grid;
@@ -90,25 +84,25 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
     padding-top: 0.45rem;
     font-family: var(--font-mono);
     font-size: 0.8125rem;
-    color: var(--color-muted);
+    color: var(--color-muted-dark);
   }
   .pain-quote {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(1.25rem, 3.2vw, 1.875rem);
+    font-size: clamp(1.3rem, 3.4vw, 2.5rem);
     line-height: 1.2;
     letter-spacing: -0.01em;
     transition: color 0.25s;
   }
   .pain summary:hover .pain-quote {
-    color: #fff;
+    color: #000;
   }
   .pain-icon {
     position: relative;
     width: 2.25rem;
     height: 2.25rem;
     margin-top: 0.1rem;
-    border: 1px solid var(--color-line);
+    border: 1px solid rgb(10 12 17 / 0.25);
     border-radius: 999px;
     transition:
       transform 0.4s var(--ease-out-expo),
@@ -131,14 +125,15 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
   }
   .pain[open] .pain-icon {
     transform: rotate(45deg);
-    border-color: var(--color-apex);
-    color: var(--color-apex);
+    border-color: var(--color-apex-deep);
+    color: var(--color-apex-deep);
   }
   .pain-body {
     display: grid;
     gap: 0.75rem;
     padding: 0 3.25rem 1.75rem 2.15rem;
-    color: var(--color-muted);
+    max-width: 52rem;
+    color: var(--color-muted-dark);
   }
   :global(html.motion) .pain[open] .pain-body {
     animation: pain-in 0.6s var(--ease-out-expo);
@@ -154,7 +149,7 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
     font-size: 0.8125rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-apex);
+    color: var(--color-apex-deep);
   }
   .pain-link {
     display: inline-flex;
@@ -163,12 +158,12 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
     width: fit-content;
     min-height: 2.75rem;
     font-weight: 600;
-    color: var(--color-paper);
-    border-bottom: 1px solid var(--color-line);
+    color: var(--color-ink);
+    border-bottom: 1px solid var(--color-line-dark);
     transition: border-color 0.2s;
   }
   .pain-link:hover {
-    border-color: var(--color-paper);
+    border-color: var(--color-ink);
   }
   @media (max-width: 40rem) {
     .pain-body {
