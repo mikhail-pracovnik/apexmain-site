@@ -2,7 +2,8 @@
 /**
  * "We integrate and set up": a half-screen block with a strip of monochrome logos drifting right to left.
  * Logos come from src/content/integrations.yaml; without a logo file the name is shown as text.
- * The strip pauses on hover/focus; with reduced motion it becomes a static wrapped row.
+ * The strip pauses on hover/focus and the hovered logo shows its brand colours (<id>-color.svg next to the mono file);
+ * with reduced motion it becomes a static wrapped row.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -25,7 +26,8 @@ const items = (await getIntegrations()).map((it) => {
     if (vb) ratio = Number(vb[1]) / Number(vb[2]);
   }
   const height = ratio < 1.5 ? 3.25 : ratio > 3.6 ? 1.9 : 2.4; // rem
-  return { id: it.id, name: it.data.name[locale], logo, height, ratio };
+  const colorLogo = logo ? logo.replace(/\.svg$/, '-color.svg') : null;
+  return { id: it.id, name: it.data.name[locale], logo, color: inPublic(colorLogo) ? colorLogo : null, height, ratio };
 });
 ---
 
@@ -43,7 +45,10 @@ const items = (await getIntegrations()).map((it) => {
           {items.map((it) => (
             <li class="marquee-item" style={`--h:${it.height}rem;--w:${(it.height * it.ratio).toFixed(2)}rem`}>
               {it.logo ? (
-                <img src={asset(it.logo)} alt={copy === 0 ? it.name : ''} width="200" height="80" decoding="async" />
+                <>
+                  <img src={asset(it.logo)} alt={copy === 0 ? it.name : ''} width="200" height="80" decoding="async" />
+                  {it.color && <img class="logo-color" src={asset(it.color)} alt="" width="200" height="80" decoding="async" />}
+                </>
               ) : (
                 <span class="marquee-name">{it.name}</span>
               )}
@@ -92,7 +97,7 @@ const items = (await getIntegrations()).map((it) => {
     align-items: center;
     gap: var(--gap);
     padding-right: var(--gap);
-    animation: marquee 42s linear infinite;
+    animation: marquee 28s linear infinite;
   }
   .marquee:hover .marquee-track,
   .marquee:focus-within .marquee-track {
@@ -106,18 +111,27 @@ const items = (await getIntegrations()).map((it) => {
   .marquee-item {
     display: grid;
     place-items: center;
+    grid-template-areas: 'logo';
     flex-shrink: 0;
     height: 3.5rem;
   }
   .marquee-item img {
+    grid-area: logo;
     display: block;
     width: var(--w);
     height: var(--h);
     object-fit: contain;
     opacity: 0.78;
-    transition: opacity 0.3s;
+    transition: opacity 0.35s ease;
   }
-  .marquee-item:hover img {
+  /* Hover: the brand-colour version fades in over the monochrome one. */
+  .marquee-item .logo-color {
+    opacity: 0;
+  }
+  .marquee-item:hover img:not(.logo-color) {
+    opacity: 0;
+  }
+  .marquee-item:hover .logo-color {
     opacity: 1;
   }
   .marquee-name {

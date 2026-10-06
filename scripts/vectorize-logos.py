@@ -1,8 +1,10 @@
-"""Trace third-party logos into clean monochrome SVGs for the integrations strip.
+"""Trace third-party logos into clean SVGs for the integrations strip: a monochrome version and a colour one (hover).
 
 Each source image is upscaled, its colours are clustered, and every non-white colour is mapped to a tone:
 the darkest colour becomes solid, lighter colours become semi-transparent, so inner details survive in one
 colour. Each tone is traced with potrace into smooth vector paths. Output: public/media/logos/<id>.svg
+The colour version (<id>-color.svg) traces every brand colour separately; near-black colours are drawn light,
+as brands do on dark backgrounds.
 
 Usage: python scripts/vectorize-logos.py <source-dir>   (needs: pip install pillow numpy potracer)
 Sources are kept outside the repo (git-ignored); only the generated SVGs are committed.
@@ -52,7 +54,7 @@ def kmeans(pixels, k, iters=25, seed=1):
 
 
 def tones(img):
-    """Return (full_mask, mid_mask) boolean arrays."""
+    """Return (full_mask, mid_mask, centers, labels)."""
     rgb = np.asarray(img, dtype=float)
     lum = luminance(rgb)
     ink = lum < 0.9  # anything that is not near-white
@@ -81,7 +83,7 @@ def tones(img):
     for j, L in enumerate(lums):
         # colours clearly lighter than the darkest one become the secondary (semi-transparent) tone
         (mid if L - darkest > 0.18 else full)[lab == j] = True
-    return full, mid, centers
+    return full, mid, centers, lab
 
 
 def trace(mask, scale):
@@ -112,7 +114,7 @@ def process(src: Path, logo_id: str):
     # upscale + light denoise so edges trace smoothly
     k = TARGET_W / im.width
     big = im.resize((TARGET_W, round(im.height * k)), Image.LANCZOS).filter(ImageFilter.MedianFilter(3))
-    full, mid, centers = tones(big)
+    full, mid, centers, lab = tones(big)
     scale = k  # output in source-pixel units
     w, h = im.width, im.height
     d_full = trace(full, scale)
@@ -124,7 +126,20 @@ def process(src: Path, logo_id: str):
     svg.append("</svg>")
     out = OUT / f"{logo_id}.svg"
     out.write_text("".join(svg), encoding="utf-8")
-    print(f"{logo_id}: {len(centers)} colours, mid={'yes' if d_mid else 'no'}, {out.stat().st_size // 1024} KB")
+    # colour version: each brand colour traced separately, in its real (median) colour
+    rgb = np.asarray(big)
+    color = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}">']
+    for j in sorted(range(len(centers)), key=lambda j: -luminance(centers[j])):
+        mask = lab == j
+        if not mask.any():
+            continue
+        c = np.median(rgb[mask], axis=0)
+        hexc = FILL if luminance(c) < 0.15 else "#%02X%02X%02X" % tuple(int(v) for v in c)
+        color.append(f'<path d="{trace(mask, scale)}" fill="{hexc}" fill-rule="evenodd"/>')
+    color.append("</svg>")
+    out_c = OUT / f"{logo_id}-color.svg"
+    out_c.write_text("".join(color), encoding="utf-8")
+    print(f"{logo_id}: {len(centers)} colours, mid={'yes' if d_mid else 'no'}, {out.stat().st_size // 1024} KB, colour {out_c.stat().st_size // 1024} KB")
 
 
 if __name__ == "__main__":
