@@ -109,11 +109,15 @@ const [vx, vy, vw, vh] = brand.viewBox;
     padding-top: calc(5rem + 18vw);
     padding-bottom: max(2rem, env(safe-area-inset-bottom));
   }
+  /* Desktop: the text block sits low; the big wordmark hangs above it from the header. */
   @media (min-width: 64rem) {
     .hero {
-      align-content: center;
+      align-content: end;
       padding-top: 7rem;
-      padding-bottom: 4rem;
+      padding-bottom: clamp(3rem, 11vh, 8rem);
+    }
+    .hero-eyebrow {
+      font-size: 0.9375rem;
     }
   }
   .hero-eyebrow {
@@ -139,8 +143,8 @@ const [vx, vy, vw, vh] = brand.viewBox;
   }
   @media (min-width: 64rem) {
     .hero-title {
-      /* two lines on desktop too: the longest line takes at most ~62% of the width */
-      font-size: min(5.6vw, 7.5rem, calc(62vw / var(--fit, 9)));
+      /* two lines on desktop too: the longest line takes at most ~66% of the width */
+      font-size: min(6.3vw, 8.5rem, calc(66vw / var(--fit, 9)));
     }
     .hero-title > span {
       white-space: nowrap;
@@ -166,7 +170,13 @@ const [vx, vy, vw, vh] = brand.viewBox;
   }
   @media (min-width: 64rem) {
     .hero-sub {
-      font-size: 1.25rem;
+      max-width: 38rem;
+      font-size: 1.375rem;
+    }
+    .hero-ctas .btn {
+      min-height: 3.75rem;
+      padding: 1rem 1.75rem;
+      font-size: 1.0625rem;
     }
   }
   .hero-ctas {

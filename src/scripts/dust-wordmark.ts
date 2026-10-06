@@ -141,14 +141,15 @@ export class DustWordmark {
     let ox: number;
     let oy: number;
     if (desktop) {
-      // As big as both words allow: from about a third of the width (running under the headline)
-      // to the right margin, and as tall as the space between the header and the bottom edge.
-      // On wide-but-short screens the height is the limit; otherwise the width is.
-      const xStart = this.w * 0.3;
+      // As big as both words allow, right-aligned, hanging from just below the header.
+      // "apex" runs above the text block (which sits low in the hero), so only "main" meets the headline.
+      // The width is the limit on usual screens (the name is ~2.3× wider than tall); on very wide
+      // but short screens the height is.
+      const xStart = this.w * 0.17;
       const availH = this.h - margin - topLimit;
       scale = Math.min((this.w - margin - xStart) / wRef, availH / hRef);
-      ox = this.w - margin - wRef * scale; // right-aligned to the margin
-      oy = topLimit + (availH - hRef * scale) / 2;
+      ox = this.w - margin - wRef * scale;
+      oy = topLimit;
     } else {
       // behind and above the headline, full width minus the gutters
       scale = (this.w - margin * 2) / wRef;
@@ -180,20 +181,35 @@ export class DustWordmark {
     const maxDots = lite ? 6000 : desktop ? 26000 : 11000;
     this.gap = Math.max(desktop ? 3 : 2.2, Math.sqrt(ink / maxDots));
 
-    // --- keep-clear zones with a soft fade
-    const fade = 28;
-    const pad = 14;
-    const clearAt = (x: number, y: number) => {
-      let k = 1;
-      for (const z of clear) {
-        const dx = Math.max(z.x - pad - x, 0, x - (z.x + z.w + pad));
-        const dy = Math.max(z.y - pad - y, 0, y - (z.y + z.h + pad));
-        const d = Math.hypot(dx, dy);
-        if (d === 0) return 0;
-        if (d < fade) k = Math.min(k, d / fade);
-      }
-      return k;
+    // --- masks around the text
+    // Desktop: no visible edges. Dots fade out smoothly over ~130px around the subtitle and buttons
+    // (to zero under them) and are strongly dimmed — not removed — under the headline, again with a
+    // ~120px gradient, so the letters still faintly show through it.
+    // Phones keep the tighter mask they had.
+    const smooth = (e0: number, e1: number, x: number) => {
+      const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0)));
+      return t * t * (3 - 2 * t);
     };
+    const distTo = (zones: { x: number; y: number; w: number; h: number }[], x: number, y: number) => {
+      let best = Infinity;
+      for (const z of zones) {
+        const dx = Math.max(z.x - x, 0, x - (z.x + z.w));
+        const dy = Math.max(z.y - y, 0, y - (z.y + z.h));
+        best = Math.min(best, Math.hypot(dx, dy));
+      }
+      return best;
+    };
+    const clearAt = desktop
+      ? (x: number, y: number) => smooth(0, 130, distTo(clear, x, y))
+      : (x: number, y: number) => {
+          const d = distTo(clear, x, y) - 14;
+          return d <= 0 ? 0 : Math.min(1, d / 28);
+        };
+    const titleAt = desktop
+      ? (x: number, y: number) => smooth(0, 120, distTo(title, x, y)) // 0 under the headline … 1 away from it
+      : (x: number, y: number) => (title.some((t) => x > t.x - 10 && x < t.x + t.w + 10 && y > t.y - 6 && y < t.y + t.h + 6) ? 0 : 1);
+    const dimUnder = desktop ? 0.22 : 0.4;
+    const capUnder = desktop ? 0.12 : 0.2;
 
     const g = this.gap;
     const jitter = g * 0.48; // breaks the grid: dust, not pixels
@@ -206,11 +222,22 @@ export class DustWordmark {
         const cov = data[i + 3] / 255;
         if (cov < 0.12) continue; // anti-aliasing fringe and stray pixels: no dot
         const keep = clearAt(x, y);
-        if (keep <= 0) continue;
+        if (keep <= 0.02) continue;
         const px = x + rnd() * jitter;
         const py = y + rnd() * jitter;
-        const underTitle = title.some((t) => px > t.x - 10 && px < t.x + t.w + 10 && py > t.y - 6 && py < t.y + t.h + 6);
-        dots.push({ hx: px, hy: py, x: px, y: py, vx: 0, vy: 0, a: Math.min(1, cov) * keep, main: data[i + 2] > data[i], cap: underTitle ? 0.2 : 0.85, dim: underTitle ? 0.4 : 1 });
+        const away = titleAt(px, py);
+        dots.push({
+          hx: px,
+          hy: py,
+          x: px,
+          y: py,
+          vx: 0,
+          vy: 0,
+          a: Math.min(1, cov) * keep,
+          main: data[i + 2] > data[i],
+          cap: capUnder + (0.85 - capUnder) * away,
+          dim: dimUnder + (1 - dimUnder) * away,
+        });
       }
     }
     this.dots = dots;
