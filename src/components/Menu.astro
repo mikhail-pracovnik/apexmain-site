@@ -1,0 +1,195 @@
+---
+/**
+ * Full-screen menu as a native modal <dialog>, rendered at body level (outside the header,
+ * so header opacity / pointer-events never affect it). Esc, the close button and any link close it;
+ * focus returns to the menu button.
+ */
+import BrandMark from './BrandMark.astro';
+import { site } from '../config/site';
+import { t, url, locales, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  path: string;
+}
+const { locale, path } = Astro.props;
+const d = t(locale);
+
+const links = [
+  { href: url(locale, 'services'), label: d.nav.services, key: 'services' },
+  { href: url(locale, 'examples'), label: d.nav.examples, key: 'examples' },
+  { href: url(locale, 'process'), label: d.nav.process, key: 'process' },
+  { href: url(locale, 'contact'), label: d.nav.lead, key: 'contact' },
+];
+---
+
+<dialog id="site-menu" class="menu" aria-label={d.a11y.menuOpen}>
+  <div class="menu-inner container-x">
+    <div class="menu-top">
+      <a href={url(locale)} aria-label={d.a11y.home} class="inline-flex" data-menu-link><BrandMark class="h-6 w-auto" /></a>
+      <button type="button" class="menu-close" data-menu-close>
+        <span class="sr-only">{d.a11y.menuClose}</span>
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"
+          ><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
+        >
+      </button>
+    </div>
+    <nav class="menu-nav" aria-label={d.a11y.menuOpen}>
+      <ol>
+        {
+          links.map((link, i) => (
+            <li style={`--i:${i}`}>
+              <a href={link.href} data-menu-link aria-current={path === link.key ? 'page' : undefined}>
+                <span class="menu-num">0{i + 1}</span>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+    <div class="menu-foot">
+      <nav class="menu-lang" aria-label={d.a11y.language}>
+        {
+          locales.map((l) => (
+            <a href={url(l, path)} hreflang={l} lang={l} aria-current={l === locale ? 'true' : undefined}>
+              {t(l).langName}
+            </a>
+          ))
+        }
+      </nav>
+      <div class="menu-contacts">
+        <a href={`https://t.me/${site.contacts.telegram}`} target="_blank" rel="noopener">Telegram @{site.contacts.telegram}</a>
+        <a href={`https://wa.me/${site.contacts.whatsapp}`} target="_blank" rel="noopener">WhatsApp {site.contacts.whatsappDisplay}</a>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .menu {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    pointer-events: auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .menu:not([open]) {
+    display: none;
+  }
+  .menu::backdrop {
+    background: var(--color-ink);
+  }
+  .menu-inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+  .menu-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3.5rem;
+  }
+  .menu-close {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.375rem;
+    color: var(--color-paper);
+    cursor: pointer;
+  }
+  .menu-close:hover {
+    border-color: var(--color-paper);
+  }
+  .menu-nav {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding-block: 2rem;
+  }
+  .menu-nav ol {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .menu-nav a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.2rem, 8vw, 5.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-paper);
+    transition: color 0.2s;
+  }
+  .menu-nav a:hover,
+  .menu-nav a[aria-current='page'] {
+    color: var(--color-apex);
+  }
+  .menu-num {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--color-muted);
+  }
+  /* Entry animation only moves items; text is always rendered (no opacity: 0 end state). */
+  :global(html.motion) .menu[open] li {
+    animation: menu-in 0.6s var(--ease-out-expo) both;
+    animation-delay: calc(var(--i) * 50ms + 60ms);
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0.001;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .menu-foot {
+    display: grid;
+    gap: 1.25rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+  @media (min-width: 48rem) {
+    .menu-foot {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+  }
+  .menu-lang,
+  .menu-contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+  }
+  .menu-lang a,
+  .menu-contacts a {
+    padding-block: 0.5rem;
+    color: var(--color-muted);
+    transition: color 0.2s;
+  }
+  .menu-lang a[aria-current],
+  .menu-lang a:hover,
+  .menu-contacts a:hover {
+    color: var(--color-paper);
+  }
+</style>

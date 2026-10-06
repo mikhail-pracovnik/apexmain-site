@@ -289,10 +289,9 @@ html.js.motion .reveal.is-in {
   }
 }
 
-/* Floating messenger and back-to-top hide while the lead form is visible (it is the same action). */
-html.lead-in-view [data-fab]:not(.is-open),
-html.lead-in-view [data-to-top] {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none;
+/* Phones: reserve space for the bottom dock so the end of the page is never covered. */
+@media (max-width: 47.99rem) {
+  body {
+    padding-bottom: calc(3.75rem + env(safe-area-inset-bottom));
+  }
 }

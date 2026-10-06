@@ -1,12 +1,12 @@
 import React from 'react';
-import { interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
-import { appear, Backdrop, C, Cursor, H, lerp, loopOut, move, W } from './brand';
+import { interpolate, useVideoConfig } from 'remotion';
+import { appear, Backdrop, C, Cursor, H, lerp, loopOut, move, useLoopFrame, W } from './brand';
 
 const T = (t: number) => ({ opacity: t, translate: `0 ${(1 - t) * 14}px` });
 
 /* ---------------- Websites: a page assembles, the visitor clicks, a request arrives ---------------- */
 export const SitesLoop: React.FC = () => {
-  const f = useCurrentFrame();
+  const f = useLoopFrame(92);
   const { durationInFrames: total } = useVideoConfig();
   const out = loopOut(f, total);
   const cx = lerp(860, 300, move(f, 50, 26));
@@ -73,7 +73,7 @@ export const SitesLoop: React.FC = () => {
 
 /* ---------------- Instagram & SMM: a profile fills with posts, likes and a message ---------------- */
 export const SmmLoop: React.FC = () => {
-  const f = useCurrentFrame();
+  const f = useLoopFrame(90);
   const { durationInFrames: total } = useVideoConfig();
   const out = loopOut(f, total);
   const ring = appear(f, 4, 24);
@@ -142,7 +142,7 @@ export const SmmLoop: React.FC = () => {
 
 /* ---------------- Ads: bars grow, the trend line draws, the best channel lights up ---------------- */
 export const AdsLoop: React.FC = () => {
-  const f = useCurrentFrame();
+  const f = useLoopFrame(92);
   const { durationInFrames: total } = useVideoConfig();
   const out = loopOut(f, total);
   const bars = [0.42, 0.58, 0.36, 0.86, 0.5, 0.64];
@@ -203,7 +203,7 @@ export const AdsLoop: React.FC = () => {
 
 /* ---------------- Sales setup: messages land in a board and move to "booked" ---------------- */
 export const SalesLoop: React.FC = () => {
-  const f = useCurrentFrame();
+  const f = useLoopFrame(95);
   const { durationInFrames: total } = useVideoConfig();
   const out = loopOut(f, total);
   const cols = [380, 530, 680];

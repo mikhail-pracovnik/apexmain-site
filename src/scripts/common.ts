@@ -1,40 +1,67 @@
 /**
  * Behaviour shared by every page: menu, scroll progress, current-section label,
- * scroll reveal, card spotlight, lazy looping videos, back-to-top and messenger button.
+ * scroll reveal, card spotlight, lazy looping videos, back-to-top, messenger popover, phone dock.
  */
 const root = document.documentElement;
 const motionOk = () => root.classList.contains('motion');
 
-/* ---------- Menu (native <dialog>) ---------- */
+/* ---------- Menu (native modal <dialog> at body level) ---------- */
 const menu = document.getElementById('site-menu') as HTMLDialogElement | null;
-document.querySelector('[data-menu-open]')?.addEventListener('click', () => menu?.showModal());
-menu?.querySelector('[data-menu-close]')?.addEventListener('click', () => menu.close());
-menu?.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => menu.close()));
+const menuOpener = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+if (menu && menuOpener) {
+  menuOpener.addEventListener('click', () => {
+    menu.showModal();
+    root.style.overflow = 'hidden'; // no page scroll behind the menu
+    menu.querySelector<HTMLElement>('[data-menu-close]')?.focus();
+  });
+  menu.querySelector('[data-menu-close]')?.addEventListener('click', () => menu.close());
+  menu.querySelectorAll('[data-menu-link]').forEach((a) => a.addEventListener('click', () => menu.close()));
+  // Esc is handled natively by <dialog>; 'close' fires for every way of closing.
+  menu.addEventListener('close', () => {
+    root.style.overflow = '';
+    menuOpener.focus();
+  });
+}
 
 /* ---------- Scroll progress + back-to-top ---------- */
 const progress = document.querySelector<HTMLElement>('[data-progress]');
-const toTop = document.querySelector<HTMLElement>('[data-to-top]');
+const toTops = document.querySelectorAll<HTMLElement>('[data-to-top]');
+const dock = document.querySelector<HTMLElement>('[data-dock]');
+let lastY = window.scrollY;
 let ticking = false;
 function onScroll() {
   if (ticking) return;
   ticking = true;
   requestAnimationFrame(() => {
+    const y = window.scrollY;
     const max = root.scrollHeight - window.innerHeight;
-    const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    const p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
     progress?.style.setProperty('--progress', p.toFixed(4));
-    toTop?.classList.toggle('is-visible', p >= 0.5);
+    toTops.forEach((b) => b.classList.toggle('is-visible', p >= 0.5));
+    // Phone dock: not on the first screen (it has its own buttons), hidden while scrolling down,
+    // shown when scrolling up or at the end of the page; never over the lead form.
+    if (dock) {
+      const firstScreen = y < window.innerHeight * 0.6;
+      const atEnd = y > max - 80;
+      if (y > lastY + 4 && !atEnd) dock.classList.add('is-hidden');
+      else if (y < lastY - 4 || atEnd) dock.classList.remove('is-hidden');
+      if (firstScreen || root.classList.contains('lead-in-view')) dock.classList.add('is-hidden');
+    }
+    lastY = y;
     ticking = false;
   });
 }
 window.addEventListener('scroll', onScroll, { passive: true });
 window.addEventListener('resize', onScroll, { passive: true });
 onScroll();
-toTop?.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: motionOk() ? 'smooth' : 'auto' });
-  document.getElementById('main')?.focus({ preventScroll: true });
-});
+toTops.forEach((b) =>
+  b.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: motionOk() ? 'smooth' : 'auto' });
+    document.getElementById('main')?.focus({ preventScroll: true });
+  }),
+);
 
-/* ---------- Current section label in the header pill ---------- */
+/* ---------- Current section label in the header ---------- */
 const labelBox = document.querySelector<HTMLElement>('[data-section-label]');
 const labelText = labelBox?.querySelector<HTMLElement>('[data-label-text]');
 const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-label]'));
@@ -100,32 +127,50 @@ if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
   );
 }
 
-/* ---------- Lazy looping videos: load and play only while on screen ---------- */
-const videos = document.querySelectorAll<HTMLVideoElement>('video[data-lazy]');
-const canAutoplay = motionOk() && !(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+/* ---------- Lazy looping videos: only the most visible one plays ---------- */
+const videos = Array.from(document.querySelectorAll<HTMLVideoElement>('video[data-lazy]'));
+const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+const canAutoplay = motionOk() && !saveData;
 if (videos.length && canAutoplay && 'IntersectionObserver' in window) {
+  const ratios = new Map<HTMLVideoElement, number>();
+  const load = (v: HTMLVideoElement) => {
+    if (v.dataset.loaded) return;
+    v.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((s) => (s.src = s.dataset.src!));
+    v.load();
+    v.dataset.loaded = '1';
+  };
+  const pickPlaying = () => {
+    let best: HTMLVideoElement | null = null;
+    let bestRatio = 0.35; // must be at least a third visible to play
+    ratios.forEach((r, v) => {
+      if (r > bestRatio) {
+        best = v;
+        bestRatio = r;
+      }
+    });
+    videos.forEach((v) => {
+      if (v === best) {
+        load(v);
+        if (v.paused) v.play().catch(() => {});
+      } else if (!v.paused) v.pause();
+    });
+  };
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
         const v = e.target as HTMLVideoElement;
-        if (e.isIntersecting) {
-          if (!v.dataset.loaded) {
-            v.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((s) => (s.src = s.dataset.src!));
-            v.load();
-            v.dataset.loaded = '1';
-          }
-          v.play().catch(() => {});
-        } else if (!v.paused) {
-          v.pause();
-        }
+        ratios.set(v, e.isIntersecting ? e.intersectionRatio : 0);
+        if (e.isIntersecting) load(v); // preload posters' videos that are close to view
       });
+      pickPlaying();
     },
-    { rootMargin: '120px 0px', threshold: 0.2 },
+    { rootMargin: '80px 0px', threshold: [0, 0.2, 0.35, 0.5, 0.65, 0.8, 1] },
   );
   videos.forEach((v) => io.observe(v));
+  document.addEventListener('visibilitychange', () => (document.hidden ? videos.forEach((v) => v.pause()) : pickPlaying()));
 }
 
-/* ---------- Floating messenger popover ---------- */
+/* ---------- Messenger popover in the header ---------- */
 const fab = document.querySelector<HTMLElement>('[data-fab]');
 const fabBtn = fab?.querySelector<HTMLButtonElement>('[data-fab-toggle]');
 function setFab(open: boolean) {
@@ -149,7 +194,7 @@ document.addEventListener('click', (e) => {
   const trigger = (e.target as Element | null)?.closest?.<HTMLElement>('[data-want]');
   if (!trigger) return;
   const form = document.getElementById('lead');
-  if (!form) return; // no form on this page: let the link navigate to the home page form
+  if (!form) return; // no form on this page: let the link navigate to the contact page
   e.preventDefault();
   window.dispatchEvent(
     new CustomEvent('lead:prefill', {
@@ -159,10 +204,23 @@ document.addEventListener('click', (e) => {
   form.scrollIntoView({ behavior: motionOk() ? 'smooth' : 'auto', block: 'start' });
 });
 
-/* ---------- Floating buttons step aside while the lead form is on screen ---------- */
+/* ---------- Phone dock steps aside while the lead form is on screen ---------- */
 const leadSection = document.getElementById('lead');
 if (leadSection && 'IntersectionObserver' in window) {
-  new IntersectionObserver(([e]) => root.classList.toggle('lead-in-view', e.isIntersecting), {
-    rootMargin: '-20% 0px -20% 0px',
-  }).observe(leadSection);
+  new IntersectionObserver(
+    ([e]) => {
+      root.classList.toggle('lead-in-view', e.isIntersecting);
+      onScroll(); // re-evaluate the dock
+    },
+    { rootMargin: '-20% 0px -20% 0px' },
+  ).observe(leadSection);
+}
+
+/* ---------- Deep links: land exactly on #section after fonts settle the layout ---------- */
+if (location.hash.length > 1) {
+  const jump = () => {
+    const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (target && Math.abs(target.getBoundingClientRect().top) > 120) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+  };
+  (document.fonts?.ready ?? Promise.resolve()).then(() => requestAnimationFrame(jump));
 }

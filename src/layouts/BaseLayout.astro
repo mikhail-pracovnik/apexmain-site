@@ -4,8 +4,8 @@ import { site } from '../config/site';
 import { t, locales, htmlLang, ogLocale, absoluteUrl, asset, type Locale } from '../i18n';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import FloatingMessenger from '../components/FloatingMessenger.astro';
-import ToTop from '../components/ToTop.astro';
+import Menu from '../components/Menu.astro';
+import MobileDock from '../components/MobileDock.astro';
 import ConsentBanner from '../components/ConsentBanner.astro';
 
 interface Props {
@@ -111,8 +111,8 @@ const fontFaces = `
       <slot />
     </main>
     <Footer locale={locale} />
-    <ToTop locale={locale} />
-    <FloatingMessenger locale={locale} />
+    <Menu locale={locale} path={path} />
+    <MobileDock locale={locale} />
     {hasAnalytics && <ConsentBanner locale={locale} />}
 
     <script>

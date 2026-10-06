@@ -1,7 +1,9 @@
 /**
  * Particle mark for the hero (canvas 2D).
- * Points are sampled from the brand polygons; each particle springs to its target
- * and is pushed away by the cursor or a finger. The loop sleeps when everything is at rest.
+ * Targets are computed from the brand polygons themselves (point-in-polygon on a grid aligned
+ * to the mark, plus points along every edge), so the shape is exact at any canvas size.
+ * Each particle springs to its target and is pushed away by the cursor or a finger.
+ * The loop sleeps when everything is at rest.
  */
 import brand from '../data/brand-mark.json';
 
@@ -18,13 +20,53 @@ interface Particle {
 export interface ParticlesOptions {
   /** Approximate number of particles. */
   count: number;
-  /** Draw once at rest, no animation (reduced motion). */
-  still: boolean;
   maxDpr: number;
 }
 
+type Pt = readonly [number, number];
 const PAPER = '#ECF0F1';
 const APEX = '#46C8D9';
+
+function inside(x: number, y: number, poly: readonly Pt[]) {
+  let hit = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i];
+    const [xj, yj] = poly[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) hit = !hit;
+  }
+  return hit;
+}
+
+function area(poly: readonly Pt[]) {
+  let a = 0;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) a += (poly[j][0] + poly[i][0]) * (poly[j][1] - poly[i][1]);
+  return Math.abs(a / 2);
+}
+
+/** Particle targets in mark units for a given grid step. */
+function markPoints(step: number) {
+  const shapes = brand.shapes.map((s) => ({ poly: s.points as unknown as Pt[], teal: s.tone === 'apex' }));
+  const [, , vw, vh] = brand.viewBox;
+  const pts: { x: number; y: number; teal: boolean }[] = [];
+  // interior grid
+  for (let y = step / 2; y < vh; y += step) {
+    for (let x = step / 2; x < vw; x += step) {
+      const s = shapes.find((sh) => inside(x, y, sh.poly));
+      if (s) pts.push({ x, y, teal: s.teal });
+    }
+  }
+  // edges, so the outline is crisp and exact
+  const edgeStep = step * 0.85;
+  for (const s of shapes) {
+    for (let i = 0; i < s.poly.length; i++) {
+      const [x1, y1] = s.poly[i];
+      const [x2, y2] = s.poly[(i + 1) % s.poly.length];
+      const n = Math.max(1, Math.round(Math.hypot(x2 - x1, y2 - y1) / edgeStep));
+      for (let k = 0; k < n; k++) pts.push({ x: x1 + ((x2 - x1) * k) / n, y: y1 + ((y2 - y1) * k) / n, teal: s.teal });
+    }
+  }
+  return pts;
+}
 
 export class ParticleMark {
   private ctx: CanvasRenderingContext2D;
@@ -40,69 +82,47 @@ export class ParticleMark {
   private pointer = { x: 0, y: 0, active: false };
   private restFrames = 0;
   private radius = 90;
+  private stepUnits: number;
+  private targets: ReturnType<typeof markPoints>;
 
   constructor(
     private canvas: HTMLCanvasElement,
     private opts: ParticlesOptions,
   ) {
     this.ctx = canvas.getContext('2d', { alpha: true })!;
+    // Grid step in mark units from the requested count: same pattern at every size.
+    const total = brand.shapes.reduce((sum, s) => sum + area(s.points as unknown as Pt[]), 0);
+    this.stepUnits = Math.sqrt(total / opts.count);
+    this.targets = markPoints(this.stepUnits);
     this.resize();
     this.bind();
   }
 
-  /** Build target points from the polygons, fitted into the canvas. */
-  private sample() {
+  /** Fit the mark into the canvas and map the targets to pixels. */
+  private layout() {
     const [, , vw, vh] = brand.viewBox;
-    const pad = Math.min(this.w, this.h) * (this.w < 640 ? 0.12 : 0.08);
+    const pad = Math.min(this.w, this.h) * 0.06;
     const scale = Math.min((this.w - pad * 2) / vw, (this.h - pad * 2) / vh);
     const ox = (this.w - vw * scale) / 2;
     const oy = (this.h - vh * scale) / 2;
+    this.size = Math.max(1.1, Math.min(2.6, this.stepUnits * scale * 0.55));
+    this.radius = Math.max(56, Math.min(this.w, this.h) * 0.22);
 
-    const off = document.createElement('canvas');
-    off.width = Math.ceil(this.w);
-    off.height = Math.ceil(this.h);
-    const c = off.getContext('2d', { willReadFrequently: true })!;
-    for (const s of brand.shapes) {
-      c.beginPath();
-      s.points.forEach(([x, y], i) => (i ? c.lineTo(ox + x * scale, oy + y * scale) : c.moveTo(ox + x * scale, oy + y * scale)));
-      c.closePath();
-      c.fillStyle = s.tone === 'apex' ? '#ff0000' : '#0000ff';
-      c.fill();
-    }
-    const data = c.getImageData(0, 0, off.width, off.height).data;
-
-    // Pick a grid step that gives roughly the requested count.
-    const filled = (() => {
-      let n = 0;
-      for (let i = 3; i < data.length; i += 16) if (data[i] > 128) n++;
-      return n * 4;
-    })();
-    const gap = Math.max(2.4, Math.sqrt(filled / this.opts.count));
-    this.size = Math.max(1.2, Math.min(2.4, gap * 0.52));
-    this.radius = Math.max(60, Math.min(this.w, this.h) * 0.2);
-
-    const points: Particle[] = [];
-    for (let y = gap / 2; y < off.height; y += gap) {
-      // Offset every other row for a less mechanical texture.
-      const shift = (Math.round(y / gap) % 2) * (gap / 2);
-      for (let x = gap / 2 + shift; x < off.width; x += gap) {
-        const i = (Math.floor(y) * off.width + Math.floor(x)) * 4;
-        if (data[i + 3] < 128) continue;
-        const prev = this.particles[points.length];
-        points.push({
-          tx: x,
-          ty: y,
-          x: prev ? prev.x : Math.random() * this.w,
-          y: prev ? prev.y : this.h * (0.2 + Math.random() * 0.6) + (Math.random() - 0.5) * this.h,
-          vx: 0,
-          vy: 0,
-          teal: data[i] > 128,
-        });
-      }
-    }
-    this.particles = points;
-    // Still mode draws the mark at rest; otherwise particles stay hidden until assemble().
-    if (this.opts.still) for (const p of points) ((p.x = p.tx), (p.y = p.ty));
+    const prev = this.particles;
+    this.particles = this.targets.map((p, i) => {
+      const old = prev[i];
+      return {
+        tx: ox + p.x * scale,
+        ty: oy + p.y * scale,
+        // keep current positions on resize; scatter on the first layout
+        x: old ? old.x : Math.random() * this.w,
+        y: old ? old.y : Math.random() * this.h,
+        vx: 0,
+        vy: 0,
+        teal: p.teal,
+      };
+    });
+    if (this.assembled && !this.running) for (const p of this.particles) ((p.x = p.tx), (p.y = p.ty));
   }
 
   resize() {
@@ -113,22 +133,20 @@ export class ParticleMark {
     this.canvas.width = Math.round(this.w * this.dpr);
     this.canvas.height = Math.round(this.h * this.dpr);
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    this.sample();
-    if (this.opts.still) this.draw();
-    else if (this.assembled) this.wake();
+    this.layout();
+    this.draw();
   }
 
-  /** Fly particles into the mark. */
+  /** Fly the particles into the mark. */
   assemble() {
     if (this.assembled) return;
     this.assembled = true;
-    if (this.opts.still) return this.draw();
     this.wake();
   }
 
   private wake() {
     this.restFrames = 0;
-    if (this.running || !this.visible || this.opts.still) return;
+    if (this.running || !this.visible) return;
     this.running = true;
     this.raf = requestAnimationFrame(this.tick);
   }
@@ -163,7 +181,7 @@ export class ParticleMark {
     const avg = energy / Math.max(1, this.particles.length);
     this.restFrames = !active && avg < 0.02 ? this.restFrames + 1 : 0;
     if (this.restFrames > 45) {
-      // Settle exactly on targets and stop the loop until the next interaction.
+      // Settle exactly on the targets and stop until the next interaction.
       for (const p of this.particles) ((p.x = p.tx), (p.y = p.ty), (p.vx = 0), (p.vy = 0));
       this.draw();
       this.running = false;
@@ -175,32 +193,28 @@ export class ParticleMark {
   private draw() {
     const { ctx } = this;
     ctx.clearRect(0, 0, this.w, this.h);
-    if (!this.assembled && !this.opts.still) return;
+    if (!this.assembled) return;
     const s = this.size;
+    const half = s / 2;
     ctx.fillStyle = PAPER;
-    for (const p of this.particles) if (!p.teal) ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+    for (const p of this.particles) if (!p.teal) ctx.fillRect(p.x - half, p.y - half, s, s);
     ctx.fillStyle = APEX;
-    for (const p of this.particles) if (p.teal) ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+    for (const p of this.particles) if (p.teal) ctx.fillRect(p.x - half, p.y - half, s, s);
   }
 
   private setPointer(clientX: number, clientY: number) {
     const r = this.canvas.getBoundingClientRect();
+    const R = this.radius;
     this.pointer.x = clientX - r.left;
     this.pointer.y = clientY - r.top;
-    this.pointer.active = this.pointer.x > -this.radius && this.pointer.x < this.w + this.radius && this.pointer.y > -this.radius && this.pointer.y < this.h + this.radius;
+    this.pointer.active = this.pointer.x > -R && this.pointer.x < this.w + R && this.pointer.y > -R && this.pointer.y < this.h + R;
     if (this.pointer.active && this.assembled) this.wake();
   }
 
   private bind() {
-    if (this.opts.still) {
-      let t = 0;
-      new ResizeObserver(() => {
-        clearTimeout(t);
-        t = window.setTimeout(() => this.resize(), 120);
-      }).observe(this.canvas);
-      return;
-    }
-    window.addEventListener('pointermove', (e) => e.pointerType === 'mouse' && this.visible && this.setPointer(e.clientX, e.clientY), { passive: true });
+    window.addEventListener('pointermove', (e) => e.pointerType === 'mouse' && this.visible && this.setPointer(e.clientX, e.clientY), {
+      passive: true,
+    });
     document.documentElement.addEventListener('pointerleave', () => (this.pointer.active = false));
     const touch = (e: TouchEvent) => {
       const t = e.touches[0];
@@ -220,18 +234,20 @@ export class ParticleMark {
       }
     }).observe(this.canvas);
 
+    // Recompute the layout whenever the canvas size changes (width or height).
     let timer = 0;
-    let lastW = this.w;
+    let last = `${Math.round(this.w)}x${Math.round(this.h)}`;
     new ResizeObserver(() => {
       clearTimeout(timer);
       timer = window.setTimeout(() => {
-        // Ignore height-only changes from the mobile address bar.
-        const w = this.canvas.getBoundingClientRect().width;
-        if (Math.abs(w - lastW) < 1 && this.particles.length) return;
-        lastW = w;
+        const r = this.canvas.getBoundingClientRect();
+        const key = `${Math.round(r.width)}x${Math.round(r.height)}`;
+        if (key === last) return;
+        last = key;
         this.resize();
-      }, 150);
+      }, 120);
     }).observe(this.canvas);
+
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         this.running = false;

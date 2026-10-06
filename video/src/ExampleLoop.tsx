@@ -1,18 +1,18 @@
 import React from 'react';
-import { useCurrentFrame, useVideoConfig } from 'remotion';
+import { useVideoConfig } from 'remotion';
 import { desktop, phone } from '../../src/data/example-layouts';
-import { Backdrop, C, H, W, move } from './brand';
+import { Backdrop, C, H, W, move, useLoopFrame } from './brand';
 import { Prims } from './Prims';
 
 export type ExampleLoopProps = { layout: number };
 
 /**
- * A website concept being scrolled: the first frame equals the static placeholder on the site
- * (used as the poster), the page scrolls down, holds, scrolls back — the loop is seamless.
+ * A website concept being scrolled: down, hold, back up — the loop is seamless.
  */
 export const ExampleLoop: React.FC<ExampleLoopProps> = ({ layout }) => {
-  const frame = useCurrentFrame();
   const { durationInFrames: T } = useVideoConfig();
+  // Start while the page is scrolled down, so the poster shows the middle of the animation.
+  const frame = useLoopFrame(Math.round(T * 0.42));
   const n = ((layout - 1) % 6) + 1;
 
   // hold → down → hold → up → hold

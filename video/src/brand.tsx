@@ -1,5 +1,5 @@
 import React from 'react';
-import { Easing, interpolate } from 'remotion';
+import { Easing, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 
 export const C = {
   ink: '#0A0C11',
@@ -11,7 +11,17 @@ export const C = {
 
 export const W = 960;
 export const H = 600;
-export const FPS = 30;
+export const FPS = 24;
+
+/**
+ * Frame shifted by `offset` and wrapped, so the rendered loop starts mid-animation
+ * (frame 0 = a finished scene, which also becomes the poster) and still loops seamlessly.
+ */
+export const useLoopFrame = (offset: number) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  return (frame + offset) % durationInFrames;
+};
 
 const out = Easing.bezier(0.16, 1, 0.3, 1);
 const inOut = Easing.bezier(0.65, 0, 0.35, 1);

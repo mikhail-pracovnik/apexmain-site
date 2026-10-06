@@ -1,8 +1,11 @@
 ---
 /**
- * First screen: scroll-driven intro (mark is drawn, the turquoise peak lights up last,
- * the mark flies into the header) on top of the hero with the particle mark.
- * Without JS or with reduced motion the intro layer is not shown and the hero is static.
+ * First screen: a three-step intro over the hero.
+ *   step 1 — the mark gets its full outline,
+ *   step 2 — the mark fills in, the turquoise peak lights up,
+ *   step 3 — the mark flies into the header and the hero opens.
+ * One wheel notch / swipe / arrow key = one step (see scripts/stage.ts).
+ * Without JS or with reduced motion there is no intro and the hero shows a solid mark.
  */
 import BrandMark from './BrandMark.astro';
 import brand from '../data/brand-mark.json';
@@ -18,52 +21,50 @@ const [vx, vy, vw, vh] = brand.viewBox;
 ---
 
 <section class="stage" id="top" data-label={d.sections.hero} data-stage>
-  <div class="stage-pin" data-stage-pin>
-    <div class="hero container-x">
-      <div class="hero-visual">
-        <canvas class="hero-canvas" data-particles role="img" aria-label={d.hero.particlesLabel}></canvas>
-        <BrandMark class="hero-static" />
-      </div>
-      <div class="hero-text">
-        <p class="eyebrow hero-in">{d.hero.eyebrow}</p>
-        <h1 class="hero-title">
-          <span class="hero-in">{d.hero.line1}</span>
-          <span class="hero-in">{d.hero.line2Before}<span class="accent">{d.hero.accent}</span>{d.hero.line2After}</span>
-        </h1>
-        <p class="hero-sub hero-in">{d.hero.sub}</p>
-        <div class="hero-ctas hero-in">
-          <a href="#lead" class="btn btn-primary">
-            {d.hero.ctaPrimary}
-            <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
-              ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
-            >
-          </a>
-          <a href={url(locale, 'examples')} class="btn btn-ghost" data-examples-link>{d.hero.ctaSecondary}</a>
-        </div>
+  <div class="hero container-x">
+    <div class="hero-visual">
+      <canvas class="hero-canvas" data-particles role="img" aria-label={d.hero.particlesLabel}></canvas>
+      <BrandMark class="hero-static" title={d.hero.particlesLabel} />
+    </div>
+    <p class="eyebrow hero-eyebrow hero-in">{d.hero.eyebrow}</p>
+    <h1 class="hero-title">
+      <span class="hero-in">{d.hero.line1}</span>
+      <span class="hero-in">{d.hero.line2Before}<span class="accent">{d.hero.accent}</span>{d.hero.line2After}</span>
+    </h1>
+    <div class="hero-bottom hero-in">
+      <p class="hero-sub">{d.hero.sub}</p>
+      <div class="hero-ctas">
+        <a href="#lead" class="btn btn-primary">
+          {d.hero.ctaPrimary}
+          <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
+            ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
+          >
+        </a>
+        <a href={url(locale, 'examples')} class="btn btn-ghost">{d.hero.ctaSecondary}</a>
       </div>
     </div>
+  </div>
 
-    <div class="intro" aria-hidden="true" data-intro>
-      <div class="intro-bg" data-intro-bg></div>
-      <div class="intro-anchor" data-intro-anchor>
-        <div class="intro-fly" data-intro-fly>
-          <BrandMark class="intro-ghost" />
-          <svg class="intro-glow" viewBox={`${vx} ${vy} ${vw} ${vh}`} data-intro-glow>
-            <defs>
-              <filter id="peak-glow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="28"></feGaussianBlur>
-              </filter>
-            </defs>
-            <polygon points={peak.points.map((p) => p.join(',')).join(' ')} fill="#46C8D9" filter="url(#peak-glow)"></polygon>
-          </svg>
-          <BrandMark variant="outline" class="intro-mark" />
-        </div>
+  <div class="intro" aria-hidden="true" data-intro>
+    <div class="intro-bg" data-intro-bg></div>
+    <div class="intro-anchor" data-intro-anchor>
+      <div class="intro-fly" data-intro-fly>
+        <BrandMark class="intro-ghost" />
+        <svg class="intro-glow" viewBox={`${vx} ${vy} ${vw} ${vh}`} data-intro-glow>
+          <defs>
+            <filter id="peak-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="28"></feGaussianBlur>
+            </filter>
+          </defs>
+          <polygon points={peak.points.map((p) => p.join(',')).join(' ')} fill="#46C8D9" filter="url(#peak-glow)"></polygon>
+        </svg>
+        <BrandMark variant="outline" class="intro-mark" />
       </div>
-      <p class="intro-hint" data-intro-hint>
-        <span>{d.intro.hint}</span>
-        <span class="intro-line" aria-hidden="true"></span>
-      </p>
     </div>
+    <p class="intro-hint" data-intro-hint>
+      <span>{d.intro.hint}</span>
+      <span class="intro-steps" aria-hidden="true"><i data-step-dot></i><i data-step-dot></i><i data-step-dot></i></span>
+    </p>
   </div>
 </section>
 
@@ -76,51 +77,39 @@ const [vx, vy, vw, vh] = brand.viewBox;
   .stage {
     position: relative;
   }
-  .stage-pin {
-    position: relative;
-    min-height: 100svh;
-    overflow: hidden;
-  }
-  /*
-   * Intro scroll length is reserved in CSS (no layout shift when GSAP loads):
-   * the stage is 100svh + 125svh tall and the first screen sticks while the intro plays.
-   * Keep the extra length ≤ 150% of the viewport.
-   */
-  :global(html.js.motion.has-intro:not(.intro-off)) .stage {
-    height: calc(100svh + 125svh);
-  }
-  :global(html.js.motion.has-intro:not(.intro-off)) .stage-pin {
-    position: sticky;
-    top: 0;
-    height: 100svh;
-  }
 
   /* ---------- Hero ---------- */
   .hero {
     position: relative;
     display: grid;
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-rows: minmax(9rem, 1fr) auto auto auto;
+    grid-template-areas: 'visual' 'eyebrow' 'title' 'bottom';
     min-height: 100svh;
-    padding-top: 5.5rem;
+    padding-top: 5.25rem;
     padding-bottom: max(2rem, env(safe-area-inset-bottom));
   }
   @media (min-width: 64rem) {
     .hero {
-      grid-template-columns: 1.3fr 1fr;
-      grid-template-rows: 1fr;
-      align-items: center;
-      gap: 2rem;
-      padding-top: 6rem;
+      grid-template-columns: 1fr minmax(0, 30rem);
+      grid-template-rows: 1fr auto auto;
+      grid-template-areas: 'eyebrow visual' 'title title' 'bottom bottom';
+      column-gap: 3rem;
+      padding-top: 6.5rem;
+      padding-bottom: 3rem;
     }
   }
   .hero-visual {
+    grid-area: visual;
     position: relative;
-    min-height: 13rem;
+    max-height: 32svh;
+    margin-bottom: 1rem;
   }
   @media (min-width: 64rem) {
     .hero-visual {
-      order: 2;
-      height: min(62vh, 34rem);
+      max-height: none;
+      height: min(40vh, 22rem);
+      align-self: center;
+      margin-bottom: 0;
     }
   }
   .hero-canvas {
@@ -130,42 +119,62 @@ const [vx, vy, vw, vh] = brand.viewBox;
     height: 100%;
     touch-action: pan-y;
   }
-  .hero-static {
+  /* Solid mark: fallback only (no JS, or reduced motion). */
+  .hero-visual :global(.hero-static) {
     position: absolute;
-    inset: 12% 10%;
-    width: 80%;
-    height: 76%;
-    opacity: 0.9;
+    inset: 8%;
+    width: 84%;
+    height: 84%;
   }
-  :global(html.js) .hero-static {
+  :global(html.js.motion) .hero-visual :global(.hero-static) {
     display: none;
   }
-  :global(html:not(.js)) .hero-canvas {
+  :global(html:not(.js)) .hero-canvas,
+  :global(html.js:not(.motion)) .hero-canvas {
     display: none;
   }
 
-  .hero-text {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    gap: 1.25rem;
+  .hero-eyebrow {
+    grid-area: eyebrow;
+    align-self: end;
+    margin-top: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  @media (min-width: 64rem) {
+    .hero-eyebrow {
+      margin-bottom: 1.6rem;
+    }
   }
   .hero-title {
+    grid-area: title;
     display: grid;
-    font-size: clamp(2.25rem, 8.6vw, 5.75rem);
-    line-height: 1;
-    letter-spacing: -0.03em;
+    font-size: clamp(2rem, 8.4vw, 4.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+  }
+  @media (min-width: 64rem) {
+    .hero-title {
+      font-size: min(6.8vw, 8.5rem);
+    }
   }
   .hero-title > span {
     display: block;
   }
+  .hero-bottom {
+    grid-area: bottom;
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
   @media (min-width: 64rem) {
-    .hero-title {
-      font-size: min(4.4vw, 5rem);
+    .hero-bottom {
+      grid-template-columns: minmax(0, 34rem) auto;
+      justify-content: space-between;
+      align-items: end;
+      margin-top: 2.5rem;
     }
   }
   .hero-sub {
-    max-width: 34rem;
     font-size: 1.125rem;
     color: var(--color-muted);
   }
@@ -178,7 +187,6 @@ const [vx, vy, vw, vh] = brand.viewBox;
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    margin-top: 0.5rem;
   }
   @media (max-width: 30rem) {
     .hero-ctas .btn {
@@ -186,22 +194,25 @@ const [vx, vy, vw, vh] = brand.viewBox;
     }
   }
 
-  /* ---------- Intro overlay ---------- */
+  /* ---------- Intro overlay (fixed over everything while it plays) ---------- */
   .intro {
     display: none;
-    position: absolute;
+    position: fixed;
     inset: 0;
-    z-index: 2;
-    pointer-events: none;
+    z-index: 80;
+    /* blocks clicks on the hero underneath while the intro plays */
+    pointer-events: auto;
+    touch-action: none;
   }
-  :global(html.js.motion:not(.intro-off)) .intro {
+  :global(html.js.motion.has-intro:not(.intro-done)) .intro,
+  :global(html.js.motion.has-intro.intro-flying) .intro {
     display: block;
   }
   .intro-bg {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(50% 40% at 50% 46%, rgb(70 200 217 / 0.05), transparent 70%),
+      radial-gradient(55% 45% at 50% 46%, rgb(70 200 217 / 0.07), transparent 70%),
       var(--color-ink);
   }
   .intro-anchor {
@@ -225,44 +236,45 @@ const [vx, vy, vw, vh] = brand.viewBox;
     height: 100%;
     overflow: visible;
   }
+  /* Clearly visible from the very first frame. */
   .intro-fly :global(.intro-ghost) {
-    opacity: 0.07;
+    opacity: 0.26;
   }
   .intro-glow {
     opacity: 0;
   }
   .intro-fly :global(.intro-mark polygon) {
     fill-opacity: 0;
-    stroke-width: 7;
+    stroke-width: 9;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
   }
   .intro-hint {
     position: absolute;
     left: 50%;
-    bottom: max(2rem, env(safe-area-inset-bottom));
+    bottom: max(2.25rem, env(safe-area-inset-bottom));
     display: grid;
     justify-items: center;
-    gap: 0.75rem;
+    gap: 0.9rem;
     transform: translateX(-50%);
     font-family: var(--font-mono);
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-muted);
+    color: var(--color-paper);
     white-space: nowrap;
   }
-  .intro-line {
-    position: relative;
-    width: 1px;
-    height: 2.5rem;
-    overflow: hidden;
-    background: var(--color-line);
+  .intro-steps {
+    display: flex;
+    gap: 0.4rem;
   }
-  .intro-line::after {
-    content: '';
-    position: absolute;
-    inset: 0 0 60% 0;
+  .intro-steps i {
+    width: 1.5rem;
+    height: 2px;
+    background: var(--color-line);
+    transition: background-color 0.4s;
+  }
+  .intro-steps i:global(.is-on) {
     background: var(--color-apex);
   }
 </style>
