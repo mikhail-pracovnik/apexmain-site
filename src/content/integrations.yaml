@@ -1,48 +1,49 @@
 # Блок «Интегрируем и настраиваем» на главной.
 # logo — монохромный SVG в public/media/logos/ (собирается scripts/vectorize-logos.py; null — показываем название текстом).
 # group: bank | crm | pos
+# order чередует банки и другие системы, чтобы банки не шли подряд в бегущей строке.
 - id: halyk
   order: 1
   group: bank
   name: { ru: Halyk Bank, kk: Halyk Bank, en: Halyk Bank }
   logo: media/logos/halyk.svg
 - id: kaspi
-  order: 2
+  order: 3
   group: bank
   name: { ru: Kaspi Bank, kk: Kaspi Bank, en: Kaspi Bank }
   logo: media/logos/kaspi.svg
 - id: bcc
-  order: 3
+  order: 5
   group: bank
   name: { ru: Банк ЦентрКредит, kk: Банк ЦентрКредит, en: Bank CenterCredit }
   logo: media/logos/bcc.svg
 - id: forte
-  order: 4
+  order: 7
   group: bank
   name: { ru: ForteBank, kk: ForteBank, en: ForteBank }
   logo: media/logos/forte.svg
 - id: freedom
-  order: 5
+  order: 9
   group: bank
   name: { ru: Freedom Bank, kk: Freedom Bank, en: Freedom Bank }
   logo: media/logos/freedom.svg
 - id: bitrix24
-  order: 6
+  order: 2
   group: crm
   name: { ru: Bitrix24, kk: Bitrix24, en: Bitrix24 }
   logo: media/logos/bitrix24.svg
 - id: paloma365
-  order: 7
+  order: 8
   group: pos
   name: { ru: Paloma365, kk: Paloma365, en: Paloma365 }
   logo: media/logos/paloma365.svg
 - id: 1c
-  order: 8
+  order: 6
   group: pos
   name: { ru: 1С, kk: 1С, en: 1C }
   logo: media/logos/1c.svg
 - id: iiko
-  order: 9
+  order: 4
   group: pos
   name: { ru: iiko, kk: iiko, en: iiko }
   logo: media/logos/iiko.svg

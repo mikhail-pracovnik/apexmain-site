@@ -70,7 +70,25 @@ def tones(img):
     for c in sorted(centers, key=lambda c: luminance(c)):
         if all(np.linalg.norm(c - m) > 60 for m in merged):
             merged.append(c)
-    centers = np.array(merged)
+    # drop "tints": a light colour that is just a darker logo colour blended with white is an edge halo
+    # (JPEG / anti-aliasing), not a brand colour; its pixels then fall to the nearest real colour or white
+    white = np.array([255.0, 255.0, 255.0])
+    merged = np.array(merged)
+    lab_m = ((sample[:, None, :] - merged[None]) ** 2).sum(-1).argmin(1)
+    msh = np.bincount(lab_m, minlength=len(merged))
+    kept = []
+    for i, c in enumerate(merged):
+        tint = False
+        for k, m in enumerate(merged):
+            if luminance(m) >= luminance(c):
+                continue
+            t = np.dot(c - white, m - white) / np.dot(m - white, m - white)
+            # a halo sits on the white→colour line and is much smaller than the colour it surrounds
+            if 0 < t < 1 and np.linalg.norm(white + t * (m - white) - c) < 28 and msh[i] < 0.5 * msh[k]:
+                tint = True
+        if not tint:
+            kept.append(c)
+    centers = np.array(kept)
     lums = luminance(centers)
     darkest = lums.min()
     # nearest colour for every ink pixel (white is a candidate too, so anti-aliased fringes drop out)
