@@ -1,8 +1,11 @@
 ---
 /**
- * "We integrate and set up": a half-screen row of monochrome marks of the systems we connect to.
- * Names are rendered as text until an official logo file is set in src/content/integrations.yaml.
+ * "We integrate and set up": a half-screen block with a strip of monochrome logos drifting right to left.
+ * Logos come from src/content/integrations.yaml; without a logo file the name is shown as text.
+ * The strip pauses on hover/focus; with reduced motion it becomes a static wrapped row.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { t, asset, type Locale } from '../i18n';
 import { getIntegrations } from '../lib/content';
 import { inPublic } from '../lib/media';
@@ -12,118 +15,139 @@ interface Props {
 }
 const { locale } = Astro.props;
 const d = t(locale);
-const items = await getIntegrations();
+
+const items = (await getIntegrations()).map((it) => {
+  const logo = inPublic(it.data.logo) ? it.data.logo : null;
+  // Even out visual weight: square marks a bit taller, very wide wordmarks a bit lower.
+  let ratio = 3;
+  if (logo) {
+    const vb = readFileSync(join(process.cwd(), 'public', logo), 'utf8').match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+    if (vb) ratio = Number(vb[1]) / Number(vb[2]);
+  }
+  const height = ratio < 1.5 ? 3.25 : ratio > 3.6 ? 1.9 : 2.4; // rem
+  return { id: it.id, name: it.data.name[locale], logo, height, ratio };
+});
 ---
 
 <section class="section integ" id="integrations" data-label={d.sections.integrations} aria-labelledby="integ-title">
-  <div class="container-x integ-inner">
-    <header class="integ-head">
-      <p class="eyebrow reveal">{d.integrations.eyebrow}</p>
-      <h2 id="integ-title" class="integ-title reveal" style="--i:1">{d.integrations.title}</h2>
-      <p class="lead-text reveal" style="--i:2">{d.integrations.lead}</p>
-    </header>
-
-    <ul class="integ-row reveal" style="--i:3">
-      {
-        items.map((it) => (
-          <li class="integ-item" title={d.integrations.groups[it.data.group]}>
-            {inPublic(it.data.logo) ? (
-              <img src={asset(it.data.logo!)} alt={it.data.name[locale]} loading="lazy" decoding="async" class="integ-logo" />
-            ) : (
-              <span class="integ-name" lang={/[А-Яа-яЁё]/.test(it.data.name[locale]) ? 'ru' : 'en'}>
-                {it.data.name[locale]}
-              </span>
-            )}
-            <span class="integ-group">{d.integrations.groups[it.data.group]}</span>
-          </li>
-        ))
-      }
-    </ul>
-    <p class="integ-note">{d.integrations.note}</p>
+  <div class="container-x integ-head">
+    <p class="eyebrow reveal">{d.integrations.eyebrow}</p>
+    <h2 id="integ-title" class="integ-title reveal" style="--i:1">{d.integrations.title}</h2>
+    <p class="lead-text reveal" style="--i:2">{d.integrations.lead}</p>
   </div>
+
+  <div class="marquee" data-marquee>
+    {
+      [0, 1].map((copy) => (
+        <ul class="marquee-track" aria-hidden={copy === 1 ? 'true' : undefined}>
+          {items.map((it) => (
+            <li class="marquee-item" style={`--h:${it.height}rem;--w:${(it.height * it.ratio).toFixed(2)}rem`}>
+              {it.logo ? (
+                <img src={asset(it.logo)} alt={copy === 0 ? it.name : ''} width="200" height="80" decoding="async" />
+              ) : (
+                <span class="marquee-name">{it.name}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+
+  <p class="container-x integ-note">{d.integrations.note}</p>
 </section>
 
 <style>
   .integ {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3rem;
     min-height: 50svh;
     border-top: 1px solid var(--color-line);
-  }
-  .integ-inner {
-    display: grid;
-    gap: 2.5rem;
   }
   .integ-head {
     display: grid;
     gap: 1.25rem;
-    max-width: 60rem;
   }
   .integ-title {
     font-size: clamp(2rem, 5.5vw, 4.5rem);
     line-height: 1;
     letter-spacing: -0.03em;
   }
-  .integ-row {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border-top: 1px solid var(--color-line);
-    border-left: 1px solid var(--color-line);
+
+  /* ---------- Logo strip ---------- */
+  .marquee {
+    --gap: clamp(3rem, 6vw, 6rem);
+    display: flex;
+    overflow: hidden;
+    padding-block: 2rem;
+    border-block: 1px solid var(--color-line);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   }
-  @media (min-width: 48rem) {
-    .integ-row {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+  .marquee-track {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--gap);
+    padding-right: var(--gap);
+    animation: marquee 42s linear infinite;
+  }
+  .marquee:hover .marquee-track,
+  .marquee:focus-within .marquee-track {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-100%);
     }
   }
-  @media (min-width: 80rem) {
-    .integ-row {
-      grid-template-columns: repeat(9, minmax(0, 1fr));
-    }
-  }
-  .integ-item {
-    position: relative;
+  .marquee-item {
     display: grid;
     place-items: center;
-    align-content: center;
-    gap: 0.4rem;
-    min-height: 6.5rem;
-    padding: 1rem 0.75rem;
-    border-right: 1px solid var(--color-line);
-    border-bottom: 1px solid var(--color-line);
-    text-align: center;
-    transition: background-color 0.3s;
+    flex-shrink: 0;
+    height: 3.5rem;
   }
-  .integ-item:hover {
-    background: rgb(236 240 241 / 0.03);
-  }
-  .integ-name {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 1.0625rem;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
-    color: var(--color-paper);
-    filter: grayscale(1);
-    opacity: 0.82;
+  .marquee-item img {
+    display: block;
+    width: var(--w);
+    height: var(--h);
+    object-fit: contain;
+    opacity: 0.78;
     transition: opacity 0.3s;
   }
-  .integ-item:hover .integ-name,
-  .integ-item:hover .integ-logo {
+  .marquee-item:hover img {
     opacity: 1;
   }
-  .integ-logo {
-    max-width: 7.5rem;
-    max-height: 2rem;
-    filter: grayscale(1) brightness(1.6);
-    opacity: 0.75;
-    transition: opacity 0.3s;
+  .marquee-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    white-space: nowrap;
+    color: var(--color-paper);
+    opacity: 0.78;
   }
-  .integ-group {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    color: var(--color-muted);
+
+  /* Reduced motion: no movement, a static wrapped row. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .marquee-track {
+      flex-wrap: wrap;
+      flex-shrink: 1;
+      justify-content: center;
+      row-gap: 2rem;
+      padding-inline: 1rem;
+      animation: none;
+    }
+    .marquee-track[aria-hidden] {
+      display: none;
+    }
   }
+
   .integ-note {
     font-family: var(--font-mono);
     font-size: 0.8125rem;
