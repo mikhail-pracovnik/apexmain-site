@@ -52,13 +52,11 @@ npm run check:names  # проверка на названия сторонних
 и вернуть его из `getSender()` в `src/lib/lead/index.ts`. Токен в репозиторий не класть.
 
 ## Публикация
-Сейчас: `npm run deploy` — собирает сайт и отправляет `dist/` в ветку `gh-pages`
-(GitHub Pages → Deploy from a branch → `gh-pages`).
+Автоматически: каждый push в `main` запускает `.github/workflows/deploy.yml` — проверка названий
+сторонних компаний, сборка и публикация на GitHub Pages (Source: GitHub Actions).
 
-Автоматическая публикация при каждом push в `main` уже подготовлена в `.github/deploy.yml.disabled`.
-Чтобы включить: `gh auth refresh -s workflow`, затем
-`git mv .github/deploy.yml.disabled .github/workflows/deploy.yml`, push, и в настройках Pages
-выбрать Source: GitHub Actions.
+Запасной ручной вариант: `npm run deploy` отправляет `dist/` в ветку `gh-pages`
+(тогда в настройках Pages нужно выбрать Deploy from a branch → `gh-pages`).
 
 ## Шрифты
 Geologica (заголовки), Onest (текст), IBM Plex Mono (метки) — OFL. Подмножества с латиницей,
