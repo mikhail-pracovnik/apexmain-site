@@ -1,0 +1,213 @@
+{
+  "lang": "en",
+  "langName": "English",
+  "langShort": "EN",
+  "meta": {
+    "title": "ApexMain — websites, ads and sales for businesses in Kazakhstan",
+    "description": "We build websites, ads, Instagram and sales systems for local businesses in Almaty and across Kazakhstan. Free audit: we show where you lose customers.",
+    "examplesTitle": "What we can do — ApexMain",
+    "examplesDescription": "Website concepts for different niches: florists, cosmetology, beauty salons, barbershops and more.",
+    "servicesTitle": "Services — ApexMain",
+    "servicesDescription": "Websites, Instagram and SMM, ads and promotion, sales setup.",
+    "privacyTitle": "Privacy policy — ApexMain",
+    "notFoundTitle": "Page not found — ApexMain"
+  },
+  "a11y": {
+    "skip": "Skip to content",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu",
+    "language": "Language",
+    "progress": "Page scroll",
+    "home": "ApexMain — home",
+    "external": "opens in a new tab"
+  },
+  "nav": {
+    "services": "Services",
+    "examples": "Examples",
+    "process": "How we work",
+    "lead": "Contact",
+    "allExamples": "All examples",
+    "home": "Home",
+    "cta": "Free audit"
+  },
+  "sections": {
+    "intro": "ApexMain",
+    "hero": "Home",
+    "pains": "Sound familiar",
+    "services": "Services",
+    "examples": "Examples",
+    "process": "How we work",
+    "lead": "Contact",
+    "footer": "Contacts"
+  },
+  "intro": {
+    "hint": "Scroll down"
+  },
+  "hero": {
+    "eyebrow": "ApexMain agency · Almaty",
+    "line1": "Customers are searching.",
+    "line2Before": "Let them ",
+    "accent": "find",
+    "line2After": " you.",
+    "sub": "Websites, ads and sales for businesses in Kazakhstan — from the first request to loyal customers.",
+    "ctaPrimary": "Get a free audit",
+    "ctaSecondary": "See examples",
+    "particlesLabel": "ApexMain mark made of particles that react to cursor and touch"
+  },
+  "pains": {
+    "eyebrow": "01 — Sound familiar?",
+    "title": "What brings people to us",
+    "lead": "Usually the business is already good: happy customers, reviews, a solid rating on 2GIS. One thing is missing — new customers who actually book.",
+    "solution": "What we do",
+    "toService": "More about this service"
+  },
+  "services": {
+    "eyebrow": "02 — Services",
+    "title": "What we do",
+    "lead": "Take one thing or everything together. In the free audit we will tell you where it makes sense to start.",
+    "priceFrom": "from {price}",
+    "priceOnRequest": "Price — after the free audit",
+    "currency": "₸",
+    "discuss": "Discuss",
+    "catalog": "All services"
+  },
+  "examples": {
+    "eyebrow": "03 — Examples",
+    "title": "What we can do",
+    "lead": "This is how a website for your niche could look. Real projects will appear here — for now we show the approach on concepts.",
+    "cta": "I want one like this",
+    "all": "All examples",
+    "filterLabel": "Niche",
+    "filterAll": "All",
+    "desktop": "Desktop version",
+    "mobile": "Mobile version",
+    "empty": "No concepts in this niche yet. Leave a request — yours will be the first."
+  },
+  "process": {
+    "eyebrow": "04 — Process",
+    "title": "How we work",
+    "steps": [
+      {
+        "title": "Free audit",
+        "text": "We look at your Instagram, 2GIS and website, if you have one. We walk the customer's path to a request and show where people drop off."
+      },
+      {
+        "title": "Plan and price",
+        "text": "We suggest what to do first and fix the cost and timeline before any work starts."
+      },
+      {
+        "title": "We build",
+        "text": "We make the website, ads or sales setup. You see work-in-progress versions and give feedback."
+      },
+      {
+        "title": "Launch and support",
+        "text": "We launch, check that requests come in, and stay in touch for edits and next steps."
+      }
+    ]
+  },
+  "lead": {
+    "eyebrow": "05 — Request",
+    "title": "Get a free audit",
+    "lead": "Tell us about your business — we will find where customers get lost and suggest what to fix first.",
+    "name": "Your name",
+    "namePlaceholder": "Name",
+    "contact": "Phone or Telegram username",
+    "contactPlaceholder": "+7 7__ ___ __ __ or @username",
+    "niche": "Niche",
+    "nichePlaceholder": "Choose a niche",
+    "comment": "Comment",
+    "commentPlaceholder": "Link to Instagram or 2GIS, what you want to improve",
+    "optional": "optional",
+    "consentBefore": "I agree to the processing of personal data and accept the ",
+    "consentLink": "privacy policy",
+    "consentAfter": "",
+    "sendTelegram": "Send via Telegram",
+    "sendWhatsapp": "Send via WhatsApp",
+    "how": "Your messenger opens with the request already written — just press “Send”.",
+    "copied": "Request text copied. If it does not appear in the chat, paste it manually.",
+    "opened": "Opening the messenger…",
+    "errors": {
+      "name": "Tell us how to address you",
+      "contact": "Add a phone number or Telegram username",
+      "consent": "Consent to data processing is required"
+    },
+    "message": {
+      "greeting": "Hello! Free audit request from the ApexMain website.",
+      "name": "Name",
+      "contact": "Contact",
+      "niche": "Niche",
+      "comment": "Comment",
+      "example": "Liked the example",
+      "service": "Service"
+    },
+    "picked": "You picked"
+  },
+  "footer": {
+    "quotesLabel": "Movie quotes about business",
+    "contactTitle": "Get in touch",
+    "rights": "All rights reserved.",
+    "privacy": "Privacy policy",
+    "made": "We built this site — we can build yours too.",
+    "pause": "Pause or resume quotes",
+    "quoteN": "Quote {n} of {total}"
+  },
+  "messenger": {
+    "open": "Message us",
+    "close": "Close",
+    "telegram": "Telegram",
+    "whatsapp": "WhatsApp",
+    "greeting": "Hello! Writing from the ApexMain website."
+  },
+  "toTop": "Back to top",
+  "consent": {
+    "text": "We use analytics cookies to understand what is useful on this site. They are enabled only with your consent.",
+    "accept": "Allow",
+    "decline": "Decline"
+  },
+  "servicesPage": {
+    "title": "Services",
+    "lead": "The full catalog of services is coming soon. For now, here are the main directions.",
+    "back": "Home"
+  },
+  "examplesPage": {
+    "title": "What we can do",
+    "lead": "Website concepts for different niches. Pick yours and press “I want one like this”."
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "draftNote": "This is a draft. Company details and the final text will be added after approval.",
+    "updated": "Last updated",
+    "placeholder": "[to be added]",
+    "sections": [
+      {
+        "title": "1. Who processes the data",
+        "text": "Data controller: {entity}, BIN {bin}. Address: {address}. Contact for data questions: {email}."
+      },
+      {
+        "title": "2. What data we receive",
+        "text": "The name, phone or messenger username, business niche and comment you enter in the request form. The form on this website stores nothing: the request text is passed to the messenger you choose (Telegram or WhatsApp), and you send it to us yourself."
+      },
+      {
+        "title": "3. Why",
+        "text": "To contact you, run the free audit and prepare an offer. We do not sell or share data with third parties except where required by law."
+      },
+      {
+        "title": "4. How long we keep it",
+        "text": "No longer than needed to answer your request and work with you, or until you ask us to delete it."
+      },
+      {
+        "title": "5. Analytics and cookies",
+        "text": "Analytics services are enabled only after you consent in the cookie banner. Without consent they are not loaded."
+      },
+      {
+        "title": "6. Your rights",
+        "text": "You can request, correct or delete your data by writing to us. Processing follows the Law of the Republic of Kazakhstan “On Personal Data and Their Protection”."
+      }
+    ]
+  },
+  "notFound": {
+    "title": "This page does not exist",
+    "text": "The link may be outdated. Start from the home page — everything important is there.",
+    "back": "Home"
+  }
+}

@@ -1,0 +1,118 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import LoopVideo from './LoopVideo.astro';
+import ExamplePlaceholder from './ExamplePlaceholder.astro';
+import { t, url, asset, type Locale } from '../i18n';
+import { inPublic, usableVideo } from '../lib/media';
+
+interface Props {
+  example: CollectionEntry<'examples'>;
+  locale: Locale;
+  nicheLabel: string;
+  index: number;
+  /** Heading level inside the card. */
+  level?: 'h3' | 'h2';
+}
+const { example, locale, nicheLabel, index, level: H = 'h3' } = Astro.props;
+const d = t(locale);
+const e = example.data;
+const video = usableVideo(e.video);
+const desktop = inPublic(e.images.desktop) ? e.images.desktop : null;
+const mobile = inPublic(e.images.mobile) ? e.images.mobile : null;
+const title = e.title[locale];
+const wantHref = `${url(locale)}?niche=${encodeURIComponent(e.niche)}&example=${encodeURIComponent(title)}#lead`;
+---
+
+<article class="example reveal" data-niche={e.niche} style={`--i:${index % 2}`}>
+  <div class="example-media">
+    {
+      desktop ? (
+        <picture>
+          {mobile && <source media="(max-width: 40rem)" srcset={asset(mobile)} />}
+          <img src={asset(desktop)} alt={`${title} — ${d.examples.desktop}`} loading="lazy" decoding="async" width="960" height="600" />
+        </picture>
+      ) : (
+        <ExamplePlaceholder layout={e.layout} class="example-ph" />
+      )
+    }
+    {video && <LoopVideo video={video} class="example-video" />}
+    <span class="example-tag">{nicheLabel}</span>
+  </div>
+  <div class="example-body">
+    <div>
+      <H class="example-title">{title}</H>
+      {e.summary && <p class="example-summary">{e.summary[locale]}</p>}
+    </div>
+    <a href={wantHref} class="btn btn-dark example-cta" data-want data-niche={e.niche} data-example={title}>
+      {d.examples.cta}
+      <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
+        ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
+      >
+    </a>
+  </div>
+</article>
+
+<style>
+  .example {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .example[hidden] {
+    display: none;
+  }
+  .example-media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-card);
+    background: #10141b;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -40px rgb(10 12 17 / 0.6);
+    transform: translateZ(0);
+  }
+  .example-media :global(.example-ph),
+  .example-media :global(.example-video),
+  .example-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.9s var(--ease-out-expo);
+  }
+  .example:hover .example-media :global(.example-ph),
+  .example:hover .example-media :global(.example-video),
+  .example:hover .example-media img {
+    transform: scale(1.025);
+  }
+  .example-tag {
+    position: absolute;
+    left: 0.875rem;
+    top: 0.875rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: rgb(10 12 17 / 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-paper);
+  }
+  .example-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .example-title {
+    font-size: clamp(1.4rem, 2.6vw, 1.75rem);
+  }
+  .example-summary {
+    margin-top: 0.35rem;
+    color: var(--color-muted-dark);
+  }
+  .example-cta {
+    flex-shrink: 0;
+  }
+</style>

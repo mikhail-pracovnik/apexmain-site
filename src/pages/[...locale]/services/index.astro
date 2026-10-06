@@ -1,0 +1,65 @@
+---
+/**
+ * Future services catalog. While site.servicesCatalogReady is false the page is a stub:
+ * it is excluded from the sitemap, marked noindex and not linked from navigation.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ServiceCard from '../../../components/ServiceCard.astro';
+import { site } from '../../../config/site';
+import { t, url, localeStaticPaths, type Locale } from '../../../i18n';
+import { getServices } from '../../../lib/content';
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props as { locale: Locale };
+const d = t(locale);
+const services = await getServices();
+---
+
+<BaseLayout
+  locale={locale}
+  title={d.meta.servicesTitle}
+  description={d.meta.servicesDescription}
+  path="services"
+  noindex={!site.servicesCatalogReady}
+>
+  <section class="section svc-page" data-label={d.sections.services} aria-labelledby="svc-title">
+    <div class="container-x">
+      <header class="svc-head">
+        <p class="eyebrow">{d.services.eyebrow}</p>
+        <h1 id="svc-title" class="svc-title">{d.servicesPage.title}</h1>
+        <p class="lead-text">{d.servicesPage.lead}</p>
+      </header>
+      <div class="svc-grid">
+        {services.map((s, i) => <ServiceCard service={s} locale={locale} index={i} formOnPage={false} />)}
+      </div>
+      <p class="mt-12">
+        <a href={url(locale)} class="btn btn-ghost">{d.servicesPage.back}</a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .svc-page {
+    padding-top: 8.5rem;
+  }
+  .svc-head {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+  }
+  .svc-title {
+    font-size: clamp(2.4rem, 7.5vw, 5rem);
+  }
+  .svc-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 48rem) {
+    .svc-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+  }
+</style>

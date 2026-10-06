@@ -1,0 +1,56 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { t, url, locales } from '../i18n';
+
+const d = t('ru');
+---
+
+<BaseLayout locale="ru" title={d.meta.notFoundTitle} description={d.notFound.text} path="404" noindex>
+  <section class="section nf" data-label="404">
+    <div class="container-x nf-inner">
+      <p class="nf-code" aria-hidden="true">404</p>
+      {
+        locales.map((l) => (
+          <div lang={l} class="nf-block">
+            <h1 class="nf-title">{t(l).notFound.title}</h1>
+            <p class="lead-text">{t(l).notFound.text}</p>
+            <a href={url(l)} class="btn btn-ghost">
+              {t(l).notFound.back}
+            </a>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf {
+    min-height: 80svh;
+    padding-top: 8.5rem;
+  }
+  .nf-inner {
+    display: grid;
+    gap: 2.5rem;
+  }
+  .nf-code {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(5rem, 22vw, 12rem);
+    line-height: 0.9;
+    color: var(--color-apex);
+  }
+  .nf-block {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .nf-block:not(:first-of-type) .nf-title {
+    font-size: 1.5rem;
+  }
+  .nf-title {
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { site } from '../../../config/site';
+import { t, fill, localeStaticPaths, type Locale } from '../../../i18n';
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props as { locale: Locale };
+const d = t(locale);
+const ph = d.privacy.placeholder;
+const values = {
+  entity: site.legal.entity ?? ph,
+  bin: site.legal.bin ?? ph,
+  address: site.legal.address ?? ph,
+  email: site.legal.email ?? ph,
+};
+const isDraft = Object.values(site.legal).some((v) => !v);
+const updated = new Date().toISOString().slice(0, 10);
+---
+
+<BaseLayout locale={locale} title={d.meta.privacyTitle} description={d.privacy.title} path="privacy" noindex>
+  <article class="section policy" data-label={d.footer.privacy}>
+    <div class="container-x policy-inner">
+      <h1 class="policy-title">{d.privacy.title}</h1>
+      {isDraft && <p class="policy-note">{d.privacy.draftNote}</p>}
+      <p class="policy-meta">{d.privacy.updated}: <time datetime={updated}>{updated}</time></p>
+      {
+        d.privacy.sections.map((s) => (
+          <section>
+            <h2>{s.title}</h2>
+            <p>{fill(s.text, values)}</p>
+          </section>
+        ))
+      }
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .policy {
+    padding-top: 8.5rem;
+  }
+  .policy-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.75rem;
+    max-width: 46rem;
+  }
+  .policy-title {
+    font-size: clamp(1.75rem, 7vw, 3.75rem);
+  }
+  .policy-note {
+    padding: 1rem 1.25rem;
+    border: 1px dashed var(--color-line);
+    border-radius: 1rem;
+    color: var(--color-muted);
+  }
+  .policy-meta {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+  .policy h2 {
+    margin-bottom: 0.6rem;
+    font-size: 1.375rem;
+  }
+  .policy section p {
+    color: var(--color-muted);
+  }
+</style>

@@ -1,0 +1,33 @@
+# build
+dist/
+.astro/
+node_modules/
+video/node_modules/
+video/out/
+
+# source materials — never commit
+content/examples-raw/
+content/raw/
+content/sources/
+assets/raw/
+assets/source/
+*.psd
+*.fig
+*.sketch
+*.ai
+*.xd
+fonts-src/
+
+# local lists for the third-party names check
+.names-denylist.txt
+
+# agent tooling
+.agents/
+.claude/
+skills-lock.json
+
+# env / OS
+.env
+.env.*
+.DS_Store
+Thumbs.db

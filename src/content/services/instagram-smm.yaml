@@ -1,0 +1,20 @@
+order: 2
+draft: true
+hidden: false
+priceFrom: null
+video:
+  webm: media/services/instagram-smm.webm
+  mp4: media/services/instagram-smm.mp4
+  poster: media/services/instagram-smm.jpg
+title:
+  ru: Instagram и SMM
+  kk: Instagram және SMM
+  en: Instagram and SMM
+description:
+  ru: Оформляем профиль так, чтобы с первого взгляда было понятно, что вы продаёте и как записаться. Контент-план, Reels и сторис, которые приводят клиентов, а не только лайки.
+  kk: Профильді бір қарағанда не сататыныңыз және қалай жазылуға болатыны түсінікті болатындай етіп рәсімдейміз. Тек лайк емес, клиент әкелетін контент-жоспар, Reels және сторис.
+  en: We set up your profile so it is instantly clear what you sell and how to book. A content plan, Reels and stories that bring customers, not just likes.
+tags:
+  ru: [Оформление профиля, Контент-план, Reels, Сторис]
+  kk: [Профильді рәсімдеу, Контент-жоспар, Reels, Сторис]
+  en: [Profile setup, Content plan, Reels, Stories]

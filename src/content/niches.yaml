@@ -1,0 +1,22 @@
+# Ниши для фильтра примеров и для формы заявки. id — ключ, на который ссылаются примеры.
+- id: flowers
+  order: 1
+  label: { ru: Цветы, kk: Гүлдер, en: Florist }
+- id: clinic
+  order: 2
+  label: { ru: Косметология, kk: Косметология, en: Cosmetology clinic }
+- id: cosmetics
+  order: 3
+  label: { ru: Магазин косметики, kk: Косметика дүкені, en: Cosmetics store }
+- id: salon
+  order: 4
+  label: { ru: Салон красоты, kk: Сұлулық салоны, en: Beauty salon }
+- id: barber
+  order: 5
+  label: { ru: Барбершоп, kk: Барбершоп, en: Barbershop }
+- id: food
+  order: 6
+  label: { ru: Кафе и доставка еды, kk: Кафе және тамақ жеткізу, en: Café and food delivery }
+- id: other
+  order: 99
+  label: { ru: Другое, kk: Басқа, en: Other }

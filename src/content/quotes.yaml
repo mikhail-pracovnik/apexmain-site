@@ -1,0 +1,47 @@
+# Цитаты для подвала. Каждая сверена дословно с источниками из поля sources.
+# Русский перевод взят из русскоязычных источников. На казахской и английской версиях показывается оригинал.
+# Новую цитату добавляйте только после проверки по надёжному источнику.
+- id: roads
+  order: 1
+  original: "Roads? Where we're going, we don't need roads."
+  translation:
+    ru: "Дороги? Там, куда мы едем, они не нужны."
+  character: { ru: Док Браун, kk: Doc Brown, en: Doc Brown }
+  film: { ru: Назад в будущее, kk: Back to the Future, en: Back to the Future }
+  year: 1985
+  sources:
+    - https://en.wikiquote.org/wiki/Back_to_the_Future
+    - https://ru.wikiquote.org/wiki/Назад_в_будущее
+- id: offer
+  order: 2
+  original: "I'm gonna make him an offer he can't refuse."
+  translation:
+    ru: "Я собираюсь сделать ему предложение, от которого он не сможет отказаться."
+  character: { ru: Вито Корлеоне, kk: Vito Corleone, en: Vito Corleone }
+  film: { ru: Крёстный отец, kk: The Godfather, en: The Godfather }
+  year: 1972
+  sources:
+    - https://www.afi.com/afis-100-years-100-movie-quotes/
+    - https://ru.wikipedia.org/wiki/Крёстный_отец_(фильм)
+- id: communicate
+  order: 3
+  original: "What we've got here is failure to communicate."
+  translation:
+    ru: "В данном случае мы имеем отсутствие взаимопонимания."
+  character: { ru: Капитан, kk: Captain, en: Captain }
+  film: { ru: Хладнокровный Люк, kk: Cool Hand Luke, en: Cool Hand Luke }
+  year: 1967
+  sources:
+    - https://www.afi.com/afis-100-years-100-movie-quotes/
+    - https://ru.wikipedia.org/wiki/Хладнокровный_Люк
+- id: boat
+  order: 4
+  original: "You're gonna need a bigger boat."
+  translation:
+    ru: "Тебе нужна будет лодка побольше."
+  character: { ru: Мартин Броуди, kk: Martin Brody, en: Martin Brody }
+  film: { ru: Челюсти, kk: Jaws, en: Jaws }
+  year: 1975
+  sources:
+    - https://en.wikipedia.org/wiki/AFI%27s_100_Years...100_Movie_Quotes
+    - https://ru.wikipedia.org/wiki/Челюсти_(фильм)

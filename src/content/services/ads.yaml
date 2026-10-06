@@ -1,0 +1,20 @@
+order: 3
+draft: true
+hidden: false
+priceFrom: null
+video:
+  webm: media/services/ads.webm
+  mp4: media/services/ads.mp4
+  poster: media/services/ads.jpg
+title:
+  ru: Реклама и продвижение
+  kk: Жарнама және жылжыту
+  en: Ads and promotion
+description:
+  ru: Реклама в Instagram и в поиске, карточки в 2ГИС и на картах. Считаем, сколько стоит одна заявка, и отключаем то, что не окупается.
+  kk: Instagram мен іздеудегі жарнама, 2ГИС пен карталардағы карточкалар. Бір өтінімнің қанша тұратынын есептеп, өзін ақтамайтынын өшіреміз.
+  en: Ads on Instagram and in search, listings on 2GIS and maps. We count what one request costs and switch off what does not pay off.
+tags:
+  ru: [Таргет, Поиск, 2ГИС и карты, Аналитика]
+  kk: [Таргет, Іздеу, 2ГИС және карталар, Аналитика]
+  en: [Targeting, Search, 2GIS and maps, Analytics]

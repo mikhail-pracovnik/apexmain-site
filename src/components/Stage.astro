@@ -1,0 +1,268 @@
+---
+/**
+ * First screen: scroll-driven intro (mark is drawn, the turquoise peak lights up last,
+ * the mark flies into the header) on top of the hero with the particle mark.
+ * Without JS or with reduced motion the intro layer is not shown and the hero is static.
+ */
+import BrandMark from './BrandMark.astro';
+import brand from '../data/brand-mark.json';
+import { t, url, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const d = t(locale);
+const peak = brand.shapes.find((s) => s.id === 'peak')!;
+const [vx, vy, vw, vh] = brand.viewBox;
+---
+
+<section class="stage" id="top" data-label={d.sections.hero} data-stage>
+  <div class="stage-pin" data-stage-pin>
+    <div class="hero container-x">
+      <div class="hero-visual">
+        <canvas class="hero-canvas" data-particles role="img" aria-label={d.hero.particlesLabel}></canvas>
+        <BrandMark class="hero-static" />
+      </div>
+      <div class="hero-text">
+        <p class="eyebrow hero-in">{d.hero.eyebrow}</p>
+        <h1 class="hero-title">
+          <span class="hero-in">{d.hero.line1}</span>
+          <span class="hero-in">{d.hero.line2Before}<span class="accent">{d.hero.accent}</span>{d.hero.line2After}</span>
+        </h1>
+        <p class="hero-sub hero-in">{d.hero.sub}</p>
+        <div class="hero-ctas hero-in">
+          <a href="#lead" class="btn btn-primary">
+            {d.hero.ctaPrimary}
+            <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
+              ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
+            >
+          </a>
+          <a href={url(locale, 'examples')} class="btn btn-ghost" data-examples-link>{d.hero.ctaSecondary}</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="intro" aria-hidden="true" data-intro>
+      <div class="intro-bg" data-intro-bg></div>
+      <div class="intro-anchor" data-intro-anchor>
+        <div class="intro-fly" data-intro-fly>
+          <BrandMark class="intro-ghost" />
+          <svg class="intro-glow" viewBox={`${vx} ${vy} ${vw} ${vh}`} data-intro-glow>
+            <defs>
+              <filter id="peak-glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="28"></feGaussianBlur>
+              </filter>
+            </defs>
+            <polygon points={peak.points.map((p) => p.join(',')).join(' ')} fill="#46C8D9" filter="url(#peak-glow)"></polygon>
+          </svg>
+          <BrandMark variant="outline" class="intro-mark" />
+        </div>
+      </div>
+      <p class="intro-hint" data-intro-hint>
+        <span>{d.intro.hint}</span>
+        <span class="intro-line" aria-hidden="true"></span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initStage } from '../scripts/stage';
+  initStage();
+</script>
+
+<style>
+  .stage {
+    position: relative;
+  }
+  .stage-pin {
+    position: relative;
+    min-height: 100svh;
+    overflow: hidden;
+  }
+  /*
+   * Intro scroll length is reserved in CSS (no layout shift when GSAP loads):
+   * the stage is 100svh + 125svh tall and the first screen sticks while the intro plays.
+   * Keep the extra length ≤ 150% of the viewport.
+   */
+  :global(html.js.motion.has-intro:not(.intro-off)) .stage {
+    height: calc(100svh + 125svh);
+  }
+  :global(html.js.motion.has-intro:not(.intro-off)) .stage-pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    min-height: 100svh;
+    padding-top: 5.5rem;
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+  }
+  @media (min-width: 64rem) {
+    .hero {
+      grid-template-columns: 1.3fr 1fr;
+      grid-template-rows: 1fr;
+      align-items: center;
+      gap: 2rem;
+      padding-top: 6rem;
+    }
+  }
+  .hero-visual {
+    position: relative;
+    min-height: 13rem;
+  }
+  @media (min-width: 64rem) {
+    .hero-visual {
+      order: 2;
+      height: min(62vh, 34rem);
+    }
+  }
+  .hero-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    touch-action: pan-y;
+  }
+  .hero-static {
+    position: absolute;
+    inset: 12% 10%;
+    width: 80%;
+    height: 76%;
+    opacity: 0.9;
+  }
+  :global(html.js) .hero-static {
+    display: none;
+  }
+  :global(html:not(.js)) .hero-canvas {
+    display: none;
+  }
+
+  .hero-text {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .hero-title {
+    display: grid;
+    font-size: clamp(2.25rem, 8.6vw, 5.75rem);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .hero-title > span {
+    display: block;
+  }
+  @media (min-width: 64rem) {
+    .hero-title {
+      font-size: min(4.4vw, 5rem);
+    }
+  }
+  .hero-sub {
+    max-width: 34rem;
+    font-size: 1.125rem;
+    color: var(--color-muted);
+  }
+  @media (min-width: 64rem) {
+    .hero-sub {
+      font-size: 1.25rem;
+    }
+  }
+  .hero-ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  @media (max-width: 30rem) {
+    .hero-ctas .btn {
+      flex: 1 1 100%;
+    }
+  }
+
+  /* ---------- Intro overlay ---------- */
+  .intro {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  :global(html.js.motion:not(.intro-off)) .intro {
+    display: block;
+  }
+  .intro-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(50% 40% at 50% 46%, rgb(70 200 217 / 0.05), transparent 70%),
+      var(--color-ink);
+  }
+  .intro-anchor {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    width: min(72vw, 30rem);
+    aspect-ratio: 1473 / 1031;
+    transform: translate(-50%, -50%);
+  }
+  .intro-fly {
+    position: absolute;
+    inset: 0;
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+  .intro-fly > :global(svg) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .intro-fly :global(.intro-ghost) {
+    opacity: 0.07;
+  }
+  .intro-glow {
+    opacity: 0;
+  }
+  .intro-fly :global(.intro-mark polygon) {
+    fill-opacity: 0;
+    stroke-width: 7;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .intro-hint {
+    position: absolute;
+    left: 50%;
+    bottom: max(2rem, env(safe-area-inset-bottom));
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+  .intro-line {
+    position: relative;
+    width: 1px;
+    height: 2.5rem;
+    overflow: hidden;
+    background: var(--color-line);
+  }
+  .intro-line::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 60% 0;
+    background: var(--color-apex);
+  }
+</style>

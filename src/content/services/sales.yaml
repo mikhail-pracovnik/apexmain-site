@@ -1,0 +1,20 @@
+order: 4
+draft: true
+hidden: false
+priceFrom: null
+video:
+  webm: media/services/sales.webm
+  mp4: media/services/sales.mp4
+  poster: media/services/sales.jpg
+title:
+  ru: Настройка продаж
+  kk: Сатылымды баптау
+  en: Sales setup
+description:
+  ru: Наводим порядок в заявках, чтобы ни один клиент не потерялся. CRM, быстрые ответы, скрипты для администратора и напоминания, чтобы клиенты возвращались.
+  kk: Бірде-бір клиент жоғалмауы үшін өтінімдерді ретке келтіреміз. CRM, жылдам жауаптар, әкімшіге арналған скрипттер және клиенттер қайта оралуы үшін еске салғыштар.
+  en: We put requests in order so no customer gets lost. CRM, quick replies, scripts for your administrator and reminders that bring customers back.
+tags:
+  ru: [CRM, Быстрые ответы, Скрипты, Повторные продажи]
+  kk: [CRM, Жылдам жауаптар, Скрипттер, Қайталама сатылым]
+  en: [CRM, Quick replies, Scripts, Repeat sales]

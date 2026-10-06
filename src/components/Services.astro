@@ -1,0 +1,62 @@
+---
+import ServiceCard from './ServiceCard.astro';
+import { site } from '../config/site';
+import { t, url, type Locale } from '../i18n';
+import { getServices } from '../lib/content';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const d = t(locale);
+const services = await getServices();
+---
+
+<section class="section" id="services" data-label={d.sections.services} aria-labelledby="services-title">
+  <div class="container-x">
+    <header class="sec-head">
+      <div class="grid gap-5">
+        <p class="eyebrow reveal">{d.services.eyebrow}</p>
+        <h2 id="services-title" class="h-section reveal" style="--i:1">{d.services.title}</h2>
+      </div>
+      <p class="lead-text reveal" style="--i:2">{d.services.lead}</p>
+    </header>
+    <div class="services-grid">
+      {services.map((s, i) => <ServiceCard service={s} locale={locale} index={i} />)}
+    </div>
+    {
+      site.servicesCatalogReady && (
+        <p class="mt-10">
+          <a href={url(locale, 'services')} class="btn btn-ghost">
+            {d.services.catalog}
+          </a>
+        </p>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .sec-head {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  @media (min-width: 64rem) {
+    .sec-head {
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+      margin-bottom: 4rem;
+    }
+  }
+  .services-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 48rem) {
+    .services-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+  }
+</style>

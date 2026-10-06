@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Stage from '../../components/Stage.astro';
+import Pains from '../../components/Pains.astro';
+import Services from '../../components/Services.astro';
+import Examples from '../../components/Examples.astro';
+import Process from '../../components/Process.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import { t, localeStaticPaths, type Locale } from '../../i18n';
+
+export const getStaticPaths = localeStaticPaths;
+
+const { locale } = Astro.props as { locale: Locale };
+const d = t(locale);
+---
+
+<BaseLayout locale={locale} title={d.meta.title} description={d.meta.description} withIntro>
+  <Stage locale={locale} />
+  <Pains locale={locale} />
+  <Services locale={locale} />
+  <Examples locale={locale} />
+  <Process locale={locale} />
+  <LeadForm locale={locale} />
+</BaseLayout>

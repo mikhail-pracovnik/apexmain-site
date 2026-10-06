@@ -1,0 +1,251 @@
+---
+import { site } from '../config/site';
+import { t, url, type Locale } from '../i18n';
+import { getNiches } from '../lib/content';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const d = t(locale);
+const niches = await getNiches();
+const config = {
+  locale,
+  labels: d.lead.message,
+  errors: d.lead.errors,
+  copied: d.lead.copied,
+  opened: d.lead.opened,
+  picked: d.lead.picked,
+};
+---
+
+<section class="section theme-light" id="lead" data-label={d.sections.lead} aria-labelledby="lead-title">
+  <div class="container-x lead-grid">
+    <header class="lead-head">
+      <p class="eyebrow reveal">{d.lead.eyebrow}</p>
+      <h2 id="lead-title" class="h-section reveal" style="--i:1">{d.lead.title}</h2>
+      <p class="lead-text reveal" style="--i:2">{d.lead.lead}</p>
+      <ul class="lead-direct reveal" style="--i:3">
+        <li><a href={`https://t.me/${site.contacts.telegram}`} target="_blank" rel="noopener">Telegram · @{site.contacts.telegram}</a></li>
+        <li><a href={`https://wa.me/${site.contacts.whatsapp}`} target="_blank" rel="noopener">WhatsApp · {site.contacts.whatsappDisplay}</a></li>
+      </ul>
+    </header>
+
+    <form class="lead-form reveal" novalidate data-lead-form data-config={JSON.stringify(config)}>
+      <div class="field">
+        <label for="lead-name">{d.lead.name}</label>
+        <input id="lead-name" name="name" type="text" autocomplete="name" maxlength="80" placeholder={d.lead.namePlaceholder} required aria-describedby="lead-name-err" />
+        <p class="field-error" id="lead-name-err" hidden></p>
+      </div>
+      <div class="field">
+        <label for="lead-contact">{d.lead.contact}</label>
+        <input id="lead-contact" name="contact" type="text" autocomplete="tel" inputmode="text" maxlength="60" placeholder={d.lead.contactPlaceholder} required aria-describedby="lead-contact-err" />
+        <p class="field-error" id="lead-contact-err" hidden></p>
+      </div>
+      <div class="field">
+        <label for="lead-niche">{d.lead.niche} <span class="opt">({d.lead.optional})</span></label>
+        <div class="select">
+          <select id="lead-niche" name="niche">
+            <option value="">{d.lead.nichePlaceholder}</option>
+            {niches.map((n) => <option value={n.id}>{n.data.label[locale]}</option>)}
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="lead-comment">{d.lead.comment} <span class="opt">({d.lead.optional})</span></label>
+        <textarea id="lead-comment" name="comment" rows="3" maxlength="600" placeholder={d.lead.commentPlaceholder}></textarea>
+      </div>
+      <input type="hidden" name="example" />
+      <input type="hidden" name="service" />
+      <p class="lead-picked" data-picked hidden></p>
+
+      <div class="field field-check">
+        <input id="lead-consent" name="consent" type="checkbox" required aria-describedby="lead-consent-err" />
+        <label for="lead-consent">
+          {d.lead.consentBefore}<a href={url(locale, 'privacy')} target="_blank" rel="noopener">{d.lead.consentLink}</a>{d.lead.consentAfter}
+        </label>
+        <p class="field-error" id="lead-consent-err" hidden></p>
+      </div>
+
+      <div class="lead-actions">
+        <button type="submit" name="channel" value="telegram" class="btn btn-primary">{d.lead.sendTelegram}</button>
+        <button type="submit" name="channel" value="whatsapp" class="btn btn-dark">{d.lead.sendWhatsapp}</button>
+      </div>
+      <p class="lead-note">{d.lead.how}</p>
+      <p class="lead-status" role="status" aria-live="polite" data-status></p>
+    </form>
+  </div>
+</section>
+
+<script>
+  import { initLeadForm } from '../scripts/lead-form';
+  initLeadForm();
+</script>
+
+<style>
+  .lead-grid {
+    display: grid;
+    gap: 3rem;
+  }
+  @media (min-width: 64rem) {
+    .lead-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+    }
+  }
+  .lead-head {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .lead-direct {
+    display: grid;
+    gap: 0.25rem;
+    margin-top: 1rem;
+  }
+  .lead-direct a {
+    display: inline-block;
+    padding-block: 0.4rem;
+    font-weight: 600;
+    border-bottom: 1px solid var(--color-line-dark);
+    transition: border-color 0.2s;
+  }
+  .lead-direct a:hover {
+    border-color: var(--color-ink);
+  }
+  .lead-form {
+    display: grid;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    border-radius: var(--radius-card);
+    background: #fff;
+    box-shadow: 0 30px 60px -40px rgb(10 12 17 / 0.35);
+  }
+  @media (min-width: 48rem) {
+    .lead-form {
+      padding: 2.25rem;
+    }
+  }
+  .field {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .field > label {
+    font-weight: 600;
+    font-size: 0.9375rem;
+  }
+  .opt {
+    font-weight: 400;
+    color: var(--color-muted-dark);
+  }
+  .field input[type='text'],
+  .field select,
+  .field textarea {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgb(10 12 17 / 0.2);
+    border-radius: 0.875rem;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 1rem;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 6rem;
+  }
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: #6b7580; /* 4.6:1 on paper */
+  }
+  .field input:focus-visible,
+  .field select:focus-visible,
+  .field textarea:focus-visible {
+    border-color: var(--color-ink);
+    background: #fff;
+    outline-offset: 1px;
+  }
+  .field [aria-invalid='true'] {
+    border-color: var(--color-danger-dark);
+  }
+  .select {
+    position: relative;
+  }
+  .select select {
+    appearance: none;
+    padding-right: 2.75rem;
+  }
+  .select::after {
+    content: '';
+    position: absolute;
+    right: 1.1rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-right: 1.6px solid currentColor;
+    border-bottom: 1.6px solid currentColor;
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+  .field-error {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-danger-dark);
+  }
+  .field-check {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 0.75rem;
+  }
+  .field-check input {
+    width: 1.375rem;
+    height: 1.375rem;
+    margin-top: 0.15rem;
+    accent-color: var(--color-ink);
+  }
+  .field-check label {
+    font-size: 0.9375rem;
+    color: var(--color-muted-dark);
+  }
+  .field-check label a {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .field-check .field-error {
+    grid-column: 1 / -1;
+  }
+  .lead-picked {
+    padding: 0.75rem 1rem;
+    border-radius: 0.875rem;
+    background: var(--color-paper);
+    font-size: 0.9375rem;
+  }
+  .lead-actions {
+    display: grid;
+    gap: 0.625rem;
+  }
+  @media (min-width: 30rem) {
+    .lead-actions {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .lead-note {
+    font-size: 0.875rem;
+    color: var(--color-muted-dark);
+  }
+  .lead-status:empty {
+    display: none;
+  }
+  .lead-status {
+    padding: 0.75rem 1rem;
+    border-radius: 0.875rem;
+    background: rgb(11 110 124 / 0.08);
+    color: var(--color-ink);
+    font-size: 0.9375rem;
+  }
+</style>

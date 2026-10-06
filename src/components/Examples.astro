@@ -1,0 +1,65 @@
+---
+import ExampleCard from './ExampleCard.astro';
+import { t, url, type Locale } from '../i18n';
+import { getExamples, getNiches } from '../lib/content';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const d = t(locale);
+const examples = (await getExamples()).filter((e) => e.data.featured).slice(0, 4);
+const niches = await getNiches();
+const nicheLabel = (id: string) => niches.find((n) => n.id === id)?.data.label[locale] ?? id;
+---
+
+<section class="section theme-light" id="examples" data-label={d.sections.examples} aria-labelledby="examples-title">
+  <div class="container-x">
+    <header class="ex-head">
+      <div class="grid gap-5">
+        <p class="eyebrow reveal">{d.examples.eyebrow}</p>
+        <h2 id="examples-title" class="h-section reveal" style="--i:1">{d.examples.title}</h2>
+      </div>
+      <p class="lead-text reveal" style="--i:2">{d.examples.lead}</p>
+    </header>
+    <div class="ex-grid">
+      {examples.map((e, i) => <ExampleCard example={e} locale={locale} nicheLabel={nicheLabel(e.data.niche)} index={i} />)}
+    </div>
+    <p class="ex-more reveal">
+      <a href={url(locale, 'examples')} class="btn btn-ghost">
+        {d.examples.all}
+        <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
+          ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
+        >
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .ex-head {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  @media (min-width: 64rem) {
+    .ex-head {
+      grid-template-columns: 1fr 1fr;
+      align-items: end;
+      margin-bottom: 4rem;
+    }
+  }
+  .ex-grid {
+    display: grid;
+    gap: 3rem 1.5rem;
+  }
+  @media (min-width: 48rem) {
+    .ex-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .ex-more {
+    margin-top: 3.5rem;
+    text-align: center;
+  }
+</style>

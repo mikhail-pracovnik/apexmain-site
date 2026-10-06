@@ -1,0 +1,116 @@
+---
+import { site } from '../config/site';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const d = t(locale);
+const text = encodeURIComponent(d.messenger.greeting);
+---
+
+<div class="fab" data-fab>
+  <ul class="fab-menu" id="fab-menu">
+    <li>
+      <a href={`https://t.me/${site.contacts.telegram}?text=${text}`} target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+          ><path
+            fill="currentColor"
+            d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.8.8l-4.9-3.6-2.4 2.3c-.3.3-.5.5-1 .5l.3-5 9.2-8.3c.4-.4-.1-.6-.6-.2L6.1 13 1.3 11.5c-1-.3-1-1 .2-1.5L20.6 2.8c.9-.3 1.6.2 1.3 1.5Z"
+          ></path></svg
+        >
+        {d.messenger.telegram}
+      </a>
+    </li>
+    <li>
+      <a href={`https://wa.me/${site.contacts.whatsapp}?text=${text}`} target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+          ><path
+            fill="currentColor"
+            d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.7.3-.2.3-.9.9-.9 2.2s1 2.6 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.8-1.2.2-.6.2-1.1.1-1.2l-.5-.3Z"
+          ></path></svg
+        >
+        {d.messenger.whatsapp}
+      </a>
+    </li>
+  </ul>
+  <button type="button" class="fab-btn" aria-expanded="false" aria-controls="fab-menu" data-fab-toggle>
+    <span class="sr-only">{d.messenger.open}</span>
+    <svg class="i-chat" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"
+      ><path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" d="M4 5.5h16v10.5H9.5L5 19.5V16H4z"
+      ></path></svg
+    >
+    <svg class="i-close" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"
+      ><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" fill="none"></path></svg
+    >
+  </button>
+</div>
+
+<style>
+  .fab {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 55;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.6rem;
+  }
+  .fab-btn {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 999px;
+    background: var(--color-apex);
+    color: var(--color-ink);
+    box-shadow: 0 12px 30px -10px rgb(70 200 217 / 0.55);
+    cursor: pointer;
+    transition: transform 0.35s var(--ease-out-expo);
+  }
+  .fab-btn:hover {
+    transform: scale(1.06);
+  }
+  .fab .i-close,
+  .fab:global(.is-open) .i-chat {
+    display: none;
+  }
+  .fab:global(.is-open) .i-close {
+    display: block;
+  }
+  .fab-menu {
+    display: grid;
+    gap: 0.5rem;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.25s,
+      transform 0.4s var(--ease-out-expo),
+      visibility 0s 0.4s;
+  }
+  .fab:global(.is-open) .fab-menu {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition-delay: 0s;
+  }
+  .fab-menu a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0.7rem 1.1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: var(--color-ink-2);
+    font-weight: 600;
+    box-shadow: 0 10px 30px -14px rgb(0 0 0 / 0.7);
+    transition: border-color 0.2s;
+  }
+  .fab-menu a:hover {
+    border-color: var(--color-apex);
+  }
+</style>

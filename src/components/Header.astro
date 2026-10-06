@@ -1,0 +1,379 @@
+---
+import BrandMark from './BrandMark.astro';
+import { site } from '../config/site';
+import { t, url, locales, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  path: string;
+  withIntro: boolean;
+}
+
+const { locale, path, withIntro } = Astro.props;
+const d = t(locale);
+const home = url(locale);
+
+const pageLabel: Record<string, string> = {
+  '': withIntro ? d.sections.intro : d.sections.hero,
+  examples: d.nav.examples,
+  services: d.nav.services,
+  privacy: d.footer.privacy,
+};
+const initialLabel = pageLabel[path] ?? site.name;
+
+const links = [
+  { href: `${home}#services`, label: d.nav.services },
+  { href: url(locale, 'examples'), label: d.nav.examples },
+  { href: `${home}#process`, label: d.nav.process },
+  { href: `${home}#lead`, label: d.nav.lead },
+];
+---
+
+<header id="site-header" class="site-header" data-intro={withIntro ? '' : undefined}>
+  <div class="pill">
+    <a href={home} class="pill-mark" aria-label={d.a11y.home}>
+      <BrandMark id="header-mark" class="h-[18px] w-auto" />
+    </a>
+    <span class="pill-sep" aria-hidden="true"></span>
+    <span class="pill-label" data-section-label>
+      <span data-label-text>{initialLabel}</span>
+    </span>
+
+    <nav class="pill-lang" aria-label={d.a11y.language}>
+      {
+        locales.map((l) => (
+          <a
+            href={url(l, path)}
+            hreflang={l}
+            lang={l}
+            aria-current={l === locale ? 'true' : undefined}
+            aria-label={t(l).langName}
+          >
+            {t(l).langShort}
+          </a>
+        ))
+      }
+    </nav>
+
+ <a href={`${home}#lead`} class="pill-cta">{d.nav.cta}</a>
+
+    <button type="button" class="pill-menu" aria-haspopup="dialog" aria-controls="site-menu" data-menu-open>
+      <span class="sr-only">{d.a11y.menuOpen}</span>
+      <span class="burger" aria-hidden="true"><i></i><i></i></span>
+    </button>
+
+    <span class="pill-progress" aria-hidden="true"><span data-progress></span></span>
+  </div>
+
+  <dialog id="site-menu" class="menu" aria-label={d.a11y.menuOpen}>
+    <div class="menu-inner container-x">
+      <div class="menu-top">
+        <a href={home} aria-label={d.a11y.home} class="inline-flex"><BrandMark class="h-6 w-auto" /></a>
+        <button type="button" class="menu-close" data-menu-close>
+          <span class="sr-only">{d.a11y.menuClose}</span>
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"
+            ><path d="M5 5l14 14M19 5L5 19" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
+          >
+        </button>
+      </div>
+      <nav class="menu-nav" aria-label={d.a11y.menuOpen}>
+        <ol>
+          {
+            links.map((link, i) => (
+              <li style={`--i:${i}`}>
+                <a href={link.href} data-menu-link>
+                  <span class="menu-num">0{i + 1}</span>
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ol>
+      </nav>
+      <div class="menu-foot">
+        <nav class="menu-lang" aria-label={d.a11y.language}>
+          {
+            locales.map((l) => (
+              <a href={url(l, path)} hreflang={l} lang={l} aria-current={l === locale ? 'true' : undefined}>
+                {t(l).langName}
+              </a>
+            ))
+          }
+        </nav>
+        <div class="menu-contacts">
+          <a href={`https://t.me/${site.contacts.telegram}`} target="_blank" rel="noopener">Telegram @{site.contacts.telegram}</a>
+          <a href={`https://wa.me/${site.contacts.whatsapp}`} target="_blank" rel="noopener">WhatsApp {site.contacts.whatsappDisplay}</a>
+        </div>
+      </div>
+    </div>
+  </dialog>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: max(0.75rem, env(safe-area-inset-top)) 0 auto 0;
+    z-index: 60;
+    display: flex;
+    justify-content: center;
+    padding-inline: 1rem;
+    pointer-events: none;
+    transition: opacity 0.5s var(--ease-out-expo);
+  }
+  /* Hidden during the intro (opacity only, so the mark position can be measured). */
+  :global(html.js.motion.has-intro:not(.intro-off)) .site-header:not(.is-shown) {
+    opacity: 0;
+  }
+  :global(html.js.motion.has-intro:not(.intro-off)) .site-header:not(.is-shown) .pill {
+    pointer-events: none;
+  }
+
+  .pill {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 34rem;
+    height: 3.25rem;
+    padding: 0 0.4rem 0 1.1rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: rgb(16 20 27 / 0.78);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.6);
+    pointer-events: auto;
+    overflow: hidden;
+  }
+  .pill-mark {
+    display: inline-flex;
+    padding: 0.4rem 0;
+  }
+  .pill-sep {
+    width: 1px;
+    height: 1.1rem;
+    background: var(--color-line);
+  }
+  .pill-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--color-paper);
+  }
+  .pill-label [data-label-text] {
+    display: inline-block;
+    transition:
+      transform 0.45s var(--ease-out-expo),
+      opacity 0.3s;
+  }
+  .pill-label.is-switching [data-label-text] {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+
+  .pill-lang {
+    display: none;
+    gap: 0.15rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+  .pill-lang a {
+    padding: 0.4rem 0.5rem;
+    border-radius: 999px;
+    color: var(--color-muted);
+    transition: color 0.2s;
+  }
+  .pill-lang a:hover,
+  .pill-lang a[aria-current] {
+    color: var(--color-paper);
+  }
+  .pill-lang a[aria-current] {
+    background: rgb(236 240 241 / 0.08);
+  }
+  @media (min-width: 40rem) {
+    .pill-lang {
+      display: flex;
+    }
+  }
+
+  .pill-cta {
+    display: none;
+    align-items: center;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border-radius: 999px;
+    background: var(--color-apex);
+    color: var(--color-ink);
+    font-weight: 600;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+  }
+  .pill-cta:hover {
+    background: #6dd6e4;
+  }
+  @media (min-width: 48rem) {
+    .pill-cta {
+      display: inline-flex;
+    }
+    .pill {
+      max-width: 44rem;
+    }
+  }
+  .pill-menu {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: transform 0.35s var(--ease-out-expo);
+  }
+  .pill-menu:hover {
+    transform: scale(1.06);
+  }
+  .burger {
+    display: grid;
+    gap: 5px;
+  }
+  .burger i {
+    display: block;
+    width: 16px;
+    height: 1.6px;
+    background: currentColor;
+  }
+
+  .pill-progress {
+    position: absolute;
+    left: 1.1rem;
+    right: 1.1rem;
+    bottom: 0;
+    height: 2px;
+    background: rgb(236 240 241 / 0.06);
+  }
+  .pill-progress span {
+    display: block;
+    height: 100%;
+    background: var(--color-apex);
+    transform-origin: left;
+    transform: scaleX(var(--progress, 0));
+  }
+
+  /* Menu */
+  .menu {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .menu::backdrop {
+    background: var(--color-ink);
+  }
+  .menu-inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding-top: max(1.25rem, env(safe-area-inset-top));
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+  .menu-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 3.25rem;
+  }
+  .menu-close {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .menu-nav {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding-block: 2rem;
+  }
+  .menu-nav ol {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .menu-nav a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(2.2rem, 9vw, 4.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    transition: color 0.2s;
+  }
+  .menu-nav a:hover {
+    color: var(--color-apex);
+  }
+  .menu-num {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    letter-spacing: 0;
+  }
+  :global(html.motion) .menu[open] li {
+    animation: menu-in 0.7s var(--ease-out-expo) both;
+    animation-delay: calc(var(--i) * 60ms + 80ms);
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+  .menu-foot {
+    display: grid;
+    gap: 1.25rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+  @media (min-width: 48rem) {
+    .menu-foot {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+  }
+  .menu-lang,
+  .menu-contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+  }
+  .menu-lang a,
+  .menu-contacts a {
+    padding-block: 0.4rem;
+    color: var(--color-muted);
+    transition: color 0.2s;
+  }
+  .menu-lang a[aria-current],
+  .menu-lang a:hover,
+  .menu-contacts a:hover {
+    color: var(--color-paper);
+  }
+</style>

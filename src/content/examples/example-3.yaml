@@ -1,0 +1,20 @@
+order: 3
+hidden: false
+featured: true        # показывать на главной (первые 4)
+niche: cosmetics               # id из src/content/niches.yaml
+layout: 3               # вид болванки, пока нет картинок (1–6)
+images:
+  desktop: null         # например media/examples/example-3-desktop.webp
+  mobile: null          # например media/examples/example-3-mobile.webp
+video:
+  webm: media/examples/example-3.webm
+  mp4: media/examples/example-3.mp4
+  poster: media/examples/example-3.jpg
+title:
+  ru: Макет сайта 3
+  kk: Сайт макеті 3
+  en: Website concept 3
+summary:
+  ru: Концепция сайта для магазина косметики
+  kk: Косметика дүкеніне арналған сайт тұжырымдамасы
+  en: Website concept for a cosmetics store

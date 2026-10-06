@@ -1,0 +1,67 @@
+# Фразы клиентов для аккордеона «С чем к нам приходят». service — id файла услуги.
+- id: no-leads
+  order: 1
+  service: instagram-smm
+  quote:
+    ru: Instagram есть, а заявок нет
+    kk: Instagram бар, бірақ өтінім жоқ
+    en: We have Instagram, but no requests
+  answer:
+    ru: Смотрим на профиль глазами нового клиента — понятно ли, что вы продаёте, сколько это стоит и как записаться. Приводим в порядок шапку, хайлайты и контент, чтобы подписчики становились клиентами.
+    kk: Профильге жаңа клиенттің көзімен қараймыз — не сататыныңыз, қанша тұратыны және қалай жазылуға болатыны түсінікті ме. Жазылушылар клиентке айналуы үшін профиль басын, хайлайттарды және контентті ретке келтіреміз.
+    en: We look at your profile through a new customer's eyes — is it clear what you sell, what it costs and how to book? We fix the bio, highlights and content so followers turn into customers.
+- id: no-site
+  order: 2
+  service: sites
+  quote:
+    ru: Сайта нет, клиенты пишут в WhatsApp и теряются
+    kk: Сайт жоқ, клиенттер WhatsApp-қа жазып, жоғалып кетеді
+    en: No website, customers write on WhatsApp and get lost
+  answer:
+    ru: Делаем сайт с ценами, работами и записью. Заявки приходят в одно место с уже заполненными данными — ни одна не теряется в переписке.
+    kk: Бағалары, жұмыстары және жазылуы бар сайт жасаймыз. Өтінімдер деректері толтырылған күйде бір жерге келеді — бірде-біреуі хат алмасуда жоғалмайды.
+    en: We build a website with prices, your work and booking. Requests arrive in one place with the details filled in — none get lost in chats.
+- id: ads-roi
+  order: 3
+  service: ads
+  quote:
+    ru: Платим за рекламу и не знаем, что окупается
+    kk: Жарнамаға төлейміз, бірақ қайсысы өзін ақтайтынын білмейміз
+    en: We pay for ads and do not know what pays off
+  answer:
+    ru: Настраиваем рекламу так, чтобы было видно, сколько стоит одна заявка и какая реклама приводит клиентов, а какая только тратит деньги.
+    kk: Жарнаманы бір өтінімнің қанша тұратыны және қай жарнама клиент әкелетіні, қайсысы тек ақша жұмсайтыны көрінетіндей баптаймыз.
+    en: We set up ads so you can see what one request costs and which ads bring customers and which only spend money.
+- id: rating-no-growth
+  order: 4
+  service: ads
+  quote:
+    ru: В 2ГИС хороший рейтинг, а новых клиентов мало
+    kk: 2ГИС-те рейтинг жақсы, бірақ жаңа клиенттер аз
+    en: Great rating on 2GIS, but few new customers
+  answer:
+    ru: Оформляем карточки в 2ГИС и на картах, связываем их с сайтом и Instagram, чтобы человек, который вас нашёл, мог сразу записаться.
+    kk: 2ГИС пен карталардағы карточкаларды рәсімдеп, оларды сайтпен және Instagram-мен байланыстырамыз — сізді тапқан адам бірден жазыла алсын.
+    en: We polish your 2GIS and map listings and connect them to your website and Instagram, so anyone who finds you can book right away.
+- id: slow-replies
+  order: 5
+  service: sales
+  quote:
+    ru: Администратор не успевает отвечать, клиенты уходят
+    kk: Әкімші жауап беріп үлгермейді, клиенттер кетіп қалады
+    en: Our admin cannot keep up with messages, customers leave
+  answer:
+    ru: Настраиваем быстрые ответы, автоответы и CRM. Каждый клиент получает ответ, а вы видите, кто записался, а кто нет.
+    kk: Жылдам жауаптарды, автожауаптарды және CRM баптаймыз. Әр клиент жауап алады, ал сіз кім жазылғанын, кім жазылмағанын көресіз.
+    en: We set up quick replies, auto-replies and a CRM. Every customer gets an answer, and you see who booked and who did not.
+- id: no-repeat
+  order: 6
+  service: sales
+  quote:
+    ru: Клиент пришёл один раз и больше не вернулся
+    kk: Клиент бір рет келді де, қайтып оралмады
+    en: A customer came once and never came back
+  answer:
+    ru: Собираем базу клиентов и настраиваем напоминания и рассылки, чтобы люди возвращались к вам, а не к соседям.
+    kk: Клиенттер базасын жинап, адамдар көршілерге емес, сізге қайта оралуы үшін еске салғыштар мен таратылымдарды баптаймыз.
+    en: We build a customer base and set up reminders and messages, so people come back to you rather than to the place next door.

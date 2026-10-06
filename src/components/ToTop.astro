@@ -1,0 +1,50 @@
+---
+import { t, type Locale } from '../i18n';
+interface Props {
+  locale: Locale;
+}
+const d = t(Astro.props.locale);
+---
+
+<button type="button" class="to-top" data-to-top aria-label={d.toTop}>
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+    ><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" stroke="currentColor" stroke-width="1.9" fill="none"></path></svg
+  >
+</button>
+
+<style>
+  .to-top {
+    position: fixed;
+    right: calc(max(1rem, env(safe-area-inset-right)) + 0.25rem);
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + 4.25rem);
+    z-index: 54;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: rgb(16 20 27 / 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--color-paper);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition:
+      opacity 0.3s,
+      transform 0.45s var(--ease-out-expo),
+      visibility 0s 0.45s,
+      border-color 0.2s;
+  }
+  .to-top:global(.is-visible) {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+  .to-top:hover {
+    border-color: var(--color-paper);
+  }
+</style>

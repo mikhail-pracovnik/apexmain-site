@@ -1,0 +1,122 @@
+---
+import '../styles/global.css';
+import { site } from '../config/site';
+import { t, locales, htmlLang, ogLocale, absoluteUrl, asset, type Locale } from '../i18n';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FloatingMessenger from '../components/FloatingMessenger.astro';
+import ToTop from '../components/ToTop.astro';
+import ConsentBanner from '../components/ConsentBanner.astro';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  /** Page path without locale prefix: '' for home, 'examples', 'privacy'… */
+  path?: string;
+  /** Force noindex for this page (demo mode adds it everywhere anyway). */
+  noindex?: boolean;
+  /** Home page starts with the scroll-driven intro: header appears after it. */
+  withIntro?: boolean;
+}
+
+const { locale, title, description, path = '', noindex = false, withIntro = false } = Astro.props;
+const d = t(locale);
+const canonical = absoluteUrl(locale, path);
+const robots = site.demo || noindex ? 'noindex, nofollow' : 'index, follow';
+const ogImage = new URL(asset(`og-${locale}.png`), site.origin).href;
+const hasAnalytics = Boolean(site.analytics.googleAnalyticsId || site.analytics.metaPixelId);
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: site.name,
+  url: absoluteUrl('ru'),
+  logo: new URL(asset('icon-512.png'), site.origin).href,
+  description: t('ru').meta.description,
+  areaServed: { '@type': 'Country', name: 'Kazakhstan' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Almaty', addressCountry: 'KZ' },
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      contactType: 'customer service',
+      telephone: `+${site.contacts.whatsapp}`,
+      availableLanguage: ['Russian', 'Kazakh', 'English'],
+    },
+  ],
+  sameAs: [`https://t.me/${site.contacts.telegram}`],
+};
+
+const fontFaces = `
+@font-face{font-family:'Display';src:url('${asset('fonts/display.woff2')}') format('woff2');font-weight:500 800;font-display:swap}
+@font-face{font-family:'Body';src:url('${asset('fonts/body.woff2')}') format('woff2');font-weight:400 700;font-display:swap}
+@font-face{font-family:'Mono';src:url('${asset('fonts/mono.woff2')}') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Mono';src:url('${asset('fonts/mono-medium.woff2')}') format('woff2');font-weight:500;font-display:swap}`;
+---
+
+<!doctype html>
+<html lang={htmlLang[locale]} class:list={[withIntro && 'has-intro']}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={canonical} />
+    {path !== '404' && locales.map((l) => <link rel="alternate" hreflang={htmlLang[l]} href={absoluteUrl(l, path)} />)}
+    {path !== '404' && <link rel="alternate" hreflang="x-default" href={absoluteUrl('ru', path)} />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={ogLocale[locale]} />
+    {locales.filter((l) => l !== locale).map((l) => <meta property="og:locale:alternate" content={ogLocale[l]} />)}
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta name="theme-color" content="#0A0C11" />
+    <link rel="icon" href={asset('favicon.ico')} sizes="48x48" />
+    <link rel="icon" href={asset('favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={asset('apple-touch-icon.png')} />
+    <link rel="manifest" href={asset('site.webmanifest')} />
+
+    <link rel="preload" href={asset('fonts/display.woff2')} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={asset('fonts/body.woff2')} as="font" type="font/woff2" crossorigin />
+    <style is:inline set:html={fontFaces} />
+
+    <script is:inline>
+      // Feature flags on <html>: js, motion (no reduced-motion), lite (weak device / data saver).
+      (function () {
+        var h = document.documentElement;
+        h.classList.add('js');
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!reduce) h.classList.add('motion');
+        var n = navigator, c = n.connection || {};
+        if ((n.hardwareConcurrency && n.hardwareConcurrency <= 4) || (n.deviceMemory && n.deviceMemory <= 2) || c.saveData) h.classList.add('lite');
+      })();
+    </script>
+
+    <script type="application/ld+json" set:html={JSON.stringify(organization)} />
+  </head>
+  <body class="bg-ink text-paper">
+    <a href="#main" class="sr-only-focusable fixed left-4 top-4 z-[100] rounded-full bg-apex px-4 py-2 font-semibold text-ink">
+      {d.a11y.skip}
+    </a>
+    <Header locale={locale} path={path} withIntro={withIntro} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+    <ToTop locale={locale} />
+    <FloatingMessenger locale={locale} />
+    {hasAnalytics && <ConsentBanner locale={locale} />}
+
+    <script>
+      import '../scripts/common';
+    </script>
+  </body>
+</html>

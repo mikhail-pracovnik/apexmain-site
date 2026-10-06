@@ -1,0 +1,299 @@
+---
+import BrandMark from './BrandMark.astro';
+import { site } from '../config/site';
+import { t, url, fill, type Locale } from '../i18n';
+import { getQuotes } from '../lib/content';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const d = t(locale);
+const quotes = await getQuotes();
+const home = url(locale);
+const year = new Date().getFullYear();
+---
+
+<footer class="footer" data-label={d.sections.footer}>
+  <section class="quotes container-x" aria-label={d.footer.quotesLabel} data-quotes>
+    <div class="quotes-stage" aria-live="polite">
+      {
+        quotes.map((q, i) => {
+          const main = locale === 'ru' ? q.data.translation.ru : q.data.original;
+          return (
+            <figure class="quote" data-quote hidden={i !== 0 ? true : undefined} lang={locale === 'ru' ? 'ru' : 'en'}>
+              <blockquote>
+                <p>«{main}»</p>
+              </blockquote>
+              <figcaption>
+                {locale === 'ru' && (
+                  <span class="quote-original" lang="en">
+                    {q.data.original}
+                  </span>
+                )}
+                <span lang={locale}>
+                  {q.data.character[locale]}, «{q.data.film[locale]}», {q.data.year}
+                </span>
+              </figcaption>
+            </figure>
+          );
+        })
+      }
+    </div>
+    <div class="quotes-controls">
+      {
+        quotes.map((_, i) => (
+          <button
+            type="button"
+            class="quote-dot"
+            data-quote-dot={i}
+            aria-label={fill(d.footer.quoteN, { n: i + 1, total: quotes.length })}
+            aria-pressed={i === 0 ? 'true' : 'false'}
+          />
+        ))
+      }
+      <button type="button" class="quote-pause" data-quote-pause aria-pressed="false" aria-label={d.footer.pause}>
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <g class="i-pause"><rect x="3" y="2" width="3.5" height="12" fill="currentColor"></rect><rect x="9.5" y="2" width="3.5" height="12" fill="currentColor"></rect></g>
+          <path class="i-play" d="M4 2l10 6-10 6z" fill="currentColor"></path>
+        </svg>
+      </button>
+    </div>
+  </section>
+
+  <div class="footer-bottom container-x">
+    <div class="footer-brand">
+      <a href={home} aria-label={d.a11y.home} class="inline-flex"><BrandMark class="h-8 w-auto" /></a>
+      <p class="footer-made">{d.footer.made}</p>
+    </div>
+    <div class="footer-cols">
+      <div>
+        <h2 class="footer-h">{d.footer.contactTitle}</h2>
+        <ul>
+          <li><a href={`https://t.me/${site.contacts.telegram}`} target="_blank" rel="noopener">Telegram · @{site.contacts.telegram}</a></li>
+          <li><a href={`https://wa.me/${site.contacts.whatsapp}`} target="_blank" rel="noopener">WhatsApp · <span class="whitespace-nowrap">{site.contacts.whatsappDisplay}</span></a></li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="footer-h">{site.name}</h2>
+        <ul>
+          <li><a href={`${home}#services`}>{d.nav.services}</a></li>
+          <li><a href={url(locale, 'examples')}>{d.nav.examples}</a></li>
+          <li><a href={`${home}#lead`}>{d.nav.lead}</a></li>
+          <li><a href={url(locale, 'privacy')}>{d.footer.privacy}</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="footer-copy">© {year} {site.name}. {d.footer.rights}</p>
+  </div>
+</footer>
+
+<script>
+  const box = document.querySelector<HTMLElement>('[data-quotes]');
+  if (box) {
+    const items = Array.from(box.querySelectorAll<HTMLElement>('[data-quote]'));
+    const dots = Array.from(box.querySelectorAll<HTMLButtonElement>('[data-quote-dot]'));
+    const pauseBtn = box.querySelector<HTMLButtonElement>('[data-quote-pause]');
+    const motion = document.documentElement.classList.contains('motion');
+    let index = 0;
+    let timer: number | undefined;
+    let paused = !motion; // reduced motion: no auto-rotation
+    let hovering = false;
+
+    const show = (next: number) => {
+      const prev = items[index];
+      index = (next + items.length) % items.length;
+      const cur = items[index];
+      dots.forEach((d, i) => d.setAttribute('aria-pressed', String(i === index)));
+      if (prev === cur) return;
+      if (!motion) {
+        prev.hidden = true;
+        cur.hidden = false;
+        return;
+      }
+      prev.classList.add('is-leaving');
+      window.setTimeout(() => {
+        prev.hidden = true;
+        prev.classList.remove('is-leaving');
+        cur.hidden = false;
+        cur.classList.add('is-entering');
+        requestAnimationFrame(() => requestAnimationFrame(() => cur.classList.remove('is-entering')));
+      }, 450);
+    };
+    const schedule = () => {
+      window.clearInterval(timer);
+      if (!paused && !hovering && items.length > 1) timer = window.setInterval(() => show(index + 1), 7000);
+    };
+    const syncPause = () => {
+      pauseBtn?.setAttribute('aria-pressed', String(paused));
+      pauseBtn?.classList.toggle('is-paused', paused);
+      schedule();
+    };
+
+    dots.forEach((d, i) => d.addEventListener('click', () => { show(i); schedule(); }));
+    pauseBtn?.addEventListener('click', () => { paused = !paused; syncPause(); });
+    box.addEventListener('pointerenter', () => { hovering = true; schedule(); });
+    box.addEventListener('pointerleave', () => { hovering = false; schedule(); });
+    box.addEventListener('focusin', () => { hovering = true; schedule(); });
+    box.addEventListener('focusout', () => { hovering = false; schedule(); });
+
+    // Only rotate while the footer is on screen.
+    new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) schedule();
+      else window.clearInterval(timer);
+    }).observe(box);
+    syncPause();
+  }
+</script>
+
+<style>
+  .footer {
+    position: relative;
+    border-top: 1px solid var(--color-line);
+    background: var(--color-ink);
+  }
+  .quotes {
+    padding-block: 5.5rem 4rem;
+  }
+  @media (min-width: 64rem) {
+    .quotes {
+      padding-block: 8rem 5rem;
+    }
+  }
+  .quotes-stage {
+    display: grid;
+    min-height: 15rem;
+    align-items: center;
+  }
+  @media (min-width: 64rem) {
+    .quotes-stage {
+      min-height: 17rem;
+    }
+  }
+  .quote {
+    grid-area: 1 / 1;
+    max-width: 60rem;
+    transition:
+      opacity 0.45s ease,
+      transform 0.6s var(--ease-out-expo),
+      filter 0.45s ease;
+  }
+  .quote.is-leaving,
+  .quote.is-entering {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(4px);
+  }
+  .quote p {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.6rem, 4.6vw, 3.25rem);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  .quote figcaption {
+    display: grid;
+    gap: 0.35rem;
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+  .quote-original {
+    color: var(--color-paper);
+    opacity: 0.85;
+  }
+  .quotes-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 2rem;
+  }
+  .quote-dot {
+    position: relative;
+    width: 2.75rem;
+    height: 2.75rem;
+    cursor: pointer;
+  }
+  .quote-dot::after {
+    content: '';
+    position: absolute;
+    left: 0.6rem;
+    right: 0.6rem;
+    top: 50%;
+    height: 2px;
+    background: var(--color-line);
+    transition: background 0.3s;
+  }
+  .quote-dot[aria-pressed='true']::after {
+    background: var(--color-apex);
+  }
+  .quote-pause {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-left: 0.5rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+  .quote-pause .i-play,
+  .quote-pause.is-paused .i-pause {
+    display: none;
+  }
+  .quote-pause.is-paused .i-play {
+    display: inline;
+  }
+
+  .footer-bottom {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: 3rem calc(6rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--color-line);
+  }
+  @media (min-width: 48rem) {
+    .footer-bottom {
+      grid-template-columns: 1.2fr 1fr;
+      padding-bottom: 3rem;
+    }
+  }
+  .footer-made {
+    margin-top: 1rem;
+    max-width: 22rem;
+    color: var(--color-muted);
+  }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .footer-h {
+    margin-bottom: 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .footer-cols ul {
+    display: grid;
+    gap: 0.25rem;
+  }
+  .footer-cols a {
+    display: inline-block;
+    padding-block: 0.35rem;
+    transition: color 0.2s;
+  }
+  .footer-cols a:hover {
+    color: var(--color-apex);
+  }
+  .footer-copy {
+    grid-column: 1 / -1;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+</style>

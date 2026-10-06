@@ -1,0 +1,21 @@
+# Услуга. Чтобы добавить новую — скопируйте этот файл, поменяйте имя файла и тексты.
+order: 1
+draft: true          # служебная пометка, на сайте не показывается
+hidden: false        # true — скрыть услугу, не удаляя файл
+priceFrom: null      # число в тенге, например 250000; null — «цена после разбора»
+video:
+  webm: media/services/sites.webm
+  mp4: media/services/sites.mp4
+  poster: media/services/sites.jpg
+title:
+  ru: Сайты
+  kk: Сайттар
+  en: Websites
+description:
+  ru: Сайт, который понятно объясняет, что вы делаете, сколько это стоит и как записаться. Быстро открывается на телефоне, заявки приходят прямо в WhatsApp и Telegram.
+  kk: Не істейтініңізді, қанша тұратынын және қалай жазылуға болатынын түсінікті түсіндіретін сайт. Телефонда тез ашылады, өтінімдер тікелей WhatsApp пен Telegram-ға келеді.
+  en: A website that clearly explains what you do, what it costs and how to book. Loads fast on phones, requests go straight to WhatsApp and Telegram.
+tags:
+  ru: [Лендинг, Каталог, Онлайн-запись, Три языка]
+  kk: [Лендинг, Каталог, Онлайн жазылу, Үш тіл]
+  en: [Landing page, Catalog, Online booking, Three languages]

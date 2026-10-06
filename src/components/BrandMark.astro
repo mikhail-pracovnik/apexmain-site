@@ -1,0 +1,42 @@
+---
+import brand from '../data/brand-mark.json';
+
+interface Props {
+  class?: string;
+  /** Accessible name; omit for decorative use. */
+  title?: string;
+  /** 'outline' adds stroke-ready polygons for the scroll-drawn intro. */
+  variant?: 'fill' | 'outline';
+  id?: string;
+}
+
+const { class: className, title, variant = 'fill', id } = Astro.props;
+const [x, y, w, h] = brand.viewBox;
+const colors = brand.colors as Record<string, string>;
+---
+
+<svg
+  id={id}
+  class={className}
+  viewBox={`${x} ${y} ${w} ${h}`}
+  xmlns="http://www.w3.org/2000/svg"
+  role={title ? 'img' : undefined}
+  aria-label={title}
+  aria-hidden={title ? undefined : 'true'}
+  focusable="false"
+  data-variant={variant}
+>
+  {
+    brand.shapes.map((s) => (
+      <polygon
+        points={s.points.map((p) => p.join(',')).join(' ')}
+        fill={colors[s.tone]}
+        data-shape={s.id}
+        data-tone={s.tone}
+        {...(variant === 'outline'
+          ? { stroke: colors[s.tone], 'stroke-width': 6, 'stroke-linejoin': 'miter', pathLength: 1 }
+          : {})}
+      />
+    ))
+  }
+</svg>

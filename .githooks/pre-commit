@@ -1,0 +1,3 @@
+#!/bin/sh
+# Block commits that contain third-party company names (see scripts/check-third-party.mjs).
+node scripts/check-third-party.mjs || exit 1

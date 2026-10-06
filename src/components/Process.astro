@@ -1,0 +1,141 @@
+---
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const d = t(locale);
+---
+
+<section class="section" id="process" data-label={d.sections.process} aria-labelledby="process-title">
+  <div class="container-x process-grid">
+    <header class="process-head">
+      <p class="eyebrow reveal">{d.process.eyebrow}</p>
+      <h2 id="process-title" class="h-section reveal" style="--i:1">{d.process.title}</h2>
+    </header>
+    <ol class="steps" data-steps>
+      {
+        d.process.steps.map((step, i) => (
+          <li class="step" data-step aria-current={i === 0 ? 'step' : undefined}>
+            <span class="step-num" aria-hidden="true">
+              0{i + 1}
+            </span>
+            <div>
+              <h3 class="step-title">{step.title}</h3>
+              <p class="step-text">{step.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<script>
+  // Highlight the step closest to the middle of the screen; the others are dimmed.
+  const steps = Array.from(document.querySelectorAll<HTMLElement>('[data-step]'));
+  if (steps.length && 'IntersectionObserver' in window) {
+    const box = document.querySelector<HTMLElement>('[data-steps]');
+    box?.classList.add('is-live');
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          steps.forEach((s) => s.removeAttribute('aria-current'));
+          e.target.setAttribute('aria-current', 'step');
+        });
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    steps.forEach((s) => io.observe(s));
+  }
+</script>
+
+<style>
+  .process-grid {
+    display: grid;
+    gap: 3rem;
+  }
+  @media (min-width: 64rem) {
+    .process-grid {
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 5rem;
+      align-items: start;
+    }
+    .process-head {
+      position: sticky;
+      top: 8rem;
+    }
+  }
+  .process-head {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .steps {
+    position: relative;
+    display: grid;
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    left: 1.375rem;
+    top: 1.5rem;
+    bottom: 1.5rem;
+    width: 1px;
+    background: var(--color-line);
+  }
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    padding-block: 2rem;
+  }
+  .step-title,
+  .step-text {
+    transition: color 0.5s var(--ease-out-expo);
+  }
+  @media (min-width: 64rem) {
+    .step {
+      padding-block: 3rem;
+    }
+  }
+  /* Dimmed steps change colour, not opacity, so text keeps WCAG AA contrast. */
+  .steps:global(.is-live) .step:not([aria-current]) .step-title {
+    color: var(--color-muted);
+  }
+  .steps:global(.is-live) .step:not([aria-current]) .step-text {
+    color: #7d8794; /* 5.2:1 on ink */
+  }
+  .step-num {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    transition:
+      background-color 0.4s,
+      color 0.4s,
+      border-color 0.4s;
+  }
+  .step[aria-current] .step-num {
+    border-color: var(--color-apex);
+    background: var(--color-apex);
+    color: var(--color-ink);
+  }
+  .step-title {
+    font-size: clamp(1.5rem, 3.4vw, 2.25rem);
+  }
+  .step-text {
+    margin-top: 0.75rem;
+    max-width: 32rem;
+    color: var(--color-muted);
+  }
+</style>

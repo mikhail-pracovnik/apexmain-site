@@ -1,0 +1,49 @@
+---
+/**
+ * Rendered only when an analytics ID is set in src/config/site.ts.
+ * Scripts load only after the visitor presses "Allow"; the choice is remembered in localStorage.
+ */
+import { site } from '../config/site';
+import { t, type Locale } from '../i18n';
+interface Props {
+  locale: Locale;
+}
+const d = t(Astro.props.locale);
+const ids = { ga: site.analytics.googleAnalyticsId, pixel: site.analytics.metaPixelId };
+---
+
+<div class="consent" role="region" aria-label="Cookie" data-consent data-ids={JSON.stringify(ids)} hidden>
+  <p>{d.consent.text}</p>
+  <div class="consent-actions">
+    <button type="button" class="btn btn-ghost" data-consent-decline>{d.consent.decline}</button>
+    <button type="button" class="btn btn-primary" data-consent-accept>{d.consent.accept}</button>
+  </div>
+</div>
+
+<script>
+  import { initConsent } from '../scripts/analytics';
+  initConsent();
+</script>
+
+<style>
+  .consent {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 70;
+    display: grid;
+    gap: 1rem;
+    max-width: 30rem;
+    padding: 1.25rem;
+    border: 1px solid var(--color-line);
+    border-radius: 1.25rem;
+    background: var(--color-ink-2);
+    font-size: 0.9375rem;
+  }
+  .consent-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+</style>

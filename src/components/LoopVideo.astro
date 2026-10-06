@@ -1,0 +1,28 @@
+---
+import { asset } from '../i18n';
+
+interface Props {
+  video: { webm: string; mp4: string; poster: string };
+  class?: string;
+}
+const { video, class: className } = Astro.props;
+---
+
+<!-- Decorative loop: loads and plays only while on screen (see scripts/common.ts). -->
+<video
+  class={className}
+  muted
+  loop
+  playsinline
+  disablepictureinpicture
+  preload="none"
+  poster={asset(video.poster)}
+  data-lazy
+  aria-hidden="true"
+  tabindex="-1"
+  width="960"
+  height="600"
+>
+  <source data-src={asset(video.webm)} type="video/webm" />
+  <source data-src={asset(video.mp4)} type="video/mp4" />
+</video>
