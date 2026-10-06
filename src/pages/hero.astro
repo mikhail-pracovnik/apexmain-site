@@ -1,52 +1,63 @@
 ---
 /**
- * Hidden test page: three variants of the new hero with a particle wordmark (APEX / MAIN).
- * Not linked anywhere, noindex, excluded from the sitemap. The main site is not affected.
+ * Hidden test page: hero with a dim "dust" wordmark (apex / main) as the background.
+ * Two variants + sliders for dot brightness and size. Not linked, noindex, excluded from the sitemap.
+ * The main site is not affected.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { t, url } from '../i18n';
 
 const d = t('ru');
 const variants = [
-  { id: 'a', layout: 'stacked', title: '(а) APEX сверху, MAIN снизу, по левому краю' },
-  { id: 'b', layout: 'stacked-shift', title: '(б) MAIN сдвинут вправо на ширину одной буквы' },
-  { id: 'c', layout: 'inline', title: '(в) APEXMAIN в одну строку' },
+  { id: 'a', layout: 'stacked', title: '(а) apex сверху, main под ним, по левому краю' },
+  { id: 'b', layout: 'stacked-shift', title: '(б) main сдвинут вправо на ширину одной буквы' },
 ];
+const defaults = { brightness: 20, size: 1.1 };
 ---
 
 <BaseLayout locale="ru" title="Hero — тест" description="Скрытая страница сравнения вариантов hero." path="hero" noindex>
   <h1 class="sr-only">Варианты hero</h1>
+
+  <div class="dust-controls" data-dust-controls>
+    <label>
+      <span>Яркость точек <output data-out="brightness">{defaults.brightness}%</output></span>
+      <input type="range" min="5" max="45" step="1" value={defaults.brightness} data-control="brightness" />
+    </label>
+    <label>
+      <span>Размер точки <output data-out="size">{defaults.size} px</output></span>
+      <input type="range" min="0.6" max="2.6" step="0.1" value={defaults.size} data-control="size" />
+    </label>
+  </div>
+
   {
     variants.map((v) => (
-      <section class:list={['hv', `hv-${v.id}`]} data-label={`Вариант ${v.id}`} aria-label={v.title}>
-        <div class="container-x hv-grid">
-          <p class="hv-tag">{v.title}</p>
-          <div class="hv-mark">
-            <canvas data-wordmark={v.layout} role="img" aria-label="ApexMain" />
-            <p class:list={['hv-static', `hv-static-${v.id}`]} aria-hidden="true">
-              <span>APEX</span>
-              <span class="hv-main">MAIN</span>
-            </p>
-          </div>
-          <div class="hv-text">
-            <p class="eyebrow hv-eyebrow">{d.hero.eyebrow}</p>
-            <h2 class="hv-title">
-              <span>{d.hero.line1}</span>
-              <span>
-                {d.hero.line2Before}
-                <span class="accent">{d.hero.accent}</span>
-                {d.hero.line2After}
-              </span>
-            </h2>
-            <p class="hv-sub">{d.hero.sub}</p>
-            <div class="hv-ctas">
-              <a href={`${url('ru')}#lead`} class="btn btn-primary">
-                {d.hero.ctaPrimary}
-              </a>
-              <a href={url('ru', 'examples')} class="btn btn-ghost">
-                {d.hero.ctaSecondary}
-              </a>
-            </div>
+      <section class:list={['dh', `dh-${v.id}`]} data-dust={v.layout} data-label={`Вариант ${v.id}`} aria-label={v.title}>
+        <canvas class="dh-canvas" data-dust-canvas aria-hidden="true" />
+        <p class:list={['dh-static', `dh-static-${v.id}`]} aria-hidden="true">
+          <span>apex</span>
+          <span class="dh-static-main">main</span>
+        </p>
+        <div class="container-x dh-content">
+          <p class="dh-tag">{v.title}</p>
+          <p class="eyebrow dh-eyebrow">{d.hero.eyebrow}</p>
+          <h2 class="dh-title" data-dust-title>
+            <span>{d.hero.line1}</span>
+            <span>
+              {d.hero.line2Before}
+              <span class="accent">{d.hero.accent}</span>
+              {d.hero.line2After}
+            </span>
+          </h2>
+          <p class="dh-sub" data-dust-clear>
+            {d.hero.sub}
+          </p>
+          <div class="dh-ctas" data-dust-clear>
+            <a href={`${url('ru')}#lead`} class="btn btn-primary">
+              {d.hero.ctaPrimary}
+            </a>
+            <a href={url('ru', 'examples')} class="btn btn-ghost">
+              {d.hero.ctaSecondary}
+            </a>
           </div>
         </div>
       </section>
@@ -55,109 +66,176 @@ const variants = [
 </BaseLayout>
 
 <script>
-  import { initWordmarks } from '../scripts/text-particles';
-  initWordmarks();
+  import { initDust } from '../scripts/dust-wordmark';
+
+  const panel = document.querySelector<HTMLElement>('[data-dust-controls]')!;
+  const read = () => ({
+    brightness: Number(panel.querySelector<HTMLInputElement>('[data-control="brightness"]')!.value) / 100,
+    size: Number(panel.querySelector<HTMLInputElement>('[data-control="size"]')!.value),
+  });
+  initDust(read()).then((marks) => {
+    panel.querySelectorAll<HTMLInputElement>('input[type="range"]').forEach((input) =>
+      input.addEventListener('input', () => {
+        const s = read();
+        panel.querySelector('[data-out="brightness"]')!.textContent = `${Math.round(s.brightness * 100)}%`;
+        panel.querySelector('[data-out="size"]')!.textContent = `${s.size.toFixed(1)} px`;
+        marks.forEach((m) => m.set(s));
+      }),
+    );
+  });
 </script>
 
 <style>
-  .hv {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: calc(100svh - var(--dock-h));
-    padding-block: 6rem 3rem;
-    border-bottom: 1px solid var(--color-line);
-  }
-  .hv-tag {
-    grid-column: 1 / -1;
-    font-family: var(--font-mono);
+  /* ---------- sliders ---------- */
+  .dust-controls {
+    position: sticky;
+    top: calc(max(0.75rem, env(safe-area-inset-top)) + 4rem);
+    z-index: 50;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1.25rem;
+    width: min(100% - 1.5rem, 34rem);
+    margin: 5rem auto -4.5rem;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--color-line);
+    border-radius: 0.5rem;
+    background: rgb(10 15 26 / 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     font-size: 0.8125rem;
-    color: var(--color-apex);
   }
-  .hv-grid {
+  .dust-controls label {
     display: grid;
-    gap: 1.25rem;
-    align-items: center;
+    gap: 0.3rem;
   }
-  /* Desktop: the headline leads on the left, the wordmark sits in the right column. */
-  @media (min-width: 64rem) {
-    .hv-grid {
-      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-      column-gap: 4rem;
-    }
-    .hv-mark {
-      order: 2;
-    }
-    .hv-tag {
-      order: 0;
-    }
-  }
-  .hv-mark {
-    position: relative;
-  }
-  .hv-mark canvas {
-    display: block;
-    width: 100%;
-    touch-action: pan-y;
-    cursor: crosshair;
-  }
-  /* Static wordmark: no JS or reduced motion */
-  .hv-static {
-    display: grid;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(3.5rem, 22vw, 9rem);
-    line-height: 0.92;
-    letter-spacing: 0.02em;
-    color: #bac3ca;
-  }
-  .hv-static .hv-main {
-    color: var(--color-apex);
-  }
-  .hv-static-b .hv-main {
-    padding-left: 0.72em; /* about one letter */
-  }
-  .hv-static-c {
+  .dust-controls span {
     display: flex;
-    font-size: clamp(2rem, 11vw, 5rem);
+    justify-content: space-between;
+    gap: 0.5rem;
+    color: var(--color-muted);
   }
-  :global(html.wordmark-ready) .hv-static {
-    display: none;
+  .dust-controls output {
+    font-family: var(--font-mono);
+    color: var(--color-paper);
   }
-  :global(html:not(.wordmark-ready)) .hv-mark canvas {
-    display: none;
+  .dust-controls input {
+    width: 100%;
+    accent-color: var(--color-apex);
   }
 
-  .hv-text {
-    display: grid;
-    gap: 1.1rem;
+  /* ---------- hero ---------- */
+  .dh {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: calc(100svh - var(--dock-h));
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-line);
   }
-  .hv-title {
+  .dh-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .dh-content {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    /* phones: the dim wordmark sits behind and above the headline, which moves up */
+    padding-top: 12.5rem;
+    padding-bottom: 2.5rem;
+  }
+  @media (min-width: 48rem) {
+    .dh-content {
+      padding-top: 15rem;
+    }
+  }
+  @media (min-width: 64rem) {
+    .dh-content {
+      align-content: center;
+      max-width: 100rem;
+      padding-top: 8rem;
+      padding-bottom: 4rem;
+    }
+    .dh-content > * {
+      max-width: 44rem;
+    }
+  }
+  .dh-tag {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-apex);
+  }
+  .dh-title {
     display: grid;
     font-size: clamp(2.375rem, 10.4vw, 4.5rem);
     line-height: 0.98;
     letter-spacing: -0.035em;
   }
   @media (min-width: 64rem) {
-    .hv-title {
-      font-size: min(5vw, 7rem);
+    .dh-title {
+      font-size: min(5.6vw, 7.5rem);
+    }
+    .dh-content > .dh-title {
+      max-width: 60rem;
     }
   }
-  .hv-sub {
+  .dh-sub {
     max-width: 34rem;
     font-size: 1.125rem;
     color: var(--color-muted);
   }
-  .hv-ctas {
+  .dh-ctas {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
     margin-top: 0.5rem;
+    width: fit-content;
   }
   @media (max-width: 30rem) {
-    .hv-ctas .btn {
+    .dh-ctas {
+      width: 100%;
+    }
+    .dh-ctas .btn {
       flex: 1 1 100%;
     }
+  }
+
+  /* ---------- static fallback (no JS / reduced motion) ---------- */
+  .dh-static {
+    position: absolute;
+    z-index: 0;
+    display: grid;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 0.78;
+    letter-spacing: -0.02em;
+    color: rgb(236 240 241 / 0.12);
+    pointer-events: none;
+    user-select: none;
+    left: 3%;
+    top: 4.5rem;
+    font-size: 46vw;
+  }
+  .dh-static-main {
+    color: rgb(70 200 217 / 0.14);
+  }
+  .dh-static-b .dh-static-main {
+    padding-left: 0.56em;
+  }
+  @media (min-width: 64rem) {
+    .dh-static {
+      left: 42%;
+      top: 50%;
+      font-size: 40vh;
+      transform: translateY(-50%);
+    }
+  }
+  :global(html.dust-ready) .dh-static {
+    display: none;
   }
 </style>
