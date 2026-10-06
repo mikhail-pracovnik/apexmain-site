@@ -31,7 +31,7 @@ const [vx, vy, vw, vh] = brand.viewBox;
   </p>
   <div class="hero container-x">
     <p class="eyebrow hero-eyebrow hero-in">{d.hero.eyebrow}</p>
-    <h1 class="hero-title" data-dust-title>
+    <h1 class="hero-title" data-dust-title style={`--fit:${d.hero.titleFitEm}`}>
       <span class="hero-in">{d.hero.line1}</span>
       <span class="hero-in">{d.hero.line2Before}<span class="accent">{d.hero.accent}</span>{d.hero.line2After}</span>
     </h1>
@@ -121,15 +121,29 @@ const [vx, vy, vw, vh] = brand.viewBox;
   }
   .hero-title {
     display: grid;
-    /* phones: 38–40px */
-    font-size: clamp(2.375rem, 10.4vw, 4.5rem);
+    /* Phones/tablets: exactly two lines. The size follows the screen width so the longest line of the
+       current language fits (--fit = its width in em, set from i18n hero.titleFitEm). */
+    font-size: min(calc((100vw - 2rem) / var(--fit, 9) * 0.97), 4.5rem);
     line-height: 0.98;
     letter-spacing: -0.035em;
   }
+  @media (min-width: 48rem) {
+    .hero-title {
+      font-size: min(calc((100vw - 4rem) / var(--fit, 9) * 0.97), 4.5rem);
+    }
+  }
+  @media (max-width: 63.99rem) {
+    .hero-title > span {
+      white-space: nowrap;
+    }
+  }
   @media (min-width: 64rem) {
     .hero-title {
-      max-width: 62rem;
-      font-size: min(5.6vw, 7.5rem);
+      /* two lines on desktop too: the longest line takes at most ~62% of the width */
+      font-size: min(5.6vw, 7.5rem, calc(62vw / var(--fit, 9)));
+    }
+    .hero-title > span {
+      white-space: nowrap;
     }
   }
   .hero-title > span {
@@ -226,7 +240,7 @@ const [vx, vy, vw, vh] = brand.viewBox;
     inset: 0;
     background:
       radial-gradient(55% 45% at 50% 46%, rgb(70 200 217 / 0.07), transparent 70%),
-      radial-gradient(60% 50% at 10% 100%, rgb(40 80 160 / 0.12), transparent 70%),
+      radial-gradient(max(1%, 60% * var(--glow-s)) max(1%, 50% * var(--glow-s)) at 10% 100%, rgb(40 80 160 / calc(0.12 * var(--glow-a))), transparent 70%),
       var(--color-ink);
   }
   .intro-anchor {

@@ -1,0 +1,149 @@
+---
+/**
+ * TEMPORARY palette panel (home page only): tune the base background and the blue glow live.
+ * Remove after the values are chosen and fixed in src/styles/global.css.
+ *   Slider 1: base background from #05070D (blue, t = 0) to #020203 (near-black, t = 1);
+ *             surfaces, borders and muted text follow the same mix.
+ *   Slider 2: glow strength and size together, 0 … 100% of the original palette (в).
+ */
+---
+
+<div class="tuner" data-tuner>
+  <button type="button" class="tuner-toggle" data-tuner-toggle aria-expanded="true">Палитра</button>
+  <div class="tuner-body" data-tuner-body>
+    <label>
+      <span>Фон <output data-o="bg"></output></span>
+      <input type="range" min="0" max="100" step="1" value="67" data-s="bg" aria-label="Яркость и оттенок фона" />
+    </label>
+    <label>
+      <span>Свечение <output data-o="glow"></output></span>
+      <input type="range" min="0" max="100" step="1" value="50" data-s="glow" aria-label="Сила и размер синего свечения" />
+    </label>
+    <p class="tuner-values" data-o="tokens"></p>
+  </div>
+</div>
+
+<script>
+  type RGB = [number, number, number];
+  const hex = (h: string): RGB => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)) as RGB;
+  const toHex = (c: RGB) => '#' + c.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('').toUpperCase();
+  const mix = (a: RGB, b: RGB, t: number): RGB => a.map((v, i) => v + (b[i] - v) * t) as RGB;
+
+  // t = 0: palette (в) as before; t = 1: near-black, neutral
+  const BLUE = { ink: hex('#05070D'), ink2: hex('#0A0F1A'), ink3: hex('#101828'), line: [148, 178, 220] as RGB, lineA: 0.13, muted: hex('#93A3B8') };
+  const BLACK = { ink: hex('#020203'), ink2: hex('#08090B'), ink3: hex('#0F1013'), line: [200, 204, 210] as RGB, lineA: 0.12, muted: hex('#9AA0A8') };
+
+  const root = document.documentElement;
+  const box = document.querySelector<HTMLElement>('[data-tuner]')!;
+  const bg = box.querySelector<HTMLInputElement>('[data-s="bg"]')!;
+  const glow = box.querySelector<HTMLInputElement>('[data-s="glow"]')!;
+  const out = (k: string) => box.querySelector<HTMLElement>(`[data-o="${k}"]`)!;
+
+  try {
+    const saved = JSON.parse(localStorage.getItem('apexmain-tuner') || 'null');
+    if (saved) {
+      bg.value = saved.bg;
+      glow.value = saved.glow;
+    }
+  } catch {
+    /* ignore */
+  }
+
+  function apply() {
+    const t = Number(bg.value) / 100;
+    const g = Number(glow.value) / 100;
+    const ink = mix(BLUE.ink, BLACK.ink, t);
+    const ink2 = mix(BLUE.ink2, BLACK.ink2, t);
+    const ink3 = mix(BLUE.ink3, BLACK.ink3, t);
+    const line = mix(BLUE.line, BLACK.line, t);
+    const lineA = BLUE.lineA + (BLACK.lineA - BLUE.lineA) * t;
+    const muted = mix(BLUE.muted, BLACK.muted, t);
+    const s = root.style;
+    s.setProperty('--color-ink', toHex(ink));
+    s.setProperty('--color-ink-2', toHex(ink2));
+    s.setProperty('--color-ink-3', toHex(ink3));
+    s.setProperty('--color-line', `rgb(${line.map(Math.round).join(' ')} / ${lineA.toFixed(3)})`);
+    s.setProperty('--color-muted', toHex(muted));
+    s.setProperty('--glow-a', g.toFixed(2));
+    s.setProperty('--glow-s', g.toFixed(2));
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', toHex(ink));
+    out('bg').textContent = `${toHex(ink)} · ${bg.value}`;
+    out('glow').textContent = `${glow.value}%`;
+    out('tokens').textContent = `ink ${toHex(ink)} · ink-2 ${toHex(ink2)} · ink-3 ${toHex(ink3)} · line rgb(${line.map(Math.round).join(' ')} / ${lineA.toFixed(3)}) · muted ${toHex(muted)} · glow ${glow.value}%`;
+    try {
+      localStorage.setItem('apexmain-tuner', JSON.stringify({ bg: bg.value, glow: glow.value }));
+    } catch {
+      /* ignore */
+    }
+  }
+  bg.addEventListener('input', apply);
+  glow.addEventListener('input', apply);
+  apply();
+
+  const toggle = box.querySelector<HTMLButtonElement>('[data-tuner-toggle]')!;
+  toggle.addEventListener('click', () => {
+    const open = box.classList.toggle('is-closed') === false;
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+</script>
+
+<style>
+  .tuner {
+    position: fixed;
+    left: 0.75rem;
+    bottom: calc(var(--dock-h) + 0.75rem);
+    z-index: 75;
+    width: min(22rem, calc(100vw - 1.5rem));
+    border: 1px solid var(--color-line);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--color-ink-2) 94%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 0.8125rem;
+    box-shadow: 0 20px 40px -20px rgb(0 0 0 / 0.8);
+  }
+  .tuner-toggle {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.8rem;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-apex);
+    cursor: pointer;
+  }
+  .tuner-body {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0 0.8rem 0.8rem;
+  }
+  .tuner:global(.is-closed) .tuner-body {
+    display: none;
+  }
+  .tuner label {
+    display: grid;
+    gap: 0.25rem;
+  }
+  .tuner label span {
+    display: flex;
+    justify-content: space-between;
+    color: var(--color-muted);
+  }
+  .tuner output {
+    font-family: var(--font-mono);
+    color: var(--color-paper);
+  }
+  .tuner input {
+    width: 100%;
+    accent-color: var(--color-apex);
+  }
+  .tuner-values {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+    overflow-wrap: anywhere;
+  }
+</style>

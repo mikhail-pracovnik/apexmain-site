@@ -51,12 +51,13 @@
   "hero": {
     "eyebrow": "Design · Performance · Sales Systems",
     "line1": "Клиенттер іздейді.",
-    "line2Before": "Сізді ",
-    "accent": "тапсын",
-    "line2After": ".",
+    "line2Before": "",
+    "accent": "Сізді",
+    "line2After": " тапсын.",
     "sub": "Қазақстандағы бизнеске арналған сайттар, жарнама және сатылым — алғашқы өтінімнен тұрақты клиенттерге дейін.",
     "ctaPrimary": "Тегін талдау алу",
-    "ctaSecondary": "Мысалдарды көру"
+    "ctaSecondary": "Мысалдарды көру",
+    "titleFitEm": 9.24
   },
   "pains": {
     "eyebrow": "01 — Таныс па?",

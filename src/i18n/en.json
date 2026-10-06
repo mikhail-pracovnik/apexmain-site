@@ -51,12 +51,13 @@
   "hero": {
     "eyebrow": "Design · Performance · Sales Systems",
     "line1": "Customers are searching.",
-    "line2Before": "Let them ",
-    "accent": "find",
-    "line2After": " you.",
+    "line2Before": "Let them find ",
+    "accent": "you",
+    "line2After": ".",
     "sub": "Websites, ads and sales for businesses in Kazakhstan — from the first request to loyal customers.",
     "ctaPrimary": "Get a free audit",
-    "ctaSecondary": "See examples"
+    "ctaSecondary": "See examples",
+    "titleFitEm": 11.81
   },
   "pains": {
     "eyebrow": "01 — Sound familiar?",

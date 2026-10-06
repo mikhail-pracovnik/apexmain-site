@@ -3,9 +3,9 @@ import { Easing, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
 
 // Palette (в): dark with a cold blue undertone (matches the site tokens).
 export const C = {
-  ink: '#05070D',
-  ink2: '#0A0F1A',
-  ink3: '#101828',
+  ink: '#030406',
+  ink2: '#090B10',
+  ink3: '#0F131A',
   paper: '#ECF0F1',
   apex: '#46C8D9',
 };
@@ -49,11 +49,11 @@ export const Backdrop: React.FC<{ w?: number; h?: number }> = ({ w = W, h = H })
         <path d="M32 0H0V32" fill="none" stroke="#94B2DC" strokeOpacity={0.05} />
       </pattern>
       <radialGradient id="glow" cx="0.75" cy="0.2" r="0.8">
-        <stop offset="0" stopColor={C.apex} stopOpacity={0.14} />
+        <stop offset="0" stopColor={C.apex} stopOpacity={0.07} />
         <stop offset="1" stopColor={C.apex} stopOpacity={0} />
       </radialGradient>
       <radialGradient id="glow2" cx="0.1" cy="0.95" r="0.7">
-        <stop offset="0" stopColor="#285AA0" stopOpacity={0.16} />
+        <stop offset="0" stopColor="#285AA0" stopOpacity={0.08} />
         <stop offset="1" stopColor="#285AA0" stopOpacity={0} />
       </radialGradient>
       <linearGradient id="img" x1="0" y1="0" x2="1" y2="1">

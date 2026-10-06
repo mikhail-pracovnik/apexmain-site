@@ -28,6 +28,7 @@ interface Dot {
   a: number; // base coverage 0..1
   main: boolean;
   cap: number; // max brightness (lower under the headline to keep its contrast)
+  dim: number; // multiplier: dots under the headline are much dimmer than in free space
 }
 
 interface Ripple {
@@ -81,7 +82,14 @@ export class DustWordmark {
       const r = el.getBoundingClientRect();
       return { x: r.left - host.left, y: r.top - host.top, w: r.width, h: r.height };
     };
-    const title = rel(this.host.querySelector('[data-dust-title]'));
+    // the headline's actual text lines (the block itself can be wider than the words)
+    const titleEl = this.host.querySelector('[data-dust-title]');
+    const title = (titleEl ? Array.from(titleEl.children).map((el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const r = range.getBoundingClientRect();
+      return { x: r.left - host.left, y: r.top - host.top, w: r.width, h: r.height };
+    }) : []);
     const clear = Array.from(this.host.querySelectorAll('[data-dust-clear]')).map(rel).filter(Boolean) as {
       x: number;
       y: number;
@@ -133,11 +141,14 @@ export class DustWordmark {
     let ox: number;
     let oy: number;
     if (desktop) {
-      // big, in the right part of the hero
-      const xStart = this.w * 0.44;
-      scale = Math.min((this.w - margin - xStart) / wRef, (this.h - margin - topLimit) / hRef);
+      // As big as both words allow: from about a third of the width (running under the headline)
+      // to the right margin, and as tall as the space between the header and the bottom edge.
+      // On wide-but-short screens the height is the limit; otherwise the width is.
+      const xStart = this.w * 0.3;
+      const availH = this.h - margin - topLimit;
+      scale = Math.min((this.w - margin - xStart) / wRef, availH / hRef);
       ox = this.w - margin - wRef * scale; // right-aligned to the margin
-      oy = topLimit + (this.h - margin - topLimit - hRef * scale) / 2;
+      oy = topLimit + (availH - hRef * scale) / 2;
     } else {
       // behind and above the headline, full width minus the gutters
       scale = (this.w - margin * 2) / wRef;
@@ -198,8 +209,8 @@ export class DustWordmark {
         if (keep <= 0) continue;
         const px = x + rnd() * jitter;
         const py = y + rnd() * jitter;
-        const underTitle = title && px > title.x - 8 && px < title.x + title.w + 8 && py > title.y - 8 && py < title.y + title.h + 8;
-        dots.push({ hx: px, hy: py, x: px, y: py, vx: 0, vy: 0, a: Math.min(1, cov) * keep, main: data[i + 2] > data[i], cap: underTitle ? 0.35 : 0.85 });
+        const underTitle = title.some((t) => px > t.x - 10 && px < t.x + t.w + 10 && py > t.y - 6 && py < t.y + t.h + 6);
+        dots.push({ hx: px, hy: py, x: px, y: py, vx: 0, vy: 0, a: Math.min(1, cov) * keep, main: data[i + 2] > data[i], cap: underTitle ? 0.2 : 0.85, dim: underTitle ? 0.4 : 1 });
       }
     }
     this.dots = dots;
@@ -285,7 +296,7 @@ export class DustWordmark {
         boost += env * 1.1; // the ring lights the dust up as it passes
       }
       const base = d.main ? this.settings.main : this.settings.apex;
-      const alpha = Math.min(d.cap, d.a * base + boost * d.a);
+      const alpha = Math.min(d.cap, (d.a * base + boost * d.a) * d.dim);
       if (alpha < 0.01) continue;
       const lvl = Math.min(LEVELS - 1, Math.round(alpha * (LEVELS - 1) / 0.85));
       const bucket = buckets[(d.main ? LEVELS : 0) + lvl];
