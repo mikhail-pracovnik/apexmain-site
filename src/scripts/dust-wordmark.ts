@@ -149,7 +149,11 @@ export class DustWordmark {
       const availH = this.h - margin - topLimit;
       scale = Math.min((this.w - margin - xStart) / wRef, availH / hRef);
       ox = this.w - margin - wRef * scale;
-      oy = topLimit;
+      // Centre the composition: equal space above "apex" (below the header) and below "main".
+      // The text block is moved by the same amount in CSS (--hero-shift in Stage.astro).
+      const plateBottom = topLimit - 14;
+      const shiftDown = Math.max(0, (this.h - plateBottom - hRef * scale) / 2 - 14);
+      oy = topLimit + shiftDown;
     } else {
       // behind and above the headline, full width minus the gutters
       scale = (this.w - margin * 2) / wRef;

@@ -7,8 +7,6 @@ import Examples from '../../components/Examples.astro';
 import Process from '../../components/Process.astro';
 import Integrations from '../../components/Integrations.astro';
 import LeadForm from '../../components/LeadForm.astro';
-// TEMPORARY: palette panel, remove once the colours are chosen
-import PaletteTuner from '../../components/PaletteTuner.astro';
 import { t, localeStaticPaths, type Locale } from '../../i18n';
 
 export const getStaticPaths = localeStaticPaths;
@@ -25,5 +23,4 @@ const d = t(locale);
   <Integrations locale={locale} />
   <Process locale={locale} />
   <LeadForm locale={locale} numbered />
-  <PaletteTuner />
 </BaseLayout>

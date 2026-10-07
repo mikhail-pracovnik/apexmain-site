@@ -109,13 +109,22 @@ const [vx, vy, vw, vh] = brand.viewBox;
     padding-top: calc(5rem + 18vw);
     padding-bottom: max(2rem, env(safe-area-inset-bottom));
   }
-  /* Desktop: the text block sits about the middle of the hero, a little above centre;
-     the big wordmark hangs from the header behind it. */
+  /* Desktop: the text block sits about the middle of the hero, a little above centre; the big
+     wordmark lies behind it. The whole composition is moved down so the space between the header and
+     "apex" equals the space below "main". --mark-h mirrors the wordmark height computed in
+     dust-wordmark.ts (≈ 0.357 × viewport width, or the height left under the header);
+     the wordmark script moves itself by the same --hero-shift. */
   @media (min-width: 64rem) {
+    .stage {
+      --plate-b: calc(max(0.75rem, env(safe-area-inset-top)) + 3.5rem);
+      --mark-h: min(35.73vw, 100svh - 3vw - var(--plate-b) - 14px);
+      --hero-shift: max(0px, calc((100svh - var(--plate-b) - var(--mark-h)) / 2 - 14px));
+    }
     .hero {
       align-content: center;
       padding-top: 6rem;
       padding-bottom: 14vh;
+      transform: translateY(var(--hero-shift));
     }
     .hero-eyebrow {
       font-size: 0.9375rem;
