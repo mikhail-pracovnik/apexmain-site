@@ -170,6 +170,10 @@ export class DustWordmark {
     c.fillText('apex', ox, oy);
     c.fillStyle = '#0000ff';
     c.fillText('main', ox + shift * scale, oy + lineStep * scale);
+    // glyph boxes in host coordinates (used for layout checks)
+    const box = (m: TextMetrics, x: number, y: number) => [x - m.actualBoundingBoxLeft * scale, y - m.actualBoundingBoxAscent * scale, x + m.actualBoundingBoxRight * scale, y + m.actualBoundingBoxDescent * scale].map(Math.round).join(',');
+    this.canvas.dataset.apexBox = box(m1, ox, oy);
+    this.canvas.dataset.mainBox = box(m2, ox + shift * scale, oy + lineStep * scale);
     const data = c.getImageData(0, 0, off.width, off.height).data;
 
     // --- grid density adapted to the device
@@ -182,14 +186,8 @@ export class DustWordmark {
     this.gap = Math.max(desktop ? 3 : 2.2, Math.sqrt(ink / maxDots));
 
     // --- masks around the text
-    // Desktop: no visible edges. Dots fade out smoothly over ~130px around the subtitle and buttons
-    // (to zero under them) and are strongly dimmed — not removed — under the headline, again with a
-    // ~120px gradient, so the letters still faintly show through it.
-    // Phones keep the tighter mask they had.
-    const smooth = (e0: number, e1: number, x: number) => {
-      const t = Math.min(1, Math.max(0, (x - e0) / (e1 - e0)));
-      return t * t * (3 - 2 * t);
-    };
+    // Desktop: no masks at all — every dot of "apex" / "main" has the same brightness, the layout keeps
+    // the subtitle and buttons clear of "main". Phones keep their tight mask behind the headline.
     const distTo = (zones: { x: number; y: number; w: number; h: number }[], x: number, y: number) => {
       let best = Infinity;
       for (const z of zones) {
@@ -200,16 +198,16 @@ export class DustWordmark {
       return best;
     };
     const clearAt = desktop
-      ? (x: number, y: number) => smooth(0, 130, distTo(clear, x, y))
+      ? () => 1
       : (x: number, y: number) => {
           const d = distTo(clear, x, y) - 14;
           return d <= 0 ? 0 : Math.min(1, d / 28);
         };
     const titleAt = desktop
-      ? (x: number, y: number) => smooth(0, 120, distTo(title, x, y)) // 0 under the headline … 1 away from it
+      ? () => 1
       : (x: number, y: number) => (title.some((t) => x > t.x - 10 && x < t.x + t.w + 10 && y > t.y - 6 && y < t.y + t.h + 6) ? 0 : 1);
-    const dimUnder = desktop ? 0.22 : 0.4;
-    const capUnder = desktop ? 0.12 : 0.2;
+    const dimUnder = 0.4; // phones only
+    const capUnder = 0.2;
 
     const g = this.gap;
     const jitter = g * 0.48; // breaks the grid: dust, not pixels

@@ -109,15 +109,18 @@ const [vx, vy, vw, vh] = brand.viewBox;
     padding-top: calc(5rem + 18vw);
     padding-bottom: max(2rem, env(safe-area-inset-bottom));
   }
-  /* Desktop: the text block sits low; the big wordmark hangs above it from the header. */
+  /* Desktop: the text block sits about the middle of the hero, a little above centre;
+     the big wordmark hangs from the header behind it. */
   @media (min-width: 64rem) {
     .hero {
-      align-content: end;
-      padding-top: 7rem;
-      padding-bottom: clamp(3rem, 11vh, 8rem);
+      align-content: center;
+      padding-top: 6rem;
+      padding-bottom: 14vh;
     }
     .hero-eyebrow {
       font-size: 0.9375rem;
+      /* lies on the dust of "a" and "p": almost white so it stays readable */
+      color: rgb(236 240 241 / 0.92);
     }
   }
   .hero-eyebrow {
