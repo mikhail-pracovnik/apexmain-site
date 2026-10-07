@@ -1,7 +1,9 @@
 ---
 /**
- * Phone-only bottom dock with messenger buttons and back-to-top. Always visible once the intro is done;
- * the page reserves its height (body padding + shorter first screen), so it never covers page content.
+ * Phone-only floating "island" with messenger buttons and back-to-top. Always visible once the intro is done.
+ * It floats with gaps on the sides and below (env(safe-area-inset-bottom) included) — no full-width bar,
+ * so it looks the same above a floating browser toolbar (new Safari) or a classic one (old Safari, Chrome).
+ * The page reserves its height (--dock-h: body padding + shorter first screen).
  */
 import { site } from '../config/site';
 import { t, type Locale } from '../i18n';
@@ -36,22 +38,27 @@ const greeting = encodeURIComponent(d.messenger.greeting);
 <style>
   .dock {
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom));
     z-index: 55;
     display: grid;
     grid-template-columns: 1fr 1fr auto;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem max(0.5rem, env(safe-area-inset-bottom));
-    border-top: 1px solid var(--color-line);
-    background: color-mix(in srgb, var(--color-ink) 90%, transparent);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    gap: 0.4rem;
+    padding: 0.4rem;
+    border: 1px solid rgb(236 240 241 / 0.14);
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--color-ink-2) 72%, transparent);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    /* readable on dark and on light sections */
+    box-shadow:
+      0 12px 32px -8px rgb(0 0 0 / 0.55),
+      0 2px 6px rgb(0 0 0 / 0.25);
     transition: transform 0.4s var(--ease-out-expo);
   }
   :global(html.js.motion.has-intro:not(.intro-done)) .dock {
-    transform: translateY(110%);
+    transform: translateY(calc(100% + 2rem + env(safe-area-inset-bottom)));
   }
   @media (min-width: 48rem) {
     .dock {
@@ -63,11 +70,12 @@ const greeting = encodeURIComponent(d.messenger.greeting);
     align-items: center;
     justify-content: center;
     gap: 0.45rem;
-    min-height: 2.75rem;
+    min-height: 2.75rem; /* 44px */
     border: 1px solid rgb(236 240 241 / 0.25);
-    border-radius: 0.5rem;
+    border-radius: 0.9rem;
     font-weight: 600;
     font-size: 0.9375rem;
+    color: var(--color-paper);
   }
   .dock-primary {
     border-color: var(--color-apex);
@@ -78,8 +86,9 @@ const greeting = encodeURIComponent(d.messenger.greeting);
     display: grid;
     place-items: center;
     width: 2.75rem;
+    min-height: 2.75rem;
     border: 1px solid rgb(236 240 241 / 0.25);
-    border-radius: 0.5rem;
+    border-radius: 0.9rem;
     color: var(--color-paper);
   }
 </style>

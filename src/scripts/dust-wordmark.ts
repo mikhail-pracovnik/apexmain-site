@@ -73,6 +73,15 @@ export class DustWordmark {
     this.draw(performance.now());
   }
 
+  /** Bottom of the first headline line (stacked layout), in host coordinates. */
+  private firstTitleLineBottom() {
+    const line = this.host.querySelector('[data-dust-title] > span');
+    if (!line) return null;
+    const range = document.createRange();
+    range.selectNodeContents(line);
+    return range.getBoundingClientRect().bottom - this.host.getBoundingClientRect().top;
+  }
+
   /** Top of the text block (stacked layout), in host coordinates. */
   private textTop() {
     const el = this.host.querySelector('[data-dust-top]');
@@ -136,17 +145,18 @@ export class DustWordmark {
       const shiftDown = Math.max(0, (this.h - plateBottom - hRef * scale) / 2 - 14);
       oy = topLimit + shiftDown;
     } else {
-      // Stacked (phones, tablets): the wordmark fills the free space between the header and the text
-      // block at the bottom of the hero, centred, never clipped. On short screens it keeps a minimum
-      // readable size and hangs from the header; the headline may then run over "main".
-      const MIN_H = 118; // px: smallest readable height of the two lines
+      // Stacked (phones, tablets): the wordmark spans the full container width ("apex" ≈ 80%, "main"
+      // from the second letter to the right edge). It hangs from the header; where the screen is short
+      // it may run under the eyebrow and the first headline line, but never lower than that line
+      // (the subtitle and buttons stay clear) — if needed it gets slightly smaller instead.
       const gapBelow = 16;
       const textTop = this.textTop() ?? this.h * 0.55;
-      const freeH = textTop - gapBelow - topLimit;
+      const firstLine = this.firstTitleLineBottom() ?? textTop;
       const fitW = (this.w - margin * 2) / wRef;
-      scale = Math.min(fitW, Math.max(freeH, MIN_H) / hRef);
+      scale = Math.min(fitW, (firstLine - topLimit) / hRef);
       const hBox = hRef * scale;
-      ox = (this.w - wRef * scale) / 2;
+      const freeH = textTop - gapBelow - topLimit;
+      ox = margin;
       oy = hBox <= freeH ? topLimit + (freeH - hBox) / 2 : topLimit;
     }
     ox += left * scale;

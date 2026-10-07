@@ -127,10 +127,6 @@ const [vx, vy, vw, vh] = brand.viewBox;
       padding-bottom: 14vh;
       transform: translateY(var(--hero-shift));
     }
-    .hero-eyebrow {
-      /* lies on the dust of "a" and "p": almost white so it stays readable */
-      color: rgb(236 240 241 / 0.92);
-    }
   }
   @media (min-width: 64rem) {
     .hero-eyebrow {
@@ -139,6 +135,8 @@ const [vx, vy, vw, vh] = brand.viewBox;
   }
   .hero-eyebrow {
     margin-bottom: 1rem;
+    /* may lie on the dust of the wordmark: almost white so it stays readable */
+    color: rgb(236 240 241 / 0.92);
   }
   .hero-title {
     display: grid;
