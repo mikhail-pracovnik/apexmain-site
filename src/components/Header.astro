@@ -32,6 +32,7 @@ const initialLabel = pageLabel[path] ?? site.name;
 
 <header id="site-header" class="site-header">
   <div class="plate">
+    <span class="plate-bg" aria-hidden="true"></span>
     <a href={home} class="plate-mark" aria-label={d.a11y.home}>
       <BrandMark id="header-mark" class="h-[18px] w-auto" />
     </a>
@@ -113,13 +114,29 @@ const initialLabel = pageLabel[path] ?? site.name;
     max-width: 78rem;
     height: 3.5rem;
     padding: 0 0.5rem 0 1rem;
+    border: 1px solid transparent; /* the visible border is on .plate-bg */
+    pointer-events: auto;
+    isolation: isolate;
+  }
+  /* The plate's look sits on an inner layer under the content, the same way as the phone dock
+     (MobileDock.astro): Safari 26 tints its toolbar areas with the background of fixed elements at the screen edge. */
+  .plate-bg {
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
     border: 1px solid var(--color-line);
     border-radius: 0.5rem;
     background: color-mix(in srgb, var(--color-ink-2) 82%, transparent);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    --plate-blur: blur(14px) saturate(140%);
+    backdrop-filter: var(--plate-blur);
     box-shadow: 0 10px 30px -14px rgb(0 0 0 / 0.6);
-    pointer-events: auto;
+    pointer-events: none;
+  }
+  /* The prefixed copy in its own rule: in one rule the CSS minifier keeps only one of the pair. */
+  @supports (-webkit-backdrop-filter: none) {
+    .plate-bg {
+      -webkit-backdrop-filter: var(--plate-blur);
+    }
   }
   .plate-mark {
     display: inline-flex;

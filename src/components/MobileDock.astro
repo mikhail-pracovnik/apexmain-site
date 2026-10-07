@@ -4,6 +4,10 @@
  * It floats with gaps on the sides and below (env(safe-area-inset-bottom) included) — no full-width bar,
  * so it looks the same above a floating browser toolbar (new Safari) or a classic one (old Safari, Chrome).
  * The page reserves its height (--dock-h: body padding + shorter first screen).
+ * The fixed .dock itself is fully transparent and its look lives on the inner .dock-bg layer:
+ * Safari 26 tints the area under its toolbar with the background of fixed elements at the bottom edge,
+ * so a dark .dock turned that area grey over light sections. With nothing to take from the dock,
+ * Safari falls back to the body background, which follows the section at the bottom (common.ts).
  */
 import { site } from '../config/site';
 import { t, type Locale } from '../i18n';
@@ -16,6 +20,7 @@ const greeting = encodeURIComponent(d.messenger.greeting);
 ---
 
 <div class="dock" data-dock>
+  <span class="dock-bg" aria-hidden="true"></span>
   <a href={`https://t.me/${site.contacts.telegram}?text=${greeting}`} target="_blank" rel="noopener" class="dock-btn dock-primary">
     <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
       ><path
@@ -45,17 +50,37 @@ const greeting = encodeURIComponent(d.messenger.greeting);
     display: grid;
     grid-template-columns: 1fr 1fr auto;
     gap: 0.4rem;
-    padding: 0.4rem;
+    /* 1px border width kept as padding: the layout inside is the same as with the border on the dock */
+    padding: calc(0.4rem + 1px);
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+  /* The island's look: under the buttons (z-index -1 inside the dock's stacking context). */
+  .dock-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     border: 1px solid rgb(236 240 241 / 0.14);
     border-radius: 1.25rem;
     background: color-mix(in srgb, var(--color-ink-2) 72%, transparent);
-    backdrop-filter: blur(18px) saturate(150%);
-    -webkit-backdrop-filter: blur(18px) saturate(150%);
-    /* readable on dark and on light sections */
+    --dock-blur: blur(18px) saturate(150%);
+    backdrop-filter: var(--dock-blur);
     box-shadow:
       0 12px 32px -8px rgb(0 0 0 / 0.55),
       0 2px 6px rgb(0 0 0 / 0.25);
-    transition: transform 0.4s var(--ease-out-expo);
+    transition: box-shadow 0.2s;
+    pointer-events: none;
+  }
+  /* Over a light section a dark island needs only a short, soft shadow. */
+  :global(html.page-light) .dock-bg {
+    box-shadow:
+      0 6px 14px -6px rgb(0 0 0 / 0.28),
+      0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  /* The prefixed copy lives in its own rule: in one rule the CSS minifier merges the pair and keeps only one of them. */
+  @supports (-webkit-backdrop-filter: none) {
+    .dock-bg {
+      -webkit-backdrop-filter: var(--dock-blur);
+    }
   }
   :global(html.js.motion.has-intro:not(.intro-done)) .dock {
     transform: translateY(calc(100% + 2rem + env(safe-area-inset-bottom)));

@@ -256,6 +256,12 @@ const [vx, vy, vw, vh] = brand.viewBox;
     pointer-events: auto;
     touch-action: none;
   }
+  /* Safari 26 tints its toolbar area with the background of a fixed element at the bottom edge:
+     dark while the intro covers the screen, even though a light section is already under it.
+     Not while the mark flies: .intro-bg fades out then to reveal the hero. */
+  :global(html:not(.intro-flying)) .intro {
+    background-color: var(--color-ink);
+  }
   :global(html.js.motion.has-intro:not(.intro-done)) .intro,
   :global(html.js.motion.has-intro.intro-flying) .intro {
     display: block;

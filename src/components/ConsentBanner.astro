@@ -41,6 +41,10 @@ const ids = { ga: site.analytics.googleAnalyticsId, pixel: site.analytics.metaPi
     background: var(--color-ink-2);
     font-size: 0.9375rem;
   }
+  /* display: grid above overrides the hidden attribute; a hidden fixed box at the bottom still tints Safari's toolbar area */
+  .consent[hidden] {
+    display: none;
+  }
   .consent-actions {
     display: flex;
     gap: 0.5rem;

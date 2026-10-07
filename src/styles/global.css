@@ -29,8 +29,13 @@
 
 /* ---------- Base ---------- */
 @layer base {
+  /* Page background follows the section at the bottom edge of the screen (common.ts → --page-bg):
+     the new Safari tints the area under its floating toolbar with this colour. */
+  html,
+  body {
+    background-color: var(--page-bg, var(--color-ink));
+  }
   html {
-    background: var(--color-ink);
     color: var(--color-paper);
     font-family: var(--font-body);
     font-size: 100%;
@@ -104,6 +109,8 @@
   .section {
     position: relative;
     padding-block: 5.5rem;
+    /* every section paints its own background: the page background under it may be light */
+    background: var(--color-ink);
   }
   @media (min-width: 64rem) {
     .section {
@@ -265,6 +272,22 @@
     opacity: 1;
   }
 
+  /* Skip link: a fixed turquoise box only while focused. Hidden, it stays in place with no background,
+     so Safari 26 has nothing to tint its toolbar area with. */
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+    z-index: 100;
+    border-radius: 9999px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .skip-link:focus {
+    position: fixed;
+    background: var(--color-apex);
+  }
   .sr-only-focusable:not(:focus):not(:focus-within) {
     position: absolute;
     width: 1px;
@@ -309,6 +332,19 @@ html.js.motion .reveal.is-in {
     radial-gradient(max(1%, 42% * var(--glow-s)) max(1%, 50% * var(--glow-s)) at 88% 0%, rgb(70 200 217 / calc(0.07 * var(--glow-a))), transparent 70%),
     radial-gradient(max(1%, 50% * var(--glow-s)) max(1%, 60% * var(--glow-s)) at 0% 100%, rgb(40 80 160 / calc(0.1 * var(--glow-a))), transparent 70%),
     var(--color-ink);
+}
+
+/* Pulling the page down past the top (rubber band) shows what is above the document:
+   it keeps the colour of the first section (common.ts → --top-bg) whatever the page background is. */
+body::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 100vh;
+  background: var(--top-bg, var(--color-ink));
+  pointer-events: none;
 }
 
 /* Barely visible film grain over the whole page. */
