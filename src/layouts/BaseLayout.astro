@@ -7,6 +7,7 @@ import Footer from '../components/Footer.astro';
 import Menu from '../components/Menu.astro';
 import MobileDock from '../components/MobileDock.astro';
 import ConsentBanner from '../components/ConsentBanner.astro';
+import { introKeys } from '../config/intro';
 
 interface Props {
   locale: Locale;
@@ -16,7 +17,7 @@ interface Props {
   path?: string;
   /** Force noindex for this page (demo mode adds it everywhere anyway). */
   noindex?: boolean;
-  /** Home page starts with the scroll-driven intro: header appears after it. */
+  /** Home page starts with the intro (language choice + the mark's reel): header appears after it. */
   withIntro?: boolean;
 }
 
@@ -99,6 +100,47 @@ const fontFaces = `
         if ((n.hardwareConcurrency && n.hardwareConcurrency <= 4) || (n.deviceMemory && n.deviceMemory <= 2) || c.saveData) h.classList.add('lite');
       })();
     </script>
+
+    {
+      withIntro && (
+        <script is:inline define:vars={{ locale, keys: introKeys }}>
+          // Intro decision before the first paint (scripts/stage.ts plays it). Classes on <html>:
+          //   intro-on   — the intro covers the first screen on this load;
+          //   intro-pick — the language choice is shown (otherwise the reel plays right away);
+          //   intro-tune — temporary tuning panel (?intro=tune).
+          (function () {
+            var h = document.documentElement;
+            var motion = h.classList.contains('motion');
+            var param = new URLSearchParams(location.search).get('intro');
+            var ls = null, ss = null;
+            try { ls = window.localStorage; ss = window.sessionStorage; } catch (e) {}
+            var get = function (st, k) { try { return st ? st.getItem(k) : null; } catch (e) { return null; } };
+            var set = function (st, k, v) { try { if (st) v === null ? st.removeItem(k) : st.setItem(k, v); } catch (e) {} };
+            if (param === 'reset') {
+              set(ls, keys.lang, null);
+              set(ss, keys.seen, null);
+              set(ss, keys.switchTo, null);
+            }
+            // A direct link to /kk/ or /en/ counts as the visitor's choice.
+            if (locale !== 'ru' && param !== 'tune') set(ls, keys.lang, locale);
+            var switched = get(ss, keys.switchTo) === locale;
+            var mode = 'none';
+            if (param === 'tune') mode = 'pick';
+            else if (location.hash.length > 1) mode = 'none';
+            else if (switched) mode = motion ? 'play' : 'none';
+            else if (get(ss, keys.seen)) mode = 'none';
+            else if (!get(ls, keys.lang) && locale === 'ru') mode = 'pick';
+            else mode = motion ? 'play' : 'none';
+            if (switched) set(ss, keys.switchTo, null);
+            if (mode === 'none') return;
+            h.classList.add('intro-on');
+            if (mode === 'pick') h.classList.add('intro-pick');
+            if (param === 'tune') h.classList.add('intro-tune');
+            if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+          })();
+        </script>
+      )
+    }
 
     <script type="application/ld+json" set:html={JSON.stringify(organization)} />
   </head>

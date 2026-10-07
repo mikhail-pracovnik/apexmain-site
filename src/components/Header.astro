@@ -98,10 +98,10 @@ const initialLabel = pageLabel[path] ?? site.name;
     transition: opacity 0.5s var(--ease-out-expo);
   }
   /* Hidden while the intro plays (opacity only, so the mark position can still be measured). */
-  :global(html.js.motion.has-intro:not(.intro-done)) .site-header {
+  :global(html.intro-on:not(.intro-done)) .site-header {
     opacity: 0;
   }
-  :global(html.js.motion.has-intro:not(.intro-done)) .site-header .plate {
+  :global(html.intro-on:not(.intro-done)) .site-header .plate {
     pointer-events: none;
   }
 

@@ -1,16 +1,18 @@
 ---
 /**
- * First screen: a three-step intro over the hero.
- *   step 1 — the mark gets its full outline,
- *   step 2 — the mark fills in, the turquoise peak lights up,
- *   step 3 — the mark flies into the header and the hero opens.
- * One wheel notch / swipe / arrow key = one step (see scripts/stage.ts).
+ * First screen: the intro over the hero, then the hero.
+ *   Language choice (first visit to the Russian home page): the dim mark and three language buttons.
+ *   Reel (one GSAP timeline, no input): the mark gets its outline, fills in with the turquoise peak,
+ *   flies into the header, the hero opens.
+ * What to show is decided before the first paint by the head script in BaseLayout; scripts/stage.ts plays it.
+ * Timing and the mark position: config/intro.ts.
  * Behind the hero lies a dim "apex / main" wordmark made of dust (scripts/dust-wordmark.ts).
- * Without JS or with reduced motion there is no intro and the wordmark is static text with the same brightness.
+ * Without JS there is no intro and the wordmark is static text with the same brightness.
  */
 import BrandMark from './BrandMark.astro';
 import brand from '../data/brand-mark.json';
-import { t, url, type Locale } from '../i18n';
+import { t, url, locales, htmlLang, type Locale } from '../i18n';
+import { intro } from '../config/intro';
 
 interface Props {
   locale: Locale;
@@ -49,7 +51,7 @@ const [vx, vy, vw, vh] = brand.viewBox;
     </div>
   </div>
 
-  <div class="intro" aria-hidden="true" data-intro>
+  <div class="intro" aria-hidden="true" aria-label={d.intro.chooseLanguage} data-intro style={`--intro-y:${intro.markY};--gap:${intro.langsGap}rem`}>
     <div class="intro-bg" data-intro-bg></div>
     <div class="intro-anchor" data-intro-anchor>
       <div class="intro-fly" data-intro-fly>
@@ -62,13 +64,21 @@ const [vx, vy, vw, vh] = brand.viewBox;
           </defs>
           <polygon points={peak.points.map((p) => p.join(',')).join(' ')} fill="#46C8D9" filter="url(#peak-glow)"></polygon>
         </svg>
+        <BrandMark class="intro-fill" />
         <BrandMark variant="outline" class="intro-mark" />
       </div>
     </div>
-    <p class="intro-hint" data-intro-hint>
-      <span>{d.intro.hint}</span>
-      <span class="intro-steps" aria-hidden="true"><i data-step-dot></i><i data-step-dot></i><i data-step-dot></i></span>
-    </p>
+    <ul class="intro-langs" data-intro-langs>
+      {
+        locales.map((l) => (
+          <li>
+            <a href={url(l)} hreflang={htmlLang[l]} lang={htmlLang[l]} class="intro-lang" data-intro-lang={l}>
+              <span>{t(l).langName}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
   </div>
 </section>
 
@@ -246,40 +256,56 @@ const [vx, vy, vw, vh] = brand.viewBox;
     visibility: hidden; /* JS + motion: the dust takes over as soon as it is ready */
   }
 
-  /* ---------- Intro overlay (fixed over everything while it plays) ---------- */
+  /* ---------- Intro overlay (fixed over everything while it is on) ----------
+     Mark and buttons are placed in container units of the overlay (cqh = 1% of its height), so the mark
+     sits at the same point with or without the buttons, and on the next page after a language switch. */
   .intro {
     display: none;
     position: fixed;
     inset: 0;
     z-index: 80;
-    /* blocks clicks on the hero underneath while the intro plays */
+    container-type: size;
+    /* blocks clicks on the hero underneath */
     pointer-events: auto;
-    touch-action: none;
+    /* --gap (mark → buttons) and --intro-y come from config/intro.ts via the style attribute */
+    --btn-h: 3rem;
+    --btn-gap: 0.5rem;
+    --langs-h: calc(var(--btn-h) * 3 + var(--btn-gap) * 2);
+    --pad-t: max(1rem, env(safe-area-inset-top));
+    --pad-b: calc(max(1rem, env(safe-area-inset-bottom)) + 0.5rem);
+    /* Mark height: its usual size, smaller when the screen is too short for the mark and the buttons. */
+    --mark-h: max(
+      2.5rem,
+      min(
+        min(72cqw, 30rem) * 0.7,
+        200cqh * (1 - var(--intro-y)) - 2 * (var(--gap) + var(--langs-h) + var(--pad-b)),
+        200cqh * var(--intro-y) - 2 * var(--pad-t)
+      )
+    );
   }
   /* Safari 26 tints its toolbar area with the background of a fixed element at the bottom edge:
-     dark while the intro covers the screen, even though a light section is already under it.
-     Not while the mark flies: .intro-bg fades out then to reveal the hero. */
+     dark while the intro covers the screen. Not while the mark flies: .intro-bg fades out then to reveal the hero. */
   :global(html:not(.intro-flying)) .intro {
     background-color: var(--color-ink);
   }
-  :global(html.js.motion.has-intro:not(.intro-done)) .intro,
-  :global(html.js.motion.has-intro.intro-flying) .intro {
+  :global(html.intro-on:not(.intro-done)) .intro,
+  :global(html.intro-on.intro-flying) .intro {
     display: block;
   }
   .intro-bg {
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(55% 45% at 50% 46%, rgb(70 200 217 / 0.07), transparent 70%),
+      radial-gradient(55% 45% at 50% calc(var(--intro-y) * 100%), rgb(70 200 217 / 0.07), transparent 70%),
       radial-gradient(max(1%, 60% * var(--glow-s)) max(1%, 50% * var(--glow-s)) at 10% 100%, rgb(40 80 160 / calc(0.12 * var(--glow-a))), transparent 70%),
       var(--color-ink);
   }
   .intro-anchor {
     position: absolute;
     left: 50%;
-    top: 46%;
-    width: min(72vw, 30rem);
-    aspect-ratio: 1473 / 1031;
+    top: calc(var(--intro-y) * 100cqh);
+    height: var(--mark-h);
+    width: calc(var(--mark-h) * 1473 / 1031);
     transform: translate(-50%, -50%);
   }
   .intro-fly {
@@ -302,38 +328,77 @@ const [vx, vy, vw, vh] = brand.viewBox;
   .intro-glow {
     opacity: 0;
   }
+  /* The fill fades in shape by shape (opacity), under the outline */
+  .intro-fly :global(.intro-fill polygon) {
+    opacity: 0;
+  }
   .intro-fly :global(.intro-mark polygon) {
     fill-opacity: 0;
     stroke-width: 9;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
   }
-  .intro-hint {
+
+  /* Language buttons: only on the choice screen */
+  .intro-langs {
+    display: none;
     position: absolute;
     left: 50%;
-    bottom: max(2.25rem, env(safe-area-inset-bottom));
-    display: grid;
-    justify-items: center;
-    gap: 0.9rem;
+    top: calc(var(--intro-y) * 100cqh + var(--mark-h) / 2 + var(--gap));
+    gap: var(--btn-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
     transform: translateX(-50%);
+  }
+  :global(html.intro-pick) .intro-langs {
+    display: grid;
+  }
+  .intro-lang {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 15rem;
+    height: var(--btn-h);
+    border: 1px solid rgb(236 240 241 / 0.16);
+    border-radius: 0.75rem;
+    background: rgb(236 240 241 / 0.03);
     font-family: var(--font-mono);
-    font-size: 0.9375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-paper);
-    white-space: nowrap;
+    color: rgb(236 240 241 / 0.88);
+    transition:
+      border-color 0.2s,
+      color 0.15s;
+    -webkit-tap-highlight-color: transparent;
   }
-  .intro-steps {
-    display: flex;
-    gap: 0.4rem;
+  .intro-lang:focus-visible {
+    border-radius: 0.75rem;
   }
-  .intro-steps i {
-    width: 1.5rem;
-    height: 2px;
-    background: var(--color-line);
-    transition: background-color 0.4s;
+  @media (hover: hover) {
+    .intro-lang:hover {
+      border-color: rgb(236 240 241 / 0.4);
+    }
   }
-  .intro-steps i:global(.is-on) {
+  /* chosen: turquoise fill (opacity of a layer), dark text */
+  .intro-lang::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
     background: var(--color-apex);
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .intro-lang > span {
+    position: relative;
+  }
+  .intro-lang:global(.is-chosen) {
+    color: var(--color-ink);
+  }
+  .intro-lang:global(.is-chosen)::before {
+    opacity: 1;
   }
 </style>

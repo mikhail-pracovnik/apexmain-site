@@ -91,25 +91,40 @@ const darkBg = themeMeta?.content ?? '#030306';
 const bands = Array.from(document.querySelectorAll<HTMLElement>('main > :not(script), body > footer'));
 // what shows above the page when it is pulled down past the top: the colour of the first section
 if (bands[0]) root.style.setProperty('--top-bg', getComputedStyle(bands[0]).backgroundColor);
+// While the intro is on, everything stays dark (#030306): the intro covers the screen, but the
+// section at the bottom edge under it may be light. stage.ts fires 'intro:end' when it is over.
+let introOn = root.classList.contains('intro-on') && !root.classList.contains('intro-done');
 if (bands.length && 'IntersectionObserver' in window) {
   const atBottom = new Map<HTMLElement, boolean>();
   let pageLight: boolean | null = null;
+  const apply = () => {
+    const bottom = introOn ? undefined : bands.filter((b) => atBottom.get(b)).pop();
+    const light = !!bottom?.classList.contains('theme-light');
+    if (light === pageLight) return;
+    pageLight = light;
+    const bg = light ? getComputedStyle(bottom!).backgroundColor : darkBg;
+    root.style.setProperty('--page-bg', bg);
+    root.classList.toggle('page-light', light);
+    themeMeta?.setAttribute('content', bg);
+  };
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => atBottom.set(e.target as HTMLElement, e.isIntersecting));
-      const bottom = bands.filter((b) => atBottom.get(b)).pop();
-      const light = !!bottom?.classList.contains('theme-light');
-      if (light === pageLight) return;
-      pageLight = light;
-      const bg = light ? getComputedStyle(bottom!).backgroundColor : darkBg;
-      root.style.setProperty('--page-bg', bg);
-      root.classList.toggle('page-light', light);
-      themeMeta?.setAttribute('content', bg);
+      apply();
     },
     // a thin strip along the bottom edge of the viewport
     { rootMargin: '-98% 0px 0px 0px' },
   );
   bands.forEach((b) => io.observe(b));
+  window.addEventListener('intro:end', () => {
+    introOn = false;
+    apply();
+  });
+  // ?intro=tune replays the intro
+  window.addEventListener('intro:start', () => {
+    introOn = true;
+    apply();
+  });
 }
 
 /* ---------- Scroll reveal ---------- */
