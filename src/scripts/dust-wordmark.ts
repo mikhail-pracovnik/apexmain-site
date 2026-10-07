@@ -6,7 +6,8 @@
  *   and the mark reads as dust rather than pixels.
  * - At rest it is dim (brightness setting = share of the text colour). Near the cursor / finger dots get
  *   brighter and drift apart; a click or tap sends a circular ripple that lights dots up as it passes.
- * - No dots under the "keep clear" elements (subtitle, buttons); a soft fade around them.
+ * - No masks: every dot of "apex" has the same brightness, every dot of "main" too; the page layout
+ *   keeps the text off the wordmark (stacked layout) or puts it beside it (desktop).
  * - Dot count adapts to the device; the loop sleeps at rest and stops while the hero is off screen.
  */
 
@@ -27,8 +28,6 @@ interface Dot {
   vy: number;
   a: number; // base coverage 0..1
   main: boolean;
-  cap: number; // max brightness (lower under the headline to keep its contrast)
-  dim: number; // multiplier: dots under the headline are much dimmer than in free space
 }
 
 interface Ripple {
@@ -74,29 +73,11 @@ export class DustWordmark {
     this.draw(performance.now());
   }
 
-  /** Where the wordmark goes and which areas stay clear, in canvas (host) coordinates. */
-  private frame() {
-    const host = this.host.getBoundingClientRect();
-    const rel = (el: Element | null) => {
-      if (!el) return null;
-      const r = el.getBoundingClientRect();
-      return { x: r.left - host.left, y: r.top - host.top, w: r.width, h: r.height };
-    };
-    // the headline's actual text lines (the block itself can be wider than the words)
-    const titleEl = this.host.querySelector('[data-dust-title]');
-    const title = (titleEl ? Array.from(titleEl.children).map((el) => {
-      const range = document.createRange();
-      range.selectNodeContents(el);
-      const r = range.getBoundingClientRect();
-      return { x: r.left - host.left, y: r.top - host.top, w: r.width, h: r.height };
-    }) : []);
-    const clear = Array.from(this.host.querySelectorAll('[data-dust-clear]')).map(rel).filter(Boolean) as {
-      x: number;
-      y: number;
-      w: number;
-      h: number;
-    }[];
-    return { title, clear };
+  /** Top of the text block (stacked layout), in host coordinates. */
+  private textTop() {
+    const el = this.host.querySelector('[data-dust-top]');
+    if (!el) return null;
+    return el.getBoundingClientRect().top - this.host.getBoundingClientRect().top;
   }
 
   layout() {
@@ -105,7 +86,8 @@ export class DustWordmark {
     this.w = r.width;
     this.h = r.height;
     const lite = document.documentElement.classList.contains('lite');
-    const desktop = this.w >= 1024;
+    // Desktop layout (text beside the wordmark) from 1100px; below it text and wordmark are stacked.
+    const desktop = this.w >= 1100;
     this.dpr = Math.min(window.devicePixelRatio || 1, lite ? 1.5 : 2);
     this.canvas.width = Math.round(this.w * this.dpr);
     this.canvas.height = Math.round(this.h * this.dpr);
@@ -114,7 +96,6 @@ export class DustWordmark {
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this.radius = desktop ? 130 : 90;
 
-    const { title, clear } = this.frame();
 
     // --- measure the wordmark at a reference size
     const probe = document.createElement('canvas').getContext('2d')!;
@@ -136,7 +117,7 @@ export class DustWordmark {
     // the header is fixed: keep the wordmark below it as seen with the page scrolled to the top
     const hostDocTop = this.host.getBoundingClientRect().top + window.scrollY;
     const topLimit = Math.max(plate ? plate.bottom - hostDocTop + 14 : 80, 64);
-    const margin = desktop ? Math.max(24, this.w * 0.03) : 16;
+    const margin = desktop ? Math.max(24, this.w * 0.03) : this.w >= 768 ? 32 : 16;
     let scale: number;
     let ox: number;
     let oy: number;
@@ -155,10 +136,18 @@ export class DustWordmark {
       const shiftDown = Math.max(0, (this.h - plateBottom - hRef * scale) / 2 - 14);
       oy = topLimit + shiftDown;
     } else {
-      // behind and above the headline, full width minus the gutters
-      scale = (this.w - margin * 2) / wRef;
-      ox = margin;
-      oy = topLimit;
+      // Stacked (phones, tablets): the wordmark fills the free space between the header and the text
+      // block at the bottom of the hero, centred, never clipped. On short screens it keeps a minimum
+      // readable size and hangs from the header; the headline may then run over "main".
+      const MIN_H = 118; // px: smallest readable height of the two lines
+      const gapBelow = 16;
+      const textTop = this.textTop() ?? this.h * 0.55;
+      const freeH = textTop - gapBelow - topLimit;
+      const fitW = (this.w - margin * 2) / wRef;
+      scale = Math.min(fitW, Math.max(freeH, MIN_H) / hRef);
+      const hBox = hRef * scale;
+      ox = (this.w - wRef * scale) / 2;
+      oy = hBox <= freeH ? topLimit + (freeH - hBox) / 2 : topLimit;
     }
     ox += left * scale;
     oy += top1 * scale;
@@ -189,30 +178,6 @@ export class DustWordmark {
     const maxDots = lite ? 6000 : desktop ? 26000 : 11000;
     this.gap = Math.max(desktop ? 3 : 2.2, Math.sqrt(ink / maxDots));
 
-    // --- masks around the text
-    // Desktop: no masks at all — every dot of "apex" / "main" has the same brightness, the layout keeps
-    // the subtitle and buttons clear of "main". Phones keep their tight mask behind the headline.
-    const distTo = (zones: { x: number; y: number; w: number; h: number }[], x: number, y: number) => {
-      let best = Infinity;
-      for (const z of zones) {
-        const dx = Math.max(z.x - x, 0, x - (z.x + z.w));
-        const dy = Math.max(z.y - y, 0, y - (z.y + z.h));
-        best = Math.min(best, Math.hypot(dx, dy));
-      }
-      return best;
-    };
-    const clearAt = desktop
-      ? () => 1
-      : (x: number, y: number) => {
-          const d = distTo(clear, x, y) - 14;
-          return d <= 0 ? 0 : Math.min(1, d / 28);
-        };
-    const titleAt = desktop
-      ? () => 1
-      : (x: number, y: number) => (title.some((t) => x > t.x - 10 && x < t.x + t.w + 10 && y > t.y - 6 && y < t.y + t.h + 6) ? 0 : 1);
-    const dimUnder = 0.4; // phones only
-    const capUnder = 0.2;
-
     const g = this.gap;
     const jitter = g * 0.48; // breaks the grid: dust, not pixels
     let seed = 7;
@@ -223,23 +188,9 @@ export class DustWordmark {
         const i = (Math.floor(y) * off.width + Math.floor(x)) * 4;
         const cov = data[i + 3] / 255;
         if (cov < 0.12) continue; // anti-aliasing fringe and stray pixels: no dot
-        const keep = clearAt(x, y);
-        if (keep <= 0.02) continue;
         const px = x + rnd() * jitter;
         const py = y + rnd() * jitter;
-        const away = titleAt(px, py);
-        dots.push({
-          hx: px,
-          hy: py,
-          x: px,
-          y: py,
-          vx: 0,
-          vy: 0,
-          a: Math.min(1, cov) * keep,
-          main: data[i + 2] > data[i],
-          cap: capUnder + (0.85 - capUnder) * away,
-          dim: dimUnder + (1 - dimUnder) * away,
-        });
+        dots.push({ hx: px, hy: py, x: px, y: py, vx: 0, vy: 0, a: Math.min(1, cov), main: data[i + 2] > data[i] });
       }
     }
     this.dots = dots;
@@ -325,7 +276,7 @@ export class DustWordmark {
         boost += env * 1.1; // the ring lights the dust up as it passes
       }
       const base = d.main ? this.settings.main : this.settings.apex;
-      const alpha = Math.min(d.cap, (d.a * base + boost * d.a) * d.dim);
+      const alpha = Math.min(0.85, d.a * base + boost * d.a);
       if (alpha < 0.01) continue;
       const lvl = Math.min(LEVELS - 1, Math.round(alpha * (LEVELS - 1) / 0.85));
       const bucket = buckets[(d.main ? LEVELS : 0) + lvl];

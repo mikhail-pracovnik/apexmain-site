@@ -30,14 +30,14 @@ const [vx, vy, vw, vh] = brand.viewBox;
     <span class="hero-static-main">main</span>
   </p>
   <div class="hero container-x">
-    <p class="eyebrow hero-eyebrow hero-in">{d.hero.eyebrow}</p>
+    <p class="eyebrow hero-eyebrow hero-in" data-dust-top>{d.hero.eyebrow}</p>
     <h1 class="hero-title" data-dust-title style={`--fit:${d.hero.titleFitEm}`}>
       <span class="hero-in">{d.hero.line1}</span>
       <span class="hero-in">{d.hero.line2Before}<span class="accent">{d.hero.accent}</span>{d.hero.line2After}</span>
     </h1>
     <div class="hero-bottom hero-in">
-      <p class="hero-sub" data-dust-clear>{d.hero.sub}</p>
-      <div class="hero-ctas" data-dust-clear>
+      <p class="hero-sub">{d.hero.sub}</p>
+      <div class="hero-ctas">
         <a href="#lead" class="btn btn-primary">
           {d.hero.ctaPrimary}
           <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
@@ -102,19 +102,20 @@ const [vx, vy, vw, vh] = brand.viewBox;
     position: relative;
     z-index: 1;
     display: grid;
-    align-content: start;
-    /* first screen ends above the phone dock */
+    /* Phones/tablets (stacked): the text block sits at the bottom of the first screen, right above the
+       phone dock; the wordmark fills the space between the header and the text (dust-wordmark.ts).
+       svh = the viewport with the browser bars shown, so the buttons never go under the address bar. */
+    align-content: end;
     min-height: calc(100svh - var(--dock-h));
-    /* phones/tablets: the wordmark sits behind and above the headline, which starts mid-wordmark */
-    padding-top: calc(5rem + 18vw);
-    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+    padding-top: 5.5rem;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
   }
   /* Desktop: the text block sits about the middle of the hero, a little above centre; the big
      wordmark lies behind it. The whole composition is moved down so the space between the header and
      "apex" equals the space below "main". --mark-h mirrors the wordmark height computed in
      dust-wordmark.ts (≈ 0.357 × viewport width, or the height left under the header);
      the wordmark script moves itself by the same --hero-shift. */
-  @media (min-width: 64rem) {
+  @media (min-width: 68.75rem) {
     .stage {
       --plate-b: calc(max(0.75rem, env(safe-area-inset-top)) + 3.5rem);
       --mark-h: min(35.73vw, 100svh - 3vw - var(--plate-b) - 14px);
@@ -127,9 +128,13 @@ const [vx, vy, vw, vh] = brand.viewBox;
       transform: translateY(var(--hero-shift));
     }
     .hero-eyebrow {
-      font-size: 0.9375rem;
       /* lies on the dust of "a" and "p": almost white so it stays readable */
       color: rgb(236 240 241 / 0.92);
+    }
+  }
+  @media (min-width: 64rem) {
+    .hero-eyebrow {
+      font-size: 0.9375rem;
     }
   }
   .hero-eyebrow {
@@ -227,7 +232,7 @@ const [vx, vy, vw, vh] = brand.viewBox;
     padding-left: 0.57em; /* one letter */
     color: rgb(70 200 217 / 0.3);
   }
-  @media (min-width: 64rem) {
+  @media (min-width: 68.75rem) {
     .hero-static {
       left: auto;
       right: 3vw;
