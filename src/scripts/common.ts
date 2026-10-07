@@ -120,11 +120,6 @@ if (bands.length && 'IntersectionObserver' in window) {
     introOn = false;
     apply();
   });
-  // ?intro=tune replays the intro
-  window.addEventListener('intro:start', () => {
-    introOn = true;
-    apply();
-  });
 }
 
 /* ---------- Scroll reveal ---------- */

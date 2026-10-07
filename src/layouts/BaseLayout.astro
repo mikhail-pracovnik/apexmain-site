@@ -106,8 +106,7 @@ const fontFaces = `
         <script is:inline define:vars={{ locale, keys: introKeys }}>
           // Intro decision before the first paint (scripts/stage.ts plays it). Classes on <html>:
           //   intro-on   — the intro covers the first screen on this load;
-          //   intro-pick — the language choice is shown (otherwise the reel plays right away);
-          //   intro-tune — temporary tuning panel (?intro=tune).
+          //   intro-pick — the language choice is shown (otherwise the reel plays right away).
           (function () {
             var h = document.documentElement;
             var motion = h.classList.contains('motion');
@@ -122,11 +121,10 @@ const fontFaces = `
               set(ss, keys.switchTo, null);
             }
             // A direct link to /kk/ or /en/ counts as the visitor's choice.
-            if (locale !== 'ru' && param !== 'tune') set(ls, keys.lang, locale);
+            if (locale !== 'ru') set(ls, keys.lang, locale);
             var switched = get(ss, keys.switchTo) === locale;
             var mode = 'none';
-            if (param === 'tune') mode = 'pick';
-            else if (location.hash.length > 1) mode = 'none';
+            if (location.hash.length > 1) mode = 'none';
             else if (switched) mode = motion ? 'play' : 'none';
             else if (get(ss, keys.seen)) mode = 'none';
             else if (!get(ls, keys.lang) && locale === 'ru') mode = 'pick';
@@ -135,7 +133,6 @@ const fontFaces = `
             if (mode === 'none') return;
             h.classList.add('intro-on');
             if (mode === 'pick') h.classList.add('intro-pick');
-            if (param === 'tune') h.classList.add('intro-tune');
             if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
           })();
         </script>

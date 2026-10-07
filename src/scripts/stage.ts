@@ -10,13 +10,12 @@
  * The reel is one GSAP timeline: outline → fill with the turquoise peak → the mark flies into the header.
  * It plays once per visit and never comes back. Only transform and opacity change while it plays
  * (plus the stroke drawing of the outline); the dust wordmark, fonts and GSAP are ready before it starts.
- * Timing and the mark position: config/intro.ts. ?intro=tune loads a temporary panel (intro-tune.ts).
+ * Timing and the mark position: config/intro.ts.
  */
 import { startDust, type DustSettings } from './dust-wordmark';
 import { intro as timing, introKeys } from '../config/intro';
 
 type Gsap = typeof import('gsap').gsap;
-type Timeline = ReturnType<Gsap['timeline']>;
 
 /** Dust wordmark behind the hero: brightness of each word (share of the text colour) and dot size. */
 const DUST: DustSettings = { apex: 0.25, main: 0.3, size: 1 };
@@ -39,13 +38,6 @@ const store = (kind: 'local' | 'session', key: string, value?: string | null) =>
 
 const frame = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
 
-export interface IntroControl {
-  timing: typeof timing;
-  setMarkY(value: number): void;
-  setLangsGap(value: number): void;
-  replay(): void;
-}
-
 export function initStage() {
   const root = document.documentElement;
   const stage = document.querySelector<HTMLElement>('[data-stage]');
@@ -62,7 +54,6 @@ export function initStage() {
     return;
   }
 
-  const tune = root.classList.contains('intro-tune');
   const locale = root.lang;
   const anchor = intro.querySelector<HTMLElement>('[data-intro-anchor]')!;
   const fly = intro.querySelector<HTMLElement>('[data-intro-fly]')!;
@@ -127,7 +118,7 @@ export function initStage() {
     window.dispatchEvent(new Event('intro:end'));
   }
   const markSeen = () => {
-    if (!tune) store('session', introKeys.seen, '1');
+    store('session', introKeys.seen, '1');
   };
 
   /* ---------- Preparation: GSAP, the dust wordmark, fonts ---------- */
@@ -154,7 +145,6 @@ export function initStage() {
   };
 
   /* ---------- The reel ---------- */
-  let tl: Timeline | null = null;
   async function playReel() {
     const gsap = await gsapReady;
     await pageReady();
@@ -168,7 +158,7 @@ export function initStage() {
     const T = timing;
     const tg = target();
     if (headerMark) gsap.set(headerMark, { opacity: 0 });
-    tl = gsap.timeline();
+    const tl = gsap.timeline();
     // 1 — the full outline
     // (stagger amounts are inside the phase: every phase lasts exactly its duration)
     tl.to(outline, { strokeDashoffset: 0, duration: T.outline * 0.8, stagger: { amount: T.outline * 0.2 }, ease: 'power2.inOut' }, 0);
@@ -205,8 +195,8 @@ export function initStage() {
     if (choosing || finished) return;
     choosing = true;
     const lang = link.dataset.introLang!;
-    const leave = lang !== locale && !tune;
-    if (!tune) store('local', introKeys.lang, lang);
+    const leave = lang !== locale;
+    store('local', introKeys.lang, lang);
     const go = () => {
       store('session', introKeys.switchTo, lang);
       window.location.href = link.href;
@@ -266,44 +256,5 @@ export function initStage() {
     if (window.scrollY > 4) {
       finish();
     } else playReel();
-  }
-
-  /* ---------- Temporary tuning panel (?intro=tune) ---------- */
-  if (tune) {
-    const control: IntroControl = {
-      timing,
-      setMarkY(value) {
-        intro.style.setProperty('--intro-y', String(value));
-      },
-      setLangsGap(value) {
-        intro.style.setProperty('--gap', `${value}rem`);
-      },
-      async replay() {
-        const gsap = await gsapReady;
-        if (!gsap) return;
-        tl?.kill();
-        gsap.killTweensOf([langs, fly, bg, glow, ghost, outline, fill, heroIn].flat());
-        gsap.set(outline, { strokeDashoffset: 1 });
-        gsap.set(fill, { opacity: 0 });
-        gsap.set(ghost, { opacity: 0.26 });
-        gsap.set(glow, { opacity: 0 });
-        gsap.set(bg, { opacity: 1 });
-        gsap.set(fly, { x: 0, y: 0, scale: 1, autoAlpha: 1 });
-        gsap.set(langs, { autoAlpha: 1, y: 0 });
-        if (headerMark) gsap.set(headerMark, { opacity: 0 });
-        links.forEach((a) => a.classList.remove('is-chosen'));
-        root.classList.remove('intro-done', 'intro-flying');
-        root.classList.add('intro-pick');
-        window.dispatchEvent(new Event('intro:start'));
-        finished = false;
-        choosing = false;
-        setPickA11y(true);
-        setInert(true);
-        window.scrollTo(0, 0);
-        const own = links.find((a) => a.dataset.introLang === locale) ?? links[0];
-        window.setTimeout(() => choose(own), 500);
-      },
-    };
-    import('./intro-tune').then((m) => m.mountIntroTune(control));
   }
 }
