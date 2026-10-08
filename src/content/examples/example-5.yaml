@@ -1,6 +1,5 @@
 order: 5
 hidden: false
-featured: false        # показывать на главной (первые 4)
 niche: beauty               # id из src/content/niches.yaml
 layout: 5               # вид болванки, пока нет картинок (1–6)
 images:

@@ -43,8 +43,6 @@ const examples = defineCollection({
   schema: z.object({
     order: z.number().default(100),
     hidden: z.boolean().default(false),
-    /** Show on the home page (first 4 by order). */
-    featured: z.boolean().default(true),
     niche: z.string(),
     /** Real screenshots, paths relative to /public. While null, a branded placeholder is drawn. */
     images: z

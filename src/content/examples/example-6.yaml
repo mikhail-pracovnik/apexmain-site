@@ -1,6 +1,5 @@
 order: 6
 hidden: false
-featured: false        # показывать на главной (первые 4)
 niche: food               # id из src/content/niches.yaml
 layout: 6               # вид болванки, пока нет картинок (1–6)
 images:

@@ -1,172 +1,387 @@
 ---
 /**
- * Section 04 "How we work". INSERTION POINT: the owner is preparing an animation that will replace this
- * section; swap this one component (it is used only in pages/[...locale]/index.astro). Until then the four
- * steps from i18n `process.steps` stay as they are.
+ * Section 04 "How we work": a 12-second loop of four 3-second steps (scripts/process-motion.ts,
+ * ported one-to-one from the owner's prototype). Text on the left, one figure on the right that flows
+ * from step to step; on phones the figure is on top, the text under it. Step texts: i18n `process.steps`
+ * (title, short — the line in the animation, text — the full text).
+ *
+ * Without JS or with reduced motion the scene is not shown; the plain list of the four steps
+ * (title + full text) is. With the animation on, the same list stays for screen readers (visually
+ * hidden) and the scene is aria-hidden.
  */
-import { t, url, type Locale } from '../i18n';
+import MoreLink from './MoreLink.astro';
+import { t, url, fill, type Locale } from '../i18n';
 
 interface Props {
   locale: Locale;
 }
 const { locale } = Astro.props;
 const d = t(locale);
+const steps = d.process.steps;
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <section class="section glow" id="process" data-label={d.sections.process} aria-labelledby="process-title">
-  <div class="container-x process-grid">
+  <div class="container-x">
     <header class="process-head">
       <p class="eyebrow reveal">{d.process.eyebrow}</p>
       <h2 id="process-title" class="h-section reveal" style="--i:1">{d.process.title}</h2>
     </header>
-    <ol class="steps" data-steps>
+
+    <ol class="pm-list">
       {
-        d.process.steps.map((step, i) => (
-          <li class="step" data-step aria-current={i === 0 ? 'step' : undefined}>
-            <span class="step-num" aria-hidden="true">
-              0{i + 1}
+        steps.map((s, i) => (
+          <li class="pm-item">
+            <span class="pm-item-num" aria-hidden="true">
+              {pad(i + 1)}
             </span>
             <div>
-              <h3 class="step-title">{step.title}</h3>
-              <p class="step-text">{step.text}</p>
+              <h3 class="pm-item-title">{s.title}</h3>
+              <p class="pm-item-text">{s.text}</p>
             </div>
           </li>
         ))
       }
     </ol>
-    <p class="process-more">
-      <a href={url(locale, 'process')} class="btn btn-ghost">
-        {d.more}
-        <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
-          ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
-        >
-      </a>
-    </p>
+
+    <div class="pm-box">
+      <div
+        class="pm-stage"
+        aria-hidden="true"
+        data-pm
+        data-counter={d.process.counter}
+        style={`--title-scale:${d.process.titleScale}`}
+      >
+        <div class="pm-meta"><span data-pm-counter>{fill(d.process.counter, { n: '01', total: pad(steps.length) })}</span></div>
+        <div class="pm-fig">
+          <div class="pm-num">
+            <div class="pm-num-mask">
+              <div class="pm-num-col" data-pm-numcol>
+                <span>01</span><span>02</span><span>03</span><span>04</span><span>01</span>
+              </div>
+            </div>
+          </div>
+          <svg class="pm-art" viewBox="0 0 100 100">
+            <path class="pm-route" data-pm-route pathLength="1"></path>
+            <circle class="pm-pulse" data-pm-pulse cx="62" cy="59" r="1.7"></circle>
+            <line class="pm-trail" data-pm-trail x1="50" x2="50" y1="86" y2="86"></line>
+            <line class="pm-r0" data-pm-row></line><line class="pm-r1" data-pm-row></line><line class="pm-r2" data-pm-row></line>
+            <rect class="pm-s1" x="-.5" y="-.5" width="1" height="1" rx=".08"></rect>
+            <rect class="pm-s2" x="-.5" y="-.5" width="1" height="1" rx=".08"></rect>
+            <rect class="pm-s0" x="-.5" y="-.5" width="1" height="1" rx=".08"></rect>
+            <circle class="pm-dot" data-pm-dot r="1.7"></circle>
+          </svg>
+        </div>
+        <div class="pm-copy" data-pm-copy>
+          {
+            steps.map((s) => (
+              <div class="pm-slide">
+                <p class="pm-title" data-pm-letters>
+                  {s.title}
+                </p>
+                <span class="pm-rule" />
+                <p class="pm-desc" data-pm-words>
+                  {s.short}
+                </p>
+              </div>
+            ))
+          }
+        </div>
+        <div class="pm-bars" data-pm-bars><span></span><span></span><span></span><span></span></div>
+      </div>
+    </div>
   </div>
+  <MoreLink locale={locale} href={url(locale, 'process')} label={d.process.moreLabel} />
 </section>
 
 <script>
-  // Highlight the step closest to the middle of the screen; the others are dimmed.
-  const steps = Array.from(document.querySelectorAll<HTMLElement>('[data-step]'));
-  if (steps.length && 'IntersectionObserver' in window) {
-    const box = document.querySelector<HTMLElement>('[data-steps]');
-    box?.classList.add('is-live');
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (!e.isIntersecting) return;
-          steps.forEach((s) => s.removeAttribute('aria-current'));
-          e.target.setAttribute('aria-current', 'step');
-        });
-      },
-      { rootMargin: '-45% 0px -50% 0px' },
-    );
-    steps.forEach((s) => io.observe(s));
-  }
+  import { initProcessMotion } from '../scripts/process-motion';
+  initProcessMotion();
 </script>
 
 <style>
-  .process-grid {
-    display: grid;
-    gap: 3rem;
-  }
-  @media (min-width: 64rem) {
-    .process-grid {
-      gap: 4rem;
-    }
-    .step {
-      grid-template-columns: auto minmax(0, 0.9fr) minmax(0, 1.1fr);
-      align-items: baseline;
-      column-gap: 2.5rem;
-    }
-    .step > div {
-      display: contents;
-    }
-    .step-num {
-      grid-column: 1;
-      grid-row: 1;
-    }
-    .step-title {
-      grid-column: 2;
-      grid-row: 1;
-    }
-    .step-text {
-      grid-column: 3;
-      grid-row: 1;
-      margin-top: 0;
-    }
-  }
-  .process-more {
-    margin-top: -1rem;
-  }
   .process-head {
     display: grid;
     gap: 1.25rem;
-  }
-  .steps {
-    position: relative;
-    display: grid;
-  }
-  .steps::before {
-    content: '';
-    position: absolute;
-    left: 1.375rem;
-    top: 1.5rem;
-    bottom: 1.5rem;
-    width: 1px;
-    background: var(--color-line);
-  }
-  .step {
-    position: relative;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 1.5rem;
-    padding-block: 2rem;
-  }
-  .step-title,
-  .step-text {
-    transition: color 0.5s var(--ease-out-expo);
+    margin-bottom: 2.5rem;
   }
   @media (min-width: 64rem) {
-    .step {
-      padding-block: 3rem;
+    .process-head {
+      margin-bottom: 3.5rem;
     }
   }
-  /* Dimmed steps change colour, not opacity, so text keeps WCAG AA contrast. */
-  .steps:global(.is-live) .step:not([aria-current]) .step-title {
-    color: var(--color-muted);
-  }
-  .steps:global(.is-live) .step:not([aria-current]) .step-text {
-    color: #7d8794; /* 5.2:1 on ink */
-  }
-  .step-num {
-    position: relative;
-    z-index: 1;
+
+  /* ---------- Plain list: no JS / reduced motion; with the animation — for screen readers only ---------- */
+  .pm-list {
     display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border: 1px solid var(--color-line);
-    border-radius: 999px;
-    background: var(--color-ink);
+    gap: 2rem;
+  }
+  .pm-item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.25rem;
+  }
+  .pm-item-num {
+    padding-top: 0.4rem;
     font-family: var(--font-mono);
     font-size: 0.875rem;
-    transition:
-      background-color 0.4s,
-      color 0.4s,
-      border-color 0.4s;
-  }
-  .step[aria-current] .step-num {
-    border-color: var(--color-apex);
-    background: var(--color-apex);
-    color: var(--color-ink);
-  }
-  .step-title {
-    font-size: clamp(1.6rem, 3.6vw, 3.25rem);
-  }
-  .step-text {
-    margin-top: 0.75rem;
-    max-width: 32rem;
     color: var(--color-muted);
+  }
+  .pm-item-title {
+    font-size: clamp(1.6rem, 3.6vw, 3rem);
+  }
+  .pm-item-text {
+    margin-top: 0.6rem;
+    max-width: 40rem;
+    color: var(--color-muted);
+  }
+  :global(html.js.motion) .pm-list {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ---------- Scene (sizes in container units, as in the prototype) ---------- */
+  .pm-box {
+    display: none;
+    container-type: inline-size;
+    /* a wide scene never gets taller than the screen */
+    max-width: calc((100svh - 7rem) * 16 / 9);
+  }
+  :global(html.js.motion) .pm-box {
+    display: block;
+  }
+  .pm-stage {
+    container-type: inline-size;
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    pointer-events: none;
+    /* the site's accent glow behind the figure (strength follows --glow-a, like .glow) */
+    background: radial-gradient(60% 55% at 78% 46%, rgb(70 200 217 / calc(0.07 * var(--glow-a))), transparent 70%);
+  }
+  @container (max-width: 620px) {
+    .pm-stage {
+      aspect-ratio: 4 / 5;
+      background: radial-gradient(70% 45% at 50% 32%, rgb(70 200 217 / calc(0.07 * var(--glow-a))), transparent 70%);
+    }
+  }
+  .pm-meta {
+    position: absolute;
+    left: 5cqw;
+    right: 5cqw;
+    top: 4.2cqw;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    font-family: var(--font-mono);
+    font-size: max(10px, 1.15cqw);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .pm-copy {
+    position: absolute;
+    left: 5cqw;
+    top: 0;
+    bottom: 0;
+    width: 50cqw;
+  }
+  .pm-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2.2cqw;
+  }
+  .pm-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    /* --title-scale: per language (i18n process.titleScale) so the longest title fits in two lines */
+    font-size: calc(6.4cqw * var(--title-scale, 1));
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    color: var(--color-paper);
+    text-wrap: initial;
+  }
+  .pm-title :global(.w) {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: top;
+    padding-bottom: 0.14em;
+    margin-bottom: -0.14em;
+  }
+  .pm-title :global(.l),
+  .pm-desc :global(.dw) {
+    display: inline-block;
+    will-change: transform, opacity;
+  }
+  .pm-rule {
+    display: block;
+    width: 9cqw;
+    height: 1px;
+    background: rgb(236 240 241 / 0.4);
+    transform: scaleX(0);
+  }
+  .pm-desc {
+    margin: 0;
+    max-width: 30em;
+    font-size: max(13px, 1.75cqw);
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--color-paper) 55%, var(--color-muted));
+    text-wrap: initial;
+  }
+  /* before the script splits the text, nothing shows (the first frame is built right away) */
+  .pm-title:not(.is-split),
+  .pm-desc:not(.is-split) {
+    visibility: hidden;
+  }
+
+  .pm-fig {
+    position: absolute;
+    right: 6cqw;
+    top: 50%;
+    width: 32cqw;
+    aspect-ratio: 1;
+    transform: translateY(-50%);
+  }
+  .pm-num {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 30cqw;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(236 240 241 / 0.13);
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+  .pm-num-mask {
+    height: 1em;
+    overflow: hidden;
+  }
+  .pm-num-col {
+    display: grid;
+  }
+  .pm-num-col span {
+    display: block;
+    height: 1em;
+  }
+  /* until the timeline is built the figure is not drawn (its elements would sit at default positions) */
+  .pm-stage:not(.is-built) .pm-art {
+    visibility: hidden;
+  }
+  .pm-art {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  .pm-art :global(*) {
+    vector-effect: non-scaling-stroke;
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .pm-art .pm-route,
+  .pm-art .pm-r0,
+  .pm-art .pm-pulse {
+    stroke: var(--color-apex);
+  }
+  .pm-art .pm-route {
+    vector-effect: none;
+    stroke-width: 0.45;
+  }
+  .pm-art .pm-r1,
+  .pm-art .pm-r2,
+  .pm-art .pm-s1,
+  .pm-art .pm-s2 {
+    stroke: rgb(236 240 241 / 0.45);
+  }
+  .pm-art .pm-s0 {
+    stroke: var(--color-apex);
+    fill: var(--color-apex);
+    fill-opacity: 0;
+  }
+  .pm-art .pm-dot {
+    fill: var(--color-apex);
+    stroke: none;
+  }
+  .pm-art .pm-trail {
+    stroke: rgb(236 240 241 / 0.5);
+  }
+
+  .pm-bars {
+    position: absolute;
+    left: 5cqw;
+    right: 5cqw;
+    bottom: 4.2cqw;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1cqw;
+  }
+  .pm-bars span {
+    height: 2px;
+    background: rgb(236 240 241 / 0.14);
+    overflow: hidden;
+  }
+  .pm-bars span::after {
+    content: '';
+    display: block;
+    height: 100%;
+    background: var(--color-paper);
+    transform: scaleX(var(--p, 0));
+    transform-origin: left;
+  }
+
+  @container (max-width: 620px) {
+    .pm-meta {
+      top: 5cqw;
+    }
+    .pm-fig {
+      right: auto;
+      left: 50%;
+      top: 13cqw;
+      width: 54cqw;
+      transform: translateX(-50%);
+    }
+    .pm-num {
+      font-size: 50cqw;
+    }
+    .pm-copy {
+      left: 6cqw;
+      width: 88cqw;
+      top: auto;
+      bottom: 11cqw;
+      height: 46cqw;
+    }
+    .pm-slide {
+      justify-content: flex-end;
+      gap: 3.4cqw;
+    }
+    .pm-title {
+      font-size: calc(11cqw * var(--title-scale, 1));
+    }
+    .pm-desc {
+      font-size: max(13px, 3.9cqw);
+    }
+    .pm-bars {
+      left: 6cqw;
+      right: 6cqw;
+      bottom: 5cqw;
+      gap: 1.6cqw;
+    }
   }
 </style>

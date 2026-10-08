@@ -78,21 +78,21 @@
     "currency": "₸",
     "discuss": "Discuss",
     "catalog": "All services",
-    "showAll": "Show all services",
-    "listLabel": "Services: cards"
+    "listLabel": "Services: cards",
+    "moreLabel": "Learn more about our services"
   },
   "examples": {
     "eyebrow": "03 — Examples",
     "title": "Solution examples",
     "lead": "Website concepts for different niches and business tasks.",
     "cta": "I want one like this",
-    "all": "All examples",
     "filterLabel": "Niche",
     "filterAll": "All",
     "desktop": "Desktop version",
     "mobile": "Mobile version",
     "empty": "No concepts in this niche yet. Leave a request — yours will be the first.",
-    "listLabel": "Solution examples: cards"
+    "listLabel": "Solution examples: cards",
+    "moreLabel": "Learn more about the examples"
   },
   "process": {
     "eyebrow": "04 — Process",
@@ -100,21 +100,28 @@
     "steps": [
       {
         "title": "Initial audit",
-        "text": "We look at your Instagram, 2GIS and website, if you have one. We walk the customer's path to a request and show where people drop off."
+        "short": "We find where the business loses customers on the way to a request.",
+        "text": "We analyse your Instagram, 2GIS and website, if you have one. We walk the customer's path from the first contact to the request and show where the business loses potential customers."
       },
       {
         "title": "Plan and price",
-        "text": "We suggest what to do first and fix the cost and timeline before any work starts."
+        "short": "We fix the scope, cost and timeline before we start.",
+        "text": "We decide what is worth doing first. We fix the scope of work, the cost and the timeline before the project starts."
       },
       {
         "title": "We build",
-        "text": "We make the website, ads or sales setup. You see work-in-progress versions and give feedback."
+        "short": "We put the plan into action and agree on changes along the way.",
+        "text": "We carry out the agreed plan: we build the website, set up ads or put sales in order. We show interim results and agree on changes as the work goes."
       },
       {
         "title": "Turnkey launch",
-        "text": "Hosting, domain, setup and deployment are entirely on us. You get a technically finished website that already works and takes requests. After launch we stay in touch for edits and next steps."
+        "short": "Hosting, setup and publishing are on us.",
+        "text": "We take care of hosting, technical setup and publishing. You get a finished website that works and takes requests. After launch we stay in touch for improvements and next tasks."
       }
-    ]
+    ],
+    "counter": "Step {n} / {total}",
+    "moreLabel": "Learn more about the process",
+    "titleScale": 1
   },
   "lead": {
     "eyebrow": "05 — Request",

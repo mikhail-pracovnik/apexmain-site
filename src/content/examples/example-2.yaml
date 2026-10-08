@@ -1,6 +1,5 @@
 order: 2
 hidden: false
-featured: true        # показывать на главной (первые 4)
 niche: medicine               # id из src/content/niches.yaml
 layout: 2               # вид болванки, пока нет картинок (1–6)
 images:
