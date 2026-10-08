@@ -8,12 +8,12 @@
   --color-ink: #030306;
   --color-ink-2: #090b0f;
   --color-ink-3: #0f1218;
-  --color-paper: #ecf0f1;
-  --color-paper-2: #dfe5e7;
+  --color-paper: #e8eef1; /* light sections: "cold mist", 2026-10-08 (was #ecf0f1) */
+  --color-paper-2: #dbe3e7;
   --color-muted: #98a1ac; /* on ink 7.9:1, ink-2 7.5:1, ink-3 7.2:1 */
-  --color-muted-dark: #4a5562; /* on paper: 6.8:1 */
+  --color-muted-dark: #4a5562; /* on paper: 6.5:1 */
   --color-apex: #46c8d9; /* accent — max ~5% of a screen */
-  --color-apex-deep: #0b6e7c; /* accent text on paper: 5.2:1 */
+  --color-apex-deep: #0b6e7c; /* accent text on paper: 5.1:1 */
   --color-line: rgb(187 198 213 / 0.122);
   --color-line-dark: rgb(10 12 17 / 0.14);
   --color-danger: #ff8a7a;
@@ -203,7 +203,7 @@
     background: #6dd6e4;
   }
   .btn-ghost {
-    border: 1px solid rgb(236 240 241 / 0.32);
+    border: 1px solid rgb(232 238 241 / 0.32);
     color: var(--color-paper);
   }
   .btn-ghost:hover {
@@ -406,7 +406,7 @@ html::after {
   --g-sat: var(--glass-dark-sat);
   --g-hl: rgb(255 255 255 / var(--glass-dark-hl));
   --g-inner: rgb(0 0 0 / 0.28);
-  --g-border: rgb(236 240 241 / 0.12);
+  --g-border: rgb(232 238 241 / 0.12);
   --g-shadow: 0 10px 30px -14px rgb(0 0 0 / 0.55);
   border: 1px solid var(--g-border);
   background: rgb(var(--g-rgb) / var(--g-fill));
@@ -426,7 +426,7 @@ html::after {
 .theme-light .glass:not(.glass-dark),
 html.top-light .glass-top,
 html.page-light .glass-bottom {
-  --g-rgb: 248 250 251;
+  --g-rgb: 245 249 251;
   --g-fill: var(--glass-light-fill);
   --g-blur: var(--glass-light-blur);
   --g-sat: var(--glass-light-sat);
