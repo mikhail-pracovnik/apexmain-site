@@ -3,10 +3,11 @@
  * The timeline is the owner's approved prototype ported one-to-one: every time, value and ease in
  * build() is the prototype's.
  *
- * Running: built (GSAP + fonts) when the section comes near; until it first plays, it shows the
- * assembled frame of step 1 (1.3s). When at least half of the scene is on screen it starts from zero
- * after a 1s hold; it pauses when it leaves (and starts from zero again next time) or when the tab is
- * hidden (then it resumes from the same place). The route (65 points) is recomputed only while playing and
+ * Running: built (GSAP + fonts) when the section comes near and parked at the very start of the loop
+ * (0s). When at least half of the scene is on screen it holds still for 1s, then plays from that start;
+ * it pauses when it leaves (and goes back to 0 for next time) or when the tab is hidden (then it
+ * resumes from the same place). No other frame is ever shown before it plays: the owner saw the old
+ * "assembled step 1" frame (1.3s) as the animation starting from the middle. The route (65 points) is recomputed only while playing and
  * only when its shape changes; the dot only when it moves. Rings and the trail stay on every device
  * (html.lite is set on iPhones too: Safari reports few CPU cores, and without the trail the rhombus
  * rose over nothing).
@@ -15,7 +16,6 @@
 type Gsap = typeof import('gsap').gsap;
 
 const STEP = 3;
-const FIRST_FRAME = 1.3;
 /** Pause before the loop starts (or resumes) once the scene is on screen, ms. */
 const START_DELAY = 1000;
 const X0 = 8,
@@ -185,8 +185,7 @@ export function initProcessMotion() {
     t.to(sq[0], { x: X0, y: yAt(X0, 1), scale: 3.4, rotation: 0, fillOpacity: 1, attr: { rx: 0.5 }, duration: 0.8, ease: 'expo.inOut' }, 11.2);
 
     tl = t;
-    t.time(0);
-    t.time(FIRST_FRAME); // the assembled frame of step 1 until it first plays
+    t.time(0); // parked at the start of the loop until it plays
     sync();
     stage.classList.add('is-built');
     // dev only: lets a check seek the timeline frame by frame and compare with the prototype
@@ -197,7 +196,7 @@ export function initProcessMotion() {
   // "In view" = at least half of the scene on screen: a scene that only peeks in at the bottom edge
   // does not start (it used to be half-way through by the time the visitor scrolled to it).
   // Every time it comes into view it starts from zero after START_DELAY; when it leaves the screen
-  // completely it goes back to the assembled frame of step 1. A hidden tab only pauses it.
+  // completely it goes back to the start (0s). A hidden tab only pauses it.
   let inView = false;
   let fromStart = true;
   let building: Promise<void> | null = null;
@@ -235,9 +234,9 @@ export function initProcessMotion() {
       inView = e.isIntersecting && e.intersectionRatio >= 0.5;
       if (e.isIntersecting) ensureBuilt();
       else if (tl && !fromStart) {
-        // off screen: next time it starts from zero; meanwhile it shows the assembled step 1
+        // off screen: back to the start for next time
         fromStart = true;
-        tl.pause().time(FIRST_FRAME);
+        tl.pause().time(0);
         sync();
       }
       update();
