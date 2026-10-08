@@ -7,7 +7,8 @@
  *
  * Playback: each scene loops on its own timeline; it plays while at least 35% of it is on screen, and at most
  * two scenes play at once (the most visible); the rest pause with their lights. A hidden tab stops GSAP's ticker.
- * Reduced motion: the assembled frame (62% of the loop, as in the prototype), lights still.
+ * Reduced motion: the assembled frame (62% of the loop, as in the prototype), lights still. A scene waiting
+ * for its turn also stands in that frame (not on an empty stage) and plays on from it.
  */
 import gsap from 'gsap';
 
@@ -16,6 +17,7 @@ const q = <T extends Element = HTMLElement>(s: string, r: ParentNode) => r.query
 const qa = <T extends Element = HTMLElement>(s: string, r: ParentNode) => Array.from(r.querySelectorAll<T>(s));
 const MAX_PLAYING = 2;
 const THRESHOLD = 0.35;
+const ASSEMBLED = 0.62;
 
 /* 01 site: the page assembles, a tap on the button, a lead arrives */
 const site: Build = (r) => {
@@ -172,11 +174,11 @@ export function initServiceScenes() {
     el.dataset.ready = '1';
     const tl = BUILD[el.dataset.scene!](el);
     (el as HTMLElement & { sceneTimeline?: gsap.core.Timeline }).sceneTimeline = tl; // for checks in the browser
-    if (!motion) {
-      // the assembled frame; events on, so typed text, the counter and the "paid" frame are drawn too
-      tl.progress(0.62, false).pause();
-      return { el, tl, extra: [], ratio: 0, playing: false };
-    }
+    // the assembled frame (events on, so typed text, the counter and the "paid" frame are drawn too):
+    // reduced motion stays on it; otherwise a scene waiting for its turn shows it instead of an empty stage,
+    // and plays on from it without a jump
+    tl.progress(ASSEMBLED, false).pause();
+    if (!motion) return { el, tl, extra: [], ratio: 0, playing: false };
     // lights drift slowly (prototype: ±10cqw / ±8cqw on a 60cqw light = 16.67% / 13.33%)
     const extra = qa('.orb', el).map((o) => {
       const i = Number(o.dataset.i);
