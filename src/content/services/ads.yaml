@@ -1,7 +1,6 @@
 order: 3
 draft: true
 hidden: false
-group: core
 priceFrom: null
 video:
   webm: media/services/ads.webm
@@ -12,37 +11,40 @@ videoMini:
   mp4: media/services/mini/ads.mp4
   poster: media/services/mini/ads.jpg
 title:
-  ru: Реклама и продвижение
-  kk: Жарнама және жылжыту
-  en: Ads and promotion
+  ru: Таргетинг и SEO
+  kk: Таргетинг және SEO
+  en: Targeting and SEO
+short:
+  ru: Устойчивый поток клиентов из поиска, карт и социальных сетей.
+  kk: Іздеуден, карталардан және әлеуметтік желілерден тұрақты клиент ағыны.
+  en: A steady flow of customers from search, maps and social media.
 description:
-  ru: Реклама в Instagram и в поиске, карточки в 2ГИС и на картах. Считаем, сколько стоит одна заявка, и отключаем то, что не окупается.
-  kk: Instagram мен іздеудегі жарнама, 2ГИС пен карталардағы карточкалар. Бір өтінімнің қанша тұратынын есептеп, өзін ақтамайтынын өшіреміз.
-  en: Ads on Instagram and in search, listings on 2GIS and maps. We count what one request costs and switch off what does not pay off.
-tags:
-  ru: [Таргет, Поиск, 2ГИС и карты, Аналитика]
-  kk: [Таргет, Іздеу, 2ГИС және карталар, Аналитика]
-  en: [Targeting, Search, 2GIS and maps, Analytics]
-forWhom:
-  ru: Тем, кто уже платит за рекламу и не видит, что из этого приводит клиентов, или только собирается её запускать.
-  kk: Жарнамаға ақша төлеп жүрген, бірақ қайсысы клиент әкелетінін көрмейтін немесе оны енді ғана іске қосқысы келетіндерге.
-  en: Those who already pay for ads and cannot see what brings customers, or who are about to start.
+  ru: Выстраиваем устойчивый поток целевой аудитории из поиска, карт и социальных сетей. Соединяем рекламу, SEO и аналитику в единую систему привлечения.
+  kk: Іздеуден, карталардан және әлеуметтік желілерден мақсатты аудиторияның тұрақты ағынын құрамыз. Жарнаманы, SEO мен аналитиканы клиент тартудың біртұтас жүйесіне біріктіреміз.
+  en: We build a steady flow of your target audience from search, maps and social media. We combine ads, SEO and analytics into a single acquisition system.
+audience:
+  ru: Бизнесу, который хочет получать клиентов из digital системно — и постепенно снижать зависимость от постоянного увеличения рекламного бюджета.
+  kk: Digital-тан клиенттерді жүйелі түрде алғысы келетін және жарнама бюджетін үнемі көбейтуге тәуелділікті біртіндеп азайтқысы келетін бизнеске.
+  en: Businesses that want to get customers from digital consistently — and gradually rely less on an ever-growing ad budget.
 includes:
   ru:
-    - Настройка рекламы в Instagram и поиске
-    - Карточки в 2ГИС и на картах
-    - Отслеживание заявок с сайта и мессенджеров
-    - Отчёт простым языком — сколько стоит заявка
-    - Отключение того, что не окупается
+    - Анализ рынка, аудитории и спроса
+    - Стратегия таргетированной рекламы
+    - SEO-стратегия и продвижение сайта
+    - Подгонка сайта и посадочных страниц
+    - Настройка аналитики и отслеживания обращений
+    - Регулярная оптимизация и развитие каналов
   kk:
-    - Instagram мен іздеудегі жарнаманы баптау
-    - 2ГИС пен карталардағы карточкалар
-    - Сайт пен мессенджерлерден келетін өтінімдерді бақылау
-    - Қарапайым тілдегі есеп — бір өтінім қанша тұрады
-    - Өзін ақтамайтынын өшіру
+    - Нарықты, аудиторияны және сұранысты талдау
+    - Таргеттелген жарнама стратегиясы
+    - SEO-стратегия және сайтты жылжыту
+    - Сайт пен қону беттерін бейімдеу
+    - Аналитика мен өтінімдерді бақылауды баптау
+    - Арналарды тұрақты оңтайландыру және дамыту
   en:
-    - Ads setup on Instagram and in search
-    - 2GIS and map listings
-    - Tracking requests from the website and messengers
-    - A plain-language report — what one request costs
-    - Switching off what does not pay off
+    - Market, audience and demand analysis
+    - Targeted advertising strategy
+    - SEO strategy and website promotion
+    - Fine-tuning the website and landing pages
+    - Analytics and request tracking setup
+    - Regular optimisation and channel growth

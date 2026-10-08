@@ -1,8 +1,9 @@
 # Услуга. Чтобы добавить новую — скопируйте этот файл, поменяйте имя файла и тексты.
+# short — одно предложение для карточки на главной; description, audience («Кому подходит»)
+# и includes («Что входит») — для страницы услуг.
 order: 1
 draft: true          # служебная пометка, на сайте не показывается
 hidden: false        # true — скрыть услугу, не удаляя файл
-group: core            # core — на главной; tech — только на странице услуг
 priceFrom: null      # число в тенге, например 250000; null — «цена после аудита»
 video:
   webm: media/services/sites.webm
@@ -16,37 +17,37 @@ title:
   ru: Сайты
   kk: Сайттар
   en: Websites
+short:
+  ru: Сайт, который понятно объясняет ваше предложение и доводит клиента до заявки.
+  kk: Ұсынысыңызды түсінікті түсіндіріп, клиентті өтінімге дейін жеткізетін сайт.
+  en: A website that clearly explains your offer and leads the customer to a request.
 description:
-  ru: Сайт, который понятно объясняет, что вы делаете, сколько это стоит и как записаться. Быстро открывается на телефоне, заявки приходят прямо в WhatsApp и Telegram.
-  kk: Не істейтініңізді, қанша тұратынын және қалай жазылуға болатынын түсінікті түсіндіретін сайт. Телефонда тез ашылады, өтінімдер тікелей WhatsApp пен Telegram-ға келеді.
-  en: A website that clearly explains what you do, what it costs and how to book. Loads fast on phones, requests go straight to WhatsApp and Telegram.
-tags:
-  ru: [Лендинг, Каталог, Онлайн-запись, Три языка]
-  kk: [Лендинг, Каталог, Онлайн жазылу, Үш тіл]
-  en: [Landing page, Catalog, Online booking, Three languages]
-forWhom:
-  ru: Бизнесу, у которого клиенты пишут в мессенджеры и теряются, а в 2ГИС и Instagram нет понятной ссылки «куда записаться».
-  kk: Клиенттері мессенджерге жазып, жоғалып кететін, ал 2ГИС пен Instagram-да «қайда жазылу керек» деген түсінікті сілтемесі жоқ бизнеске.
-  en: Businesses whose customers write in messengers and get lost, with no clear "where to book" link on 2GIS or Instagram.
+  ru: Создаём сайты, которые понятно представляют ваш бизнес, помогают клиенту разобраться в предложении и приводят его к обращению. Продумываем структуру, дизайн, контент и путь клиента от первого просмотра до заявки.
+  kk: Бизнесіңізді түсінікті көрсететін, клиентке ұсынысты түсінуге көмектесетін және оны өтінімге жеткізетін сайттар жасаймыз. Құрылымды, дизайнды, контентті және клиенттің алғашқы көруден өтінімге дейінгі жолын ойластырамыз.
+  en: We build websites that present your business clearly, help customers understand your offer and lead them to get in touch. We think through the structure, design, content and the customer's path from the first visit to the request.
+audience:
+  ru: Бизнесу, которому нужен современный сайт как полноценная точка контакта с клиентом — вместо разрозненной информации в Instagram, 2ГИС и мессенджерах.
+  kk: Instagram, 2ГИС және мессенджерлердегі шашыраңқы ақпараттың орнына клиентпен толыққанды байланыс нүктесі ретінде заманауи сайт қажет бизнеске.
+  en: Businesses that need a modern website as a full point of contact with customers — instead of scattered information on Instagram, 2GIS and messengers.
 includes:
   ru:
-    - Структура и тексты простым языком
-    - Дизайн под ваш бренд, сначала для телефона
-    - Цены, работы, отзывы и контакты
-    - Заявки в WhatsApp и Telegram
-    - Русский, казахский и английский
-    - Домен, хостинг и публикация — на нас
+    - Структура и тексты, понятные клиенту
+    - Дизайн под ваш бренд с приоритетом мобильной версии
+    - Услуги, цены, кейсы, отзывы и контакты
+    - Заявки и быстрый переход в WhatsApp и Telegram
+    - Русская, казахская и английская версии
+    - Техническая настройка, подключение сервисов и запуск — на нас
   kk:
-    - Қарапайым тілмен құрылым және мәтіндер
-    - Брендіңізге сай, алдымен телефонға арналған дизайн
-    - Бағалар, жұмыстар, пікірлер және байланыстар
-    - WhatsApp пен Telegram-ға өтінімдер
-    - Орыс, қазақ және ағылшын тілдері
-    - Домен, хостинг және жариялау — біздің мойнымызда
+    - Клиентке түсінікті құрылым мен мәтіндер
+    - Мобильді нұсқаға басымдық берілген, брендіңізге сай дизайн
+    - Қызметтер, бағалар, кейстер, пікірлер және байланыстар
+    - Өтінімдер және WhatsApp пен Telegram-ға жылдам өту
+    - Орыс, қазақ және ағылшын нұсқалары
+    - Техникалық баптау, сервистерді қосу және іске қосу — біздің мойнымызда
   en:
-    - Structure and copy in plain language
-    - Design in your brand, phone first
-    - Prices, work, reviews and contacts
-    - Requests to WhatsApp and Telegram
-    - Russian, Kazakh and English
-    - Domain, hosting and publishing — on us
+    - Structure and copy your customers understand
+    - Design in your brand, mobile first
+    - Services, prices, case studies, reviews and contacts
+    - Requests and a quick jump to WhatsApp and Telegram
+    - Russian, Kazakh and English versions
+    - Technical setup, connecting services and launch — on us

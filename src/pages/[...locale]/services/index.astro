@@ -11,8 +11,6 @@ export const getStaticPaths = localeStaticPaths;
 const { locale } = Astro.props as { locale: Locale };
 const d = t(locale);
 const services = await getServices();
-const core = services.filter((s) => s.data.group === 'core');
-const tech = services.filter((s) => s.data.group === 'tech');
 const contact = url(locale, 'contact');
 ---
 
@@ -37,7 +35,7 @@ const contact = url(locale, 'contact');
 
       <div class="svc-list">
         {
-          core.map((s, i) => {
+          services.map((s, i) => {
             const v = usableVideo(s.data.video);
             const price = s.data.priceFrom
               ? fill(d.services.priceFrom, { price: formatPrice(s.data.priceFrom, d.services.currency) })
@@ -51,55 +49,10 @@ const contact = url(locale, 'contact');
                     {s.data.title[locale]}
                   </h2>
                   <p class="svc-desc">{s.data.description[locale]}</p>
-                  {s.data.forWhom && (
+                  {s.data.audience && (
                     <div class="svc-block">
                       <h3>{d.servicesPage.forWhom}</h3>
-                      <p>{s.data.forWhom[locale]}</p>
-                    </div>
-                  )}
-                  {s.data.includes && (
-                    <div class="svc-block">
-                      <h3>{d.servicesPage.includes}</h3>
-                      <ul class="svc-includes">
-                        {s.data.includes[locale].map((x) => (
-                          <li>{x}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  <div class="svc-foot">
-                    <span class="svc-price">{price}</span>
-                    <a href={`${contact}?service=${encodeURIComponent(s.data.title[locale])}#lead`} class="btn btn-primary">
-                      {d.servicesPage.cta}
-                    </a>
-                  </div>
-                </div>
-              </article>
-            );
-          })
-        }
-      </div>
-      <h2 class="svc-group" id="tech">{d.servicesPage.tech}</h2>
-      <div class="svc-list">
-        {
-          tech.map((s, i) => {
-            const v = usableVideo(s.data.video);
-            const price = s.data.priceFrom
-              ? fill(d.services.priceFrom, { price: formatPrice(s.data.priceFrom, d.services.currency) })
-              : d.services.priceOnRequest;
-            return (
-              <article class="svc reveal" id={s.id} aria-labelledby={`${s.id}-t`}>
-                <div class="svc-media">{v && <LoopVideo video={v} class="svc-video" />}</div>
-                <div class="svc-body">
-                  <p class="eyebrow">0{core.length + i + 1}</p>
-                  <h2 id={`${s.id}-t`} class="svc-title">
-                    {s.data.title[locale]}
-                  </h2>
-                  <p class="svc-desc">{s.data.description[locale]}</p>
-                  {s.data.forWhom && (
-                    <div class="svc-block">
-                      <h3>{d.servicesPage.forWhom}</h3>
-                      <p>{s.data.forWhom[locale]}</p>
+                      <p>{s.data.audience[locale]}</p>
                     </div>
                   )}
                   {s.data.includes && (
@@ -164,12 +117,6 @@ const contact = url(locale, 'contact');
   .svc-list {
     display: grid;
     gap: 1.25rem;
-  }
-  .svc-group {
-    margin-top: 5rem;
-    margin-bottom: 2rem;
-    font-size: clamp(1.9rem, 5vw, 4rem);
-    scroll-margin-top: 6rem;
   }
   .svc {
     display: grid;

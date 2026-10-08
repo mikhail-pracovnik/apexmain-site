@@ -1,25 +1,25 @@
-order: 7
+order: 5
 draft: true
 hidden: false
-group: tech
 priceFrom: null
 video:
   webm: media/services/acquiring.webm
   mp4: media/services/acquiring.mp4
   poster: media/services/acquiring.jpg
+# videoMini нет: на карточке главной нейтральная заглушка
 title:
-  ru: Подключение эквайринга
-  kk: Эквайрингті қосу
-  en: Payment acquiring setup
+  ru: Подключение эквайринга (онлайн продажи)
+  kk: Эквайрингті қосу (онлайн сатылым)
+  en: Payment acquiring (online sales)
+short:
+  ru: Приём оплаты картой и по QR на сайте и в точке продаж.
+  kk: Сайтта және сауда нүктесінде карта мен QR арқылы төлем қабылдау.
+  en: Card and QR payments on your website and at the point of sale.
 description:
-  ru: Принимаем оплату картой и QR на сайте и в точке продаж. Помогаем выбрать банк, подключаем оплату к сайту, CRM и учёту, проверяем, что деньги и чеки доходят.
-  kk: Сайтта және сауда нүктесінде карта мен QR арқылы төлем қабылдаймыз. Банк таңдауға көмектесеміз, төлемді сайтқа, CRM мен есепке қосамыз, ақша мен чектің жеткенін тексереміз.
-  en: Card and QR payments on your website and at the point of sale. We help you choose a bank, connect payments to the website, CRM and accounting, and check that money and receipts arrive.
-tags:
-  ru: [Онлайн-оплата, QR, Терминал, Чеки]
-  kk: [Онлайн төлем, QR, Терминал, Чектер]
-  en: [Online payment, QR, Terminal, Receipts]
-forWhom:
+  ru: Настраиваем приём оплаты картой и QR на сайте и в точке продаж. Помогаем выбрать банк, подключаем оплату к сайту, CRM и учёту и проверяем корректность платежей и чеков перед запуском.
+  kk: Сайтта және сауда нүктесінде карта мен QR арқылы төлем қабылдауды баптаймыз. Банк таңдауға көмектесеміз, төлемді сайтқа, CRM мен есепке қосамыз және іске қосар алдында төлемдер мен чектердің дұрыстығын тексереміз.
+  en: We set up card and QR payments on your website and at the point of sale. We help you choose a bank, connect payments to the website, CRM and accounting, and check that payments and receipts work correctly before launch.
+audience:
   ru: Тем, кто хочет принимать предоплату на сайте или навести порядок в оплатах в точке продаж.
   kk: Сайтта алдын ала төлем қабылдағысы немесе сауда нүктесіндегі төлемдерді ретке келтіргісі келетіндерге.
   en: Those who want to take prepayments on the website or put payments at the point of sale in order.

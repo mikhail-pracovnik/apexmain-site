@@ -1,7 +1,6 @@
-order: 6
+order: 9
 draft: true
-hidden: false
-group: tech
+hidden: true  # скрыта с сайта, файл оставлен
 priceFrom: null
 video:
   webm: media/services/databases.webm
@@ -15,11 +14,7 @@ description:
   ru: Собираем разрозненные таблицы, выгрузки и записи в одну аккуратную базу. Данные не теряются, не дублируются и доступны тем, кому они нужны.
   kk: Шашыраңқы кестелерді, жүктемелерді және жазбаларды бір ұқыпты базаға жинаймыз. Деректер жоғалмайды, қайталанбайды және оларға мұқтаж адамдарға қолжетімді.
   en: We bring scattered spreadsheets, exports and records into one tidy database. Data does not get lost or duplicated and is available to the people who need it.
-tags:
-  ru: [Структура данных, Импорт, Отчёты, Резервные копии]
-  kk: [Деректер құрылымы, Импорт, Есептер, Резервтік көшірмелер]
-  en: [Data structure, Import, Reports, Backups]
-forWhom:
+audience:
   ru: Тем, у кого учёт клиентов, товаров или записей разбросан по таблицам и уже мешает работать.
   kk: Клиенттер, тауарлар немесе жазылулар есебі кестелерге шашырап, жұмысқа кедергі келтіре бастағандарға.
   en: Those whose records of customers, products or bookings are scattered across spreadsheets and get in the way.

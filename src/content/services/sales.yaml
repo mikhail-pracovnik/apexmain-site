@@ -1,7 +1,6 @@
 order: 4
 draft: true
 hidden: false
-group: core
 priceFrom: null
 video:
   webm: media/services/sales.webm
@@ -12,37 +11,46 @@ videoMini:
   mp4: media/services/mini/sales.mp4
   poster: media/services/mini/sales.jpg
 title:
-  ru: Настройка продаж
-  kk: Сатылымды баптау
-  en: Sales setup
+  ru: Продажи и CRM
+  kk: Сатылым және CRM
+  en: Sales and CRM
+short:
+  ru: Система продаж, в которой заявки не теряются, а клиенты возвращаются.
+  kk: Өтінімдер жоғалмайтын, ал клиенттер қайта оралатын сату жүйесі.
+  en: A sales system where requests don't get lost and customers come back.
 description:
-  ru: Наводим порядок в том, как вы отвечаете клиентам. Быстрые ответы, скрипты для администратора и напоминания, чтобы клиенты записывались и возвращались.
-  kk: Клиенттерге қалай жауап беретініңізді ретке келтіреміз. Клиенттер жазылып, қайта оралуы үшін жылдам жауаптар, әкімшіге арналған скрипттер және еске салғыштар.
-  en: We put order into how you answer customers. Quick replies, scripts for your administrator and reminders, so customers book and come back.
-tags:
-  ru: [Быстрые ответы, Скрипты, Напоминания, Повторные продажи]
-  kk: [Жылдам жауаптар, Скрипттер, Еске салғыштар, Қайталама сатылым]
-  en: [Quick replies, Scripts, Reminders, Repeat sales]
-forWhom:
-  ru: Тем, у кого заявки есть, но часть клиентов не доходит до записи или не возвращается.
-  kk: Өтінімдері бар, бірақ клиенттердің бір бөлігі жазылуға дейін жетпейтін немесе қайта оралмайтындарға.
-  en: Those who get requests, but some customers never book or never come back.
+  ru: Выстраиваем систему работы с клиентами — от первого обращения до повторной покупки. Объединяем CRM, коммуникации и автоматизацию, чтобы продажи не зависели от памяти отдельных сотрудников.
+  kk: Клиенттермен жұмыс жүйесін құрамыз — алғашқы өтінімнен қайталама сатып алуға дейін. Сатылым жекелеген қызметкерлердің есіне тәуелді болмауы үшін CRM-ді, коммуникацияны және автоматтандыруды біріктіреміз.
+  en: We build a system for working with customers — from the first request to the repeat purchase. We bring together CRM, communication and automation so sales don't depend on the memory of individual employees.
+audience:
+  ru: Бизнесу, где заявки приходят из разных каналов, часть клиентов теряется в переписках, а повторные обращения зависят от памяти администратора или менеджера.
+  kk: Өтінімдер әртүрлі арналардан келетін, клиенттердің бір бөлігі хат алмасуда жоғалатын, ал қайта жүгінулер әкімшінің не менеджердің есіне байланысты бизнеске.
+  en: Businesses where requests come from different channels, some customers get lost in chats, and repeat visits depend on the memory of an administrator or manager.
 includes:
   ru:
-    - Разбор переписок и звонков
-    - Скрипты ответов для администратора
-    - Шаблоны быстрых ответов в WhatsApp и Instagram
-    - Напоминания о записи и повторном визите
-    - Рассылки для постоянных клиентов
+    - Анализ текущего процесса продаж и коммуникации с клиентами
+    - Подбор и настройка CRM под задачи бизнеса
+    - Воронка от первого обращения до оплаты
+    - Подключение сайта, WhatsApp, Instagram и телефонии
+    - Скрипты и шаблоны ответов для сотрудников
+    - Автоматические напоминания о записи и повторном обращении
+    - Перенос существующей клиентской базы
+    - Обучение сотрудников работе с системой
   kk:
-    - Хат алмасулар мен қоңырауларды талдау
-    - Әкімшіге арналған жауап скрипттері
-    - WhatsApp пен Instagram-дағы жылдам жауап үлгілері
-    - Жазылу және қайта келу туралы еске салғыштар
-    - Тұрақты клиенттерге арналған таратылымдар
+    - Қазіргі сату процесін және клиенттермен коммуникацияны талдау
+    - Бизнес міндеттеріне сай CRM таңдау және баптау
+    - Алғашқы өтінімнен төлемге дейінгі воронка
+    - Сайтты, WhatsApp, Instagram және телефонияны қосу
+    - Қызметкерлерге арналған скрипттер мен жауап үлгілері
+    - Жазылу және қайта жүгіну туралы автоматты еске салғыштар
+    - Бар клиенттер базасын көшіру
+    - Қызметкерлерді жүйемен жұмыс істеуге үйрету
   en:
-    - Review of chats and calls
-    - Answer scripts for your administrator
-    - Quick-reply templates in WhatsApp and Instagram
-    - Booking and return-visit reminders
-    - Messages for regular customers
+    - Analysis of your current sales process and customer communication
+    - Choosing and setting up a CRM for your business
+    - A pipeline from the first request to payment
+    - Connecting the website, WhatsApp, Instagram and telephony
+    - Scripts and reply templates for staff
+    - Automatic booking and follow-up reminders
+    - Moving your existing customer base
+    - Training staff to use the system

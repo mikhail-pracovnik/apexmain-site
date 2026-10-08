@@ -1,7 +1,6 @@
-order: 5
+order: 8
 draft: true
-hidden: false
-group: tech
+hidden: true  # скрыта с сайта, файл оставлен
 priceFrom: null
 video:
   webm: media/services/crm.webm
@@ -15,11 +14,7 @@ description:
   ru: Все клиенты и заявки в одном месте вместо тетрадки и переписок. Видно, кто написал, кто записался, кто пропал — и кому пора напомнить о себе.
   kk: Дәптер мен хат алмасудың орнына барлық клиенттер мен өтінімдер бір жерде. Кім жазды, кім жазылды, кім жоғалды — және кімге еске салу керек екені көрінеді.
   en: All customers and requests in one place instead of a notebook and chats. You see who wrote, who booked, who went quiet — and who needs a reminder.
-tags:
-  ru: [Внедрение, Воронка, Интеграции, Обучение]
-  kk: [Енгізу, Воронка, Интеграциялар, Оқыту]
-  en: [Implementation, Pipeline, Integrations, Training]
-forWhom:
+audience:
   ru: Бизнесу, где заявки приходят из нескольких мест, а клиентская база живёт в телефоне администратора.
   kk: Өтінімдер бірнеше жерден келетін, ал клиенттер базасы әкімшінің телефонында тұратын бизнеске.
   en: Businesses where requests come from several places and the customer base lives in the administrator's phone.

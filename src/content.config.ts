@@ -20,18 +20,19 @@ const services = defineCollection({
     draft: z.boolean().default(false),
     /** Hide from the site entirely without deleting the file. */
     hidden: z.boolean().default(false),
-    /** core — shown on the home page; tech — integrations & technical setup (services page only). */
-    group: z.enum(['core', 'tech']).default('core'),
     /** Starting price in tenge; null shows "price after the audit". */
     priceFrom: z.number().nullable().default(null),
+    /** Large loop for the services page. */
     video,
-    /** Small square loop for the compact home-page card (one big, simple image). */
+    /** Small square loop for the home-page card (one big, simple image). Without it the card shows a placeholder. */
     videoMini: video,
     title: localized(z.string()),
+    /** One sentence for the home-page card. */
+    short: localized(z.string()).optional(),
     description: localized(z.string()),
-    tags: localized(z.array(z.string())).optional(),
-    /** Extended info for the services page. */
-    forWhom: localized(z.string()).optional(),
+    /** "Who it is for" on the services page. */
+    audience: localized(z.string()).optional(),
+    /** "What is included" on the services page. */
     includes: localized(z.array(z.string())).optional(),
   }),
 });

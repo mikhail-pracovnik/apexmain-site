@@ -9,7 +9,7 @@ interface Props {
 }
 const { locale } = Astro.props;
 const d = t(locale);
-const services = (await getServices()).filter((s) => s.data.group === 'core');
+const services = await getServices();
 ---
 
 <section class="section glow" id="services" data-label={d.sections.services} aria-labelledby="services-title">

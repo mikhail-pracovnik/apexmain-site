@@ -7,8 +7,8 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { t, url, asset, type Locale } from '../i18n';
-import { getIntegrations, getServices } from '../lib/content';
+import { t, asset, type Locale } from '../i18n';
+import { getIntegrations } from '../lib/content';
 import { inPublic } from '../lib/media';
 
 interface Props {
@@ -17,7 +17,6 @@ interface Props {
 const { locale } = Astro.props;
 const d = t(locale);
 
-const techServices = (await getServices()).filter((s) => s.data.group === 'tech');
 const items = (await getIntegrations()).map((it) => {
   const logo = inPublic(it.data.logo) ? it.data.logo : null;
   // Even out visual weight: square marks a bit taller, very wide wordmarks a bit lower.
@@ -37,14 +36,6 @@ const items = (await getIntegrations()).map((it) => {
     <p class="eyebrow reveal">{d.integrations.eyebrow}</p>
     <h2 id="integ-title" class="integ-title reveal" style="--i:1">{d.integrations.title}</h2>
     <p class="lead-text reveal" style="--i:2">{d.integrations.lead}</p>
-    <p class="integ-links reveal" style="--i:3">
-      <span>{d.integrations.more}</span>
-      {
-        techServices.map((s) => (
-          <a href={`${url(locale, 'services')}#${s.id}`}>{s.data.title[locale]}</a>
-        ))
-      }
-    </p>
   </div>
 
   <div class="marquee" data-marquee>
@@ -83,25 +74,6 @@ const items = (await getIntegrations()).map((it) => {
   .integ-head {
     display: grid;
     gap: 1.25rem;
-  }
-  .integ-links {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9375rem;
-    color: var(--color-muted);
-  }
-  .integ-links a {
-    padding: 0.45rem 0.85rem;
-    border: 1px solid var(--color-line);
-    border-radius: 999px;
-    color: var(--color-paper);
-    font-weight: 600;
-    transition: border-color 0.2s;
-  }
-  .integ-links a:hover {
-    border-color: var(--color-apex);
   }
   .integ-title {
     font-size: clamp(2rem, 5.5vw, 4.5rem);

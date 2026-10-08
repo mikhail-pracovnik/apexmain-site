@@ -1,7 +1,6 @@
 order: 2
 draft: true
 hidden: false
-group: core
 priceFrom: null
 video:
   webm: media/services/instagram-smm.webm
@@ -12,37 +11,37 @@ videoMini:
   mp4: media/services/mini/instagram-smm.mp4
   poster: media/services/mini/instagram-smm.jpg
 title:
-  ru: Instagram и SMM
-  kk: Instagram және SMM
-  en: Instagram and SMM
+  ru: Бренд в digital
+  kk: Digital-тағы бренд
+  en: Brand in digital
+short:
+  ru: Убедительный образ бренда в соцсетях и системная работа с аудиторией.
+  kk: Әлеуметтік желілердегі сенімді бренд бейнесі және аудиториямен жүйелі жұмыс.
+  en: A convincing brand image on social media and consistent work with your audience.
 description:
-  ru: Оформляем профиль так, чтобы с первого взгляда было понятно, что вы продаёте и как записаться. Контент-план, Reels и сторис, которые приводят клиентов, а не только лайки.
-  kk: Профильді бір қарағанда не сататыныңыз және қалай жазылуға болатыны түсінікті болатындай етіп рәсімдейміз. Тек лайк емес, клиент әкелетін контент-жоспар, Reels және сторис.
-  en: We set up your profile so it is instantly clear what you sell and how to book. A content plan, Reels and stories that bring customers, not just likes.
-tags:
-  ru: [Оформление профиля, Контент-план, Reels, Сторис]
-  kk: [Профильді рәсімдеу, Контент-жоспар, Reels, Сторис]
-  en: [Profile setup, Content plan, Reels, Stories]
-forWhom:
-  ru: Тем, у кого Instagram есть и подписчики есть, а записей из него мало.
-  kk: Instagram-ы да, жазылушылары да бар, бірақ одан жазылулар аз келетіндерге.
-  en: Those who have Instagram and followers, but few bookings from it.
+  ru: Помогаем бренду выглядеть убедительно в digital и выстраивать системную коммуникацию с аудиторией — от позиционирования до контента и продвижения.
+  kk: Брендке digital-та сенімді көрінуге және аудиториямен жүйелі коммуникация құруға көмектесеміз — позиционированиеден контент пен жылжытуға дейін.
+  en: We help your brand look convincing in digital and build consistent communication with your audience — from positioning to content and promotion.
+audience:
+  ru: Бизнесу, который хочет усилить присутствие в социальных сетях и превратить внимание аудитории в реальные обращения.
+  kk: Әлеуметтік желілердегі қатысуын күшейтіп, аудитория назарын нақты өтінімдерге айналдырғысы келетін бизнеске.
+  en: Businesses that want a stronger presence on social media and to turn the audience's attention into real requests.
 includes:
   ru:
-    - Разбор профиля глазами клиента
-    - Шапка, хайлайты и закреплённые посты
-    - Контент-план на месяц
-    - Сценарии Reels и сторис
-    - Ссылка на запись и быстрые ответы в директе
+    - Анализ бренда и текущего присутствия
+    - Позиционирование и контент-стратегия
+    - Визуальная концепция
+    - Контент и регулярные публикации
+    - Продвижение и аналитика
   kk:
-    - Профильді клиент көзімен талдау
-    - Профиль басы, хайлайттар және бекітілген посттар
-    - Бір айлық контент-жоспар
-    - Reels пен сторис сценарийлері
-    - Жазылу сілтемесі және директтегі жылдам жауаптар
+    - Бренд пен қазіргі қатысуды талдау
+    - Позиционирование және контент-стратегия
+    - Визуалды тұжырымдама
+    - Контент және тұрақты жарияланымдар
+    - Жылжыту және аналитика
   en:
-    - Profile review through a customer's eyes
-    - Bio, highlights and pinned posts
-    - A one-month content plan
-    - Scripts for Reels and stories
-    - Booking link and quick replies in DMs
+    - Brand and current presence analysis
+    - Positioning and content strategy
+    - Visual concept
+    - Content and regular posting
+    - Promotion and analytics
