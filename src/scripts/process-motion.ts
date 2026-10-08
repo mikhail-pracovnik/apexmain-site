@@ -5,8 +5,10 @@
  *
  * Running: built (GSAP + fonts) when the section comes near; until it first plays, it shows the
  * assembled frame of step 1 (1.3s). Plays while the section is on screen, pauses when it leaves or the
- * tab is hidden, resumes from the same place. The route (65 points) is recomputed only on timeline
- * updates, i.e. only while playing. Weak devices (html.lite): no pulse rings and no trail.
+ * tab is hidden, resumes from the same place. The route (65 points) is recomputed only while playing and
+ * only when its shape changes; the dot only when it moves. Rings and the trail stay on every device
+ * (html.lite is set on iPhones too: Safari reports few CPU cores, and without the trail the rhombus
+ * rose over nothing).
  * Reduced motion / no JS: the scene is not shown at all (CSS), the plain list of steps is.
  */
 type Gsap = typeof import('gsap').gsap;
@@ -48,7 +50,6 @@ export function initProcessMotion() {
   const found = document.querySelector<HTMLElement>('[data-pm]');
   if (!found || !root.classList.contains('motion') || !('IntersectionObserver' in window)) return;
   const stage: HTMLElement = found;
-  const lite = root.classList.contains('lite');
   const section = stage.closest('section') ?? stage;
 
   const q = <T extends Element>(sel: string) => stage.querySelector<T>(sel)!;
@@ -70,16 +71,26 @@ export function initProcessMotion() {
   let tl: ReturnType<Gsap['timeline']> | null = null;
   let lastStep = -1;
 
+  // Same drawing as the prototype's renderRoute(), but the DOM is touched only when something changed:
+  // most of the loop the route is hidden and still, and rewriting the path every frame costs on phones.
+  let drawnAmp = NaN;
+  let drawnU = NaN;
   function renderRoute() {
-    let d = '';
-    for (let i = 0; i <= 64; i++) {
-      const x = X0 + ((X1 - X0) * i) / 64;
-      d += (i ? 'L' : 'M') + x.toFixed(2) + ' ' + yAt(x, state.amp).toFixed(2);
+    if (state.amp !== drawnAmp) {
+      let d = '';
+      for (let i = 0; i <= 64; i++) {
+        const x = X0 + ((X1 - X0) * i) / 64;
+        d += (i ? 'L' : 'M') + x.toFixed(2) + ' ' + yAt(x, state.amp).toFixed(2);
+      }
+      route.setAttribute('d', d);
     }
-    route.setAttribute('d', d);
-    const x = X0 + (X1 - X0) * state.u;
-    dot.setAttribute('cx', String(x));
-    dot.setAttribute('cy', String(yAt(x, state.amp)));
+    if (state.amp !== drawnAmp || state.u !== drawnU) {
+      const x = X0 + (X1 - X0) * state.u;
+      dot.setAttribute('cx', String(x));
+      dot.setAttribute('cy', String(yAt(x, state.amp)));
+    }
+    drawnAmp = state.amp;
+    drawnU = state.u;
   }
   function sync() {
     if (!tl) return;
@@ -133,14 +144,12 @@ export function initProcessMotion() {
 
     // 01 the client's bumpy route: the line draws, a point walks it and stops at the pothole
     t.to(route, { strokeDashoffset: 0, duration: 0.7, ease: 'power2.out' }, 0.05).to(state, { u: HOLE_U, duration: 1, ease: 'power1.inOut' }, 0.45);
-    if (!lite) {
-      t.fromTo(pulse, { attr: { r: 1.7 }, opacity: 0.9 }, { attr: { r: 9 }, opacity: 0, duration: 0.55, ease: 'power2.out', immediateRender: false }, 1.45).fromTo(
-        pulse,
-        { attr: { r: 1.7 }, opacity: 0.9 },
-        { attr: { r: 9 }, opacity: 0, duration: 0.55, ease: 'power2.out', immediateRender: false },
-        1.75,
-      );
-    }
+    t.fromTo(pulse, { attr: { r: 1.7 }, opacity: 0.9 }, { attr: { r: 9 }, opacity: 0, duration: 0.55, ease: 'power2.out', immediateRender: false }, 1.45).fromTo(
+      pulse,
+      { attr: { r: 1.7 }, opacity: 0.9 },
+      { attr: { r: 9 }, opacity: 0, duration: 0.55, ease: 'power2.out', immediateRender: false },
+      1.75,
+    );
     t.to(state, { u: 1, duration: 0.45, ease: 'power2.in' }, 2.0)
       .to(dot, { opacity: 0, duration: 0.15 }, 2.45)
       .to(state, { amp: 0, duration: 0.55, ease: 'expo.inOut' }, 2.2);
@@ -166,11 +175,9 @@ export function initProcessMotion() {
       .to(sq[0], { rotation: 45, scale: 28, y: 60, duration: 0.8, ease: 'expo.inOut' }, 8.15);
     // 04 the rhombus rises as a peak, a trail grows under it
     t.to(sq[0], { y: 36, duration: 1.7, ease: 'power2.inOut' }, 9.25);
-    if (!lite) {
-      t.set(trail, { opacity: 1 }, 9.3)
-        .to(trail, { attr: { y1: 56 }, duration: 1.65, ease: 'power2.inOut' }, 9.3)
-        .to(trail, { opacity: 0, duration: 0.25 }, 10.95);
-    }
+    t.set(trail, { opacity: 1 }, 9.3)
+      .to(trail, { attr: { y1: 56 }, duration: 1.65, ease: 'power2.inOut' }, 9.3)
+      .to(trail, { opacity: 0, duration: 0.25 }, 10.95);
     // 04 → 01 the peak shrinks into the point that starts the route again
     t.to(sq[0], { x: X0, y: yAt(X0, 1), scale: 3.4, rotation: 0, fillOpacity: 1, attr: { rx: 0.5 }, duration: 0.8, ease: 'expo.inOut' }, 11.2);
 

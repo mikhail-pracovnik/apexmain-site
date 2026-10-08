@@ -160,6 +160,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     aspect-ratio: 16 / 9;
     overflow: hidden;
     pointer-events: none;
+    /* repaints of the scene stay inside it */
+    contain: layout paint;
     /* the site's accent glow behind the figure (strength follows --glow-a, like .glow) */
     background: radial-gradient(60% 55% at 78% 46%, rgb(70 200 217 / calc(0.07 * var(--glow-a))), transparent 70%);
   }
@@ -218,10 +220,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     padding-bottom: 0.14em;
     margin-bottom: -0.14em;
   }
+  /* no permanent will-change: ~70 letters and words would each keep a GPU layer (heavy on iPhones);
+     GSAP promotes an element only while it moves */
   .pm-title :global(.l),
   .pm-desc :global(.dw) {
     display: inline-block;
-    will-change: transform, opacity;
   }
   .pm-rule {
     display: block;
