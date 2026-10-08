@@ -5,19 +5,22 @@
  * element's own size, values converted from the prototype's cqw); the receipt prints with two opposite
  * translations instead of a clip-path. Class changes go through classList (Astro's scope class stays).
  *
- * Playback: each scene loops on its own timeline; it plays while more than 60% of it is on screen, and at most
- * two scenes play at once (the two closest to the centre of the screen); the rest stand in the assembled frame and
- * start as the page or the rail brings them in. The lights inside a card stand still. A hidden tab stops GSAP's ticker.
- * Reduced motion: the assembled frame (62% of the loop, as in the prototype), lights still. A scene waiting
- * for its turn also stands in that frame (not on an empty stage) and plays on from it.
+ * Playback: each scene loops on its own timeline. Before it starts, a card shows the assembled frame (62% of the
+ * loop, the reduced-motion frame), never an empty stage. While the card is within 200 px of the screen the timeline
+ * is moved on to the next moment where something moves (nothing changes in between, so the frame is the same):
+ * once it plays, motion is immediate. It plays when a third of it is on screen; at most three scenes at once on
+ * desktop (from 1024 px), two on phones and tablets — the ones closest to the centre of the screen. Off screen it
+ * pauses and later goes on from the same place. The lights inside a card stand still. A hidden tab stops GSAP's
+ * ticker. Reduced motion: the assembled frame.
  */
 import gsap from 'gsap';
 
 type Build = (r: HTMLElement) => gsap.core.Timeline;
 const q = <T extends Element = HTMLElement>(s: string, r: ParentNode) => r.querySelector<T>(s)!;
 const qa = <T extends Element = HTMLElement>(s: string, r: ParentNode) => Array.from(r.querySelectorAll<T>(s));
-const MAX_PLAYING = 2;
-const THRESHOLD = 0.6;
+const THRESHOLD = 1 / 3;
+const NEAR = '200px';
+const maxPlaying = () => (window.matchMedia('(min-width: 64rem)').matches ? 3 : 2);
 const ASSEMBLED = 0.62;
 
 /* 01 site: the page assembles, a tap on the button, a lead arrives */
@@ -164,6 +167,22 @@ interface Item {
   extra: gsap.core.Tween[];
   ratio: number;
   playing: boolean;
+  /** has played at least once (then it resumes where it paused, no more jumps) */
+  started: boolean;
+}
+
+/** Move a waiting timeline on to the next moment where a tween runs, if nothing runs now (same frame). */
+function primeMotion(tl: gsap.core.Timeline) {
+  const t = tl.time();
+  const tweens = tl.getChildren(true, true, false).filter((c) => c.duration() > 0);
+  const startOf = (c: gsap.core.Animation) => {
+    let s = c.startTime();
+    for (let p = c.parent; p && p !== tl; p = p.parent) s += p.startTime();
+    return s;
+  };
+  if (tweens.some((c) => startOf(c) <= t + 0.05 && startOf(c) + c.totalDuration() > t + 0.05)) return;
+  const next = Math.min(...tweens.map(startOf).filter((s) => s > t));
+  if (Number.isFinite(next)) tl.time(next - 0.02, false);
 }
 
 export function initServiceScenes() {
@@ -179,12 +198,12 @@ export function initServiceScenes() {
     // reduced motion stays on it; otherwise a scene waiting for its turn shows it instead of an empty stage,
     // and plays on from it without a jump
     tl.progress(ASSEMBLED, false).pause();
-    if (!motion) return { el, tl, extra: [], ratio: 0, playing: false };
+    if (!motion) return { el, tl, extra: [], ratio: 0, playing: false, started: false };
     // the lights inside the card stand still (the section's background moves); only the cursor blinks
     const extra: gsap.core.Tween[] = [];
     const cur = el.querySelector('.cur');
     if (cur) extra.push(gsap.to(cur, { opacity: 0, repeat: -1, yoyo: true, duration: 0.5, ease: 'steps(1)', paused: true }));
-    return { el, tl, extra, ratio: 0, playing: false };
+    return { el, tl, extra, ratio: 0, playing: false, started: false };
   });
   if (!motion) return;
 
@@ -193,6 +212,8 @@ export function initServiceScenes() {
     it.playing = on;
     it.el.classList.toggle('is-playing', on);
     if (on) {
+      if (!it.started) primeMotion(it.tl);
+      it.started = true;
       it.tl.play();
       it.extra.forEach((t) => t.play());
     } else {
@@ -207,9 +228,9 @@ export function initServiceScenes() {
   };
   const pick = () => {
     const on = items
-      .filter((i) => i.ratio > THRESHOLD)
+      .filter((i) => i.ratio >= THRESHOLD)
       .sort((a, b) => offCentre(a.el) - offCentre(b.el))
-      .slice(0, MAX_PLAYING);
+      .slice(0, maxPlaying());
     items.forEach((i) => set(i, on.includes(i)));
   };
   const io = new IntersectionObserver(
@@ -220,13 +241,24 @@ export function initServiceScenes() {
       }
       pick();
     },
-    { threshold: [0, 0.3, 0.5, 0.6, 0.61, 0.8, 0.95, 1] },
+    { threshold: [0, 0.15, THRESHOLD, 0.5, 0.75, 1] },
   );
   items.forEach((i) => io.observe(i.el));
+  // on the way in: get the timeline to its next moving moment while the card is still off screen
+  const near = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const it = items.find((i) => i.el === e.target);
+        if (it && e.isIntersecting && !it.started) primeMotion(it.tl);
+      }
+    },
+    { rootMargin: NEAR },
+  );
+  items.forEach((i) => near.observe(i.el));
   // the closest-to-centre order changes while the page or a rail scrolls, without crossing a threshold
   let queued = false;
   const onScroll = () => {
-    if (queued || !items.some((i) => i.ratio > THRESHOLD)) return;
+    if (queued || !items.some((i) => i.ratio >= THRESHOLD)) return;
     queued = true;
     requestAnimationFrame(() => ((queued = false), pick()));
   };
