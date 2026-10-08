@@ -118,11 +118,14 @@ const contact = url(locale, 'contact');
     display: grid;
     gap: 1.25rem;
   }
+  /* barely translucent, no blur (as the home cards): the page's light and grid show through a little */
   .svc {
     display: grid;
-    border: 1px solid var(--color-line);
+    border: 1px solid rgb(255 255 255 / 0.14);
     border-radius: var(--radius-card);
-    background: var(--color-ink-2);
+    background: rgb(255 255 255 / 0.05);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25);
+    --color-muted: #c4cbd5;
     overflow: hidden;
     scroll-margin-top: 6rem;
   }
@@ -134,7 +137,6 @@ const contact = url(locale, 'contact');
   .svc-media {
     position: relative;
     aspect-ratio: 16 / 10;
-    background: var(--color-ink);
     border-bottom: 1px solid var(--color-line);
   }
   @media (min-width: 64rem) {
