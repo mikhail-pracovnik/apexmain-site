@@ -1,6 +1,7 @@
 ---
 /** Request page: what happens after the request + the lead form (prefilled from ?service / ?niche / ?example). */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
+import DarkBackdrop from '../../../components/DarkBackdrop.astro';
 import LeadForm from '../../../components/LeadForm.astro';
 import { t, localeStaticPaths, type Locale } from '../../../i18n';
 
@@ -11,7 +12,8 @@ const d = t(locale);
 ---
 
 <BaseLayout locale={locale} title={d.meta.contactTitle} description={d.meta.contactDescription} path="contact">
-  <section class="section contact-page" data-label={d.nav.lead} aria-labelledby="contact-title">
+  <section class="section contact-page dark-lit" data-label={d.nav.lead} aria-labelledby="contact-title">
+    <DarkBackdrop variant="contact" />
     <div class="container-x contact-inner">
       <header class="contact-head">
         <h1 id="contact-title" class="h-page">{d.contactPage.title}</h1>

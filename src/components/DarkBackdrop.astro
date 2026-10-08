@@ -15,8 +15,8 @@
  * page is open (scripts/perf-watch.ts): the lights then stop where they are and the spots fade out, no jump.
  */
 interface Props {
-  /** start positions of the lights and spots, so the sections differ */
-  variant: 'services' | 'integrations' | 'process';
+  /** start positions of the lights and spots, so the sections differ; *-page: the separate pages */
+  variant: 'services' | 'integrations' | 'process' | 'services-page' | 'process-page' | 'contact';
   /** fade the lights at an edge shared with another dark section (no cut line) */
   fade?: 'top' | 'bottom';
 }
@@ -38,9 +38,31 @@ const LIGHTS: Record<Props['variant'], [string, string][]> = {
     ['a', 'left:-22%;top:-24%'],
     ['c', 'right:-8%;top:18%'],
   ],
+  // the long services page: lights all the way down, so the bottom is not flat
+  'services-page': [
+    ['b', 'left:-20%;top:-6%'],
+    ['a', 'right:-18%;top:8%'],
+    ['c', 'left:40%;top:16%'],
+    ['a', 'left:-16%;top:30%'],
+    ['b', 'right:-20%;top:42%'],
+    ['c', 'left:10%;top:55%'],
+    ['b', 'left:-18%;top:66%'],
+    ['a', 'right:-16%;top:78%'],
+    ['c', 'right:20%;top:88%'],
+  ],
+  'process-page': [
+    ['b', 'right:-18%;top:-20%'],
+    ['a', 'left:-20%;top:35%'],
+    ['c', 'left:35%;bottom:-10%'],
+  ],
+  contact: [
+    ['b', 'left:-18%;top:-40%'],
+    ['a', 'right:-14%;bottom:-50%'],
+    ['c', 'left:45%;top:-10%'],
+  ],
 };
 // phase of the spots' paths (seconds), so the sections do not move in step
-const PHASE = { services: 0, integrations: 37, process: 83 }[variant];
+const PHASE = { services: 0, integrations: 37, process: 83, 'services-page': 11, 'process-page': 53, contact: 71 }[variant];
 ---
 
 <div class="db" class:list={[fade && `db-fade-${fade}`]} aria-hidden="true" data-dark-bg data-phase={PHASE}>
@@ -175,6 +197,16 @@ const PHASE = { services: 0, integrations: 37, process: 83 }[variant];
   }
   .db-spot {
     transition: opacity 0.8s ease;
+  }
+  /* a section much taller than the screen (scripts/dark-backdrop.ts sets db-tall, --band and --sec): the spots
+     are sized by the screen and wander inside the visible part, the grid inside them stays section-sized */
+  .db:global(.db-tall) .db-spot {
+    top: 0;
+    height: calc(var(--band) * 0.8);
+  }
+  .db:global(.db-tall) .db-lit {
+    top: 0;
+    height: var(--sec);
   }
   :global(html.lite) .db-spot {
     opacity: 0;

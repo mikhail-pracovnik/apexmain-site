@@ -4,6 +4,8 @@
  *   spot 1: x = 30 + 22·sin(0.17 s), y = 42 + 20·sin(0.23 s + 1); follows the mouse while it is over the section;
  *   spot 2: x = 72 + 16·sin(0.13 s + 2), y = 66 + 18·cos(0.19 s).
  * Only transforms are written: the spot moves by (dx, dy), the grid inside it by (−dx, −dy).
+ * A section much taller than the screen (the services page) is "tall": the y path runs over the visible part of
+ * the section (a band one screen high) instead of the whole section, and the spots are sized by that band.
  * The loop runs only while a section is on screen and the tab is visible. Reduced motion: the spots stay at
  * their start; light version (html.lite): no spots (faded out in CSS), no loop — also when lite is switched on
  * while the page is open (scripts/perf-watch.ts fires 'perf:lite').
@@ -23,6 +25,10 @@ interface Backdrop {
   spots: Spot[];
   w: number;
   h: number;
+  tall: boolean;
+  /** tall: top of the visible band in the section and its height, px */
+  bandTop: number;
+  band: number;
   on: boolean;
   cx: number;
   cy: number;
@@ -47,7 +53,7 @@ export function initDarkBackdrops() {
       by: parseFloat(el.style.getPropertyValue('--by')),
     }));
     const phase = Number(root.dataset.phase) || 0;
-    const b: Backdrop = { root, section: root.parentElement!, phase, spots, w: 0, h: 0, on: false, cx: 0, cy: 0, px: null, py: null };
+    const b: Backdrop = { root, section: root.parentElement!, phase, spots, w: 0, h: 0, tall: false, bandTop: 0, band: 0, on: false, cx: 0, cy: 0, px: null, py: null };
     [b.cx, b.cy] = path1(phase);
     return b;
   });
@@ -60,9 +66,15 @@ export function initDarkBackdrops() {
   }
   function place(spot: Spot, x: number, y: number, b: Backdrop) {
     const dx = ((x - spot.bx) / 100) * b.w;
-    const dy = ((y - spot.by) / 100) * b.h;
+    // tall: the spot box starts at the section top, its centre goes to the band (y % of the band)
+    const dy = b.tall ? b.bandTop + (y / 100) * b.band - 0.4 * b.band : ((y - spot.by) / 100) * b.h;
     spot.el.style.transform = `translate3d(${dx.toFixed(1)}px,${dy.toFixed(1)}px,0)`;
     spot.grid.style.transform = `translate3d(${(-dx).toFixed(1)}px,${(-dy).toFixed(1)}px,0)`;
+  }
+  function measureBand(b: Backdrop) {
+    if (!b.tall) return;
+    b.band = window.innerHeight;
+    b.bandTop = Math.min(Math.max(-b.root.getBoundingClientRect().top, 0), b.h - b.band);
   }
   function draw(b: Backdrop, s: number, k: number) {
     const [ax, ay] = path1(s + b.phase);
@@ -79,6 +91,11 @@ export function initDarkBackdrops() {
       if (!b) continue;
       b.w = e.contentRect.width;
       b.h = e.contentRect.height;
+      b.tall = b.h > window.innerHeight * 1.6;
+      b.root.classList.toggle('db-tall', b.tall);
+      b.root.style.setProperty('--band', `${window.innerHeight}px`);
+      b.root.style.setProperty('--sec', `${b.h}px`);
+      measureBand(b);
       if (!motion) draw(b, 0, 1);
     }
   });
@@ -95,7 +112,11 @@ export function initDarkBackdrops() {
     clock += dt / 1000;
     const k = 1 - Math.pow(1 - EASE, dt / 16.7);
     let any = false;
-    if (!html.classList.contains('lite')) for (const b of items) if (b.on) (draw(b, clock, k), (any = true));
+    if (!html.classList.contains('lite')) {
+      // read all positions first, then write: no forced style recalculation between sections
+      for (const b of items) if (b.on) measureBand(b);
+      for (const b of items) if (b.on) (draw(b, clock, k), (any = true));
+    }
     raf = any && !document.hidden ? requestAnimationFrame(frame) : 0;
     if (!raf) last = 0;
   };
@@ -121,7 +142,8 @@ export function initDarkBackdrops() {
         if (e.pointerType !== 'mouse') return;
         const r = b.section.getBoundingClientRect();
         b.px = ((e.clientX - r.left) / r.width) * 100;
-        b.py = ((e.clientY - r.top) / r.height) * 100;
+        // tall: y in % of the visible band (the screen), otherwise of the section
+        b.py = b.tall ? ((e.clientY - Math.max(r.top, 0)) / b.band) * 100 : ((e.clientY - r.top) / r.height) * 100;
       });
       b.section.addEventListener('pointerleave', () => {
         b.px = b.py = null;
