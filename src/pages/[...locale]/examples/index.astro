@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ExampleCard from '../../../components/ExampleCard.astro';
+import NextCard from '../../../components/NextCard.astro';
+import ExamplePanel from '../../../components/ExamplePanel.astro';
 import LeadForm from '../../../components/LeadForm.astro';
 import { t, localeStaticPaths, type Locale } from '../../../i18n';
 import { getExamples, getNiches } from '../../../lib/content';
@@ -38,9 +40,10 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
       <div class="ex-grid" data-examples-grid>
         {
           examples.map((e, i) => (
-            <ExampleCard example={e} locale={locale} nicheLabel={nicheLabel(e.data.niche)} index={i} level="h2" />
+            <ExampleCard example={e} locale={locale} nicheLabel={nicheLabel(e.data.niche)} index={i} level="h2" place="grid" />
           ))
         }
+        <NextCard locale={locale} number={examples.length + 1} place="grid" level="h2" />
       </div>
       <p class="ex-empty" data-empty hidden>{d.examples.empty}</p>
       <p class="sr-only" role="status" aria-live="polite" data-filter-status></p>
@@ -48,6 +51,7 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
   </section>
   <div class="dark-gap"></div>
   <LeadForm locale={locale} />
+  <ExamplePanel locale={locale} examples={examples} nicheLabel={nicheLabel} />
 </BaseLayout>
 
 <script>

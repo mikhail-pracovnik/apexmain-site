@@ -88,11 +88,35 @@
     "cta": "I want one like this",
     "filterLabel": "Niche",
     "filterAll": "All",
-    "desktop": "Desktop version",
-    "mobile": "Mobile version",
     "empty": "No concepts in this niche yet. Leave a request — yours will be the first.",
     "listLabel": "Solution examples: cards",
-    "moreLabel": "Learn more about the examples"
+    "moreLabel": "Learn more about the examples",
+    "panel": {
+      "device": "Version",
+      "page": "Page",
+      "desktop": "Desktop",
+      "mobile": "Phone",
+      "index": "Home",
+      "prices": "Prices",
+      "menu": "Menu",
+      "close": "Close",
+      "outro": "We create every project for a specific business: with a different structure, style and logic. But the level of detail, design and quality stays the same.",
+      "imageAlt": "“{title}” website concept: {page}, {device} version",
+      "deviceAlt": {
+        "desktop": "desktop",
+        "mobile": "phone"
+      }
+    },
+    "next": {
+      "kicker": "Your business",
+      "paneTitle": "Your website could be here",
+      "paneLine": "any niche, its own structure and style",
+      "tag": "Any niche",
+      "title": "Your business is next",
+      "summary": "We will create a concept for your goals",
+      "cta": "Discuss a project",
+      "label": "Your business is next. Discuss a project"
+    }
   },
   "process": {
     "eyebrow": "04 — Process",

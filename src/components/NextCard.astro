@@ -1,0 +1,215 @@
+---
+/**
+ * The last card of the examples ("Your business is next", owner's sketch, variant A "glass over the shop
+ * window"): a 3×3 grid of our mock-ups' first screens, turned −8°, slightly enlarged and blurred, drifting
+ * slowly along the diagonal (18s each way, transform only, only while on screen); over it a glass pane.
+ * Same size and caption as the example cards. The card and its button lead to the lead form.
+ * Weak devices (html.lite): no blur on the grid, the glass pane stays. Reduced motion: no drift.
+ */
+import { t, type Locale } from '../i18n';
+import { thumb } from '../lib/example-media';
+
+interface Props {
+  locale: Locale;
+  /** Number shown on the pane: 07 */
+  number: number;
+  place?: 'rail' | 'grid';
+  /** Heading level inside the card. */
+  level?: 'h3' | 'h2';
+}
+const { locale, number, place = 'rail', level: H = 'h3' } = Astro.props;
+const d = t(locale);
+const n = d.examples.next;
+// grid order: neighbours differ in look (dark barbershop, light clinic, …); some mock-ups repeat
+const GRID = ['barber', 'clinic', 'coffee', 'florist', 'salon', 'beauty', 'coffee', 'barber', 'clinic'];
+// one cell ≈ 41% of the card width (the grid is 124% wide, 3 columns, scaled 1.05)
+const CARD = {
+  rail: ['(max-width: 767px) calc((100vw - 26px) / 1.18 * 0.45)', '(max-width: 1023px) calc((100vw - 64px) / 2.18 * 0.45)', 'calc((100vw - 92px) / 3.2 * 0.45)'],
+  grid: ['(max-width: 767px) calc((100vw - 32px) * 0.45)', '(min-width: 1600px) 340px', 'calc((100vw - 88px) / 2 * 0.45)'],
+}[place];
+const sizes = CARD.join(', ');
+const pics = GRID.map((id) => thumb(id));
+---
+
+<article class="example next-card" data-example-card data-next-card>
+  <div class="example-media next-media">
+    <div class="next-grid" aria-hidden="true">
+      {
+        pics.map((p) => (
+          <picture>
+            <source type="image/avif" srcset={p.avif} sizes={sizes} />
+            <source type="image/webp" srcset={p.webp} sizes={sizes} />
+            <img src={p.src} srcset={p.jpg} sizes={sizes} width={p.width} height={p.height} alt="" loading="lazy" decoding="async" draggable="false" />
+          </picture>
+        ))
+      }
+    </div>
+    <div class="next-pane" aria-hidden="true">
+      <span class="next-pane-bg glass glass-light"></span>
+      <span class="next-k">{String(number).padStart(2, '0')} · {n.kicker}</span>
+      <span class="next-t">{n.paneTitle}</span>
+      <span class="next-s">{n.paneLine}</span>
+    </div>
+  </div>
+  <div class="example-body">
+    <div class="example-text">
+      <p class="example-tag">{n.tag}</p>
+      <H class="example-title">
+        <a class="example-open" href="#lead" aria-label={n.label}>{n.title}</a>
+      </H>
+      <p class="example-summary">{n.summary}</p>
+    </div>
+    <a href="#lead" class="btn btn-dark example-cta" tabindex="-1" aria-hidden="true">
+      {n.cta}
+      <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
+        ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
+      >
+    </a>
+  </div>
+</article>
+
+<script>
+  import { initExampleCards } from '../scripts/example-cards';
+  initExampleCards();
+</script>
+
+<style>
+  .next-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .next-card .example-open::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .next-card .example-open:focus-visible {
+    outline: none;
+  }
+  .next-card:has(.example-open:focus-visible) .next-media {
+    outline: 2px solid var(--color-apex-deep);
+    outline-offset: 3px;
+  }
+  /* caption: the same as ExampleCard's */
+  .example-body {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .example-tag {
+    margin-bottom: 0.35rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted-dark);
+  }
+  .example-title {
+    font-size: clamp(1.4rem, 2.6vw, 1.75rem);
+  }
+  .example-open {
+    color: inherit;
+  }
+  .example-summary {
+    margin-top: 0.35rem;
+    color: var(--color-muted-dark);
+  }
+  .example-cta {
+    flex-shrink: 0;
+  }
+  .next-media {
+    container-type: inline-size;
+    position: relative;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: #1a1d24;
+    box-shadow: 0 30px 60px -40px rgb(10 12 17 / 0.6);
+    transform: translateZ(0);
+  }
+  .next-grid {
+    position: absolute;
+    inset: -12%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.6cqw;
+    transform: rotate(-8deg) scale(1.05);
+    filter: blur(1.5px) saturate(1.05);
+  }
+  :global(html.lite) .next-grid {
+    filter: none;
+  }
+  .next-grid picture,
+  .next-grid img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 1.6cqw;
+  }
+  /* slow drift along the diagonal, 18s each way, only while the card is on screen */
+  :global(html.motion) .next-grid {
+    animation: next-drift 18s ease-in-out infinite alternate;
+    animation-play-state: paused;
+  }
+  :global(html.motion) .next-card:global(.is-playing) .next-grid {
+    animation-play-state: running;
+    will-change: transform;
+  }
+  @keyframes next-drift {
+    to {
+      transform: rotate(-8deg) scale(1.05) translate(-6%, 3%);
+    }
+  }
+
+  /* glass pane: 9% from the edges, dark text (glass-light fill keeps it ≥ 4.5:1 over any part of the grid) */
+  .next-pane {
+    position: absolute;
+    left: 9%;
+    right: 9%;
+    bottom: 9%;
+    isolation: isolate;
+    display: grid;
+    justify-items: center;
+    gap: 1.1cqw;
+    padding: 3.4cqw 3cqw 3.6cqw;
+    border-radius: 3.6cqw;
+    text-align: center;
+    color: var(--color-ink);
+  }
+  .next-pane-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    --g-shadow: 0 3cqw 7cqw -2cqw rgb(3 3 6 / 0.35);
+  }
+  .next-k {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: clamp(9px, 2.4cqw, 12px);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #1b2430;
+  }
+  .next-t {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(14px, 5.2cqw, 28px);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+  .next-s {
+    font-size: clamp(11px, 2.9cqw, 14px);
+    line-height: 1.3;
+    color: #26313d;
+  }
+</style>

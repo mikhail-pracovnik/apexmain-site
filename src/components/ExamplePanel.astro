@@ -1,0 +1,313 @@
+---
+/**
+ * Mock-up panel on the examples page: a native modal <dialog> (like the pain panel). Phones: a sheet from
+ * the bottom over almost the whole screen; desktop: a large centred window. Glass on an inner layer (.xp-bg),
+ * the <dialog> is a transparent wrapper and display:none while closed.
+ * Header: niche tag and name, Desktop / Phone, Home / Prices (Menu), close. Below: the full page in pieces
+ * (scripts/example-panel.ts builds them from the manifest, lazily), then the closing line and "I want one".
+ * Opened by a card or by the address (#barber…); the address keeps the anchor while it is open, Back closes it.
+ */
+import { t, asset, type Locale } from '../i18n';
+import { exampleMedia } from '../lib/example-media';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  locale: Locale;
+  examples: CollectionEntry<'examples'>[];
+  nicheLabel: (id: string) => string;
+}
+const { locale, examples, nicheLabel } = Astro.props;
+const d = t(locale);
+const p = d.examples.panel;
+const data = {
+  base: asset('media/examples'),
+  device: exampleMedia.device,
+  text: { ...p },
+  examples: Object.fromEntries(
+    examples.map((e) => [
+      e.id,
+      {
+        title: e.data.title[locale],
+        tag: nicheLabel(e.data.niche),
+        niche: e.data.niche,
+        catalog: e.data.catalog,
+        pages: exampleMedia.examples[e.id as keyof typeof exampleMedia.examples].pages,
+      },
+    ]),
+  ),
+};
+---
+
+<dialog id="example-panel" class="xp" data-example-panel aria-labelledby="xp-title">
+  <div class="xp-sheet" data-xp-sheet>
+    <span class="xp-bg glass glass-light" aria-hidden="true"></span>
+    <header class="xp-head" data-xp-head>
+      <span class="xp-grab" aria-hidden="true"></span>
+      <div class="xp-titles">
+        <p class="xp-tag" data-xp-tag></p>
+        <h2 id="xp-title" class="xp-title" data-xp-title></h2>
+      </div>
+      <div class="xp-controls">
+        <div class="xp-seg" role="group" aria-label={p.device}>
+          <button type="button" data-xp-device="desktop" aria-pressed="true">{p.desktop}</button>
+          <button type="button" data-xp-device="mobile" aria-pressed="false">{p.mobile}</button>
+        </div>
+        <div class="xp-seg" role="group" aria-label={p.page}>
+          <button type="button" data-xp-page="index" aria-pressed="true">{p.index}</button>
+          <button type="button" data-xp-page="catalog" aria-pressed="false" data-xp-catalog>{p.prices}</button>
+        </div>
+      </div>
+      <button type="button" class="xp-close" data-xp-close aria-label={p.close}>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+          ><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg
+        >
+      </button>
+    </header>
+    <div class="xp-scroll" data-xp-scroll tabindex="-1">
+      <div class="xp-view" data-xp-view></div>
+      <div class="xp-end">
+        <p>{p.outro}</p>
+        <a href="#lead" class="btn btn-dark" data-xp-want>
+          {d.examples.cta}
+          <svg class="arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
+            ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
+          >
+        </a>
+      </div>
+    </div>
+  </div>
+  <script type="application/json" data-xp-data set:html={JSON.stringify(data)} />
+</dialog>
+
+<script>
+  import { initExamplePanel } from '../scripts/example-panel';
+  initExamplePanel();
+</script>
+
+<style>
+  .xp {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-ink);
+    overflow: hidden;
+  }
+  .xp:not([open]) {
+    display: none;
+  }
+  .xp[open] {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  @media (min-width: 48rem) {
+    .xp[open] {
+      align-items: center;
+      padding: 1.5rem;
+    }
+  }
+  .xp::backdrop {
+    background: rgb(3 3 6 / 0.35);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  @supports (-webkit-backdrop-filter: none) {
+    .xp::backdrop {
+      -webkit-backdrop-filter: blur(6px);
+    }
+  }
+  .xp:global(.is-open)::backdrop {
+    opacity: 1;
+  }
+
+  .xp-sheet {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 94dvh;
+    border-radius: 1.5rem 1.5rem 0 0;
+    opacity: 0;
+    transform: translateY(100%);
+    transition:
+      transform 0.3s var(--ease-out-expo),
+      opacity 0.2s;
+  }
+  @media (min-width: 48rem) {
+    .xp-sheet {
+      width: min(100%, 76rem);
+      height: min(100%, 92dvh);
+      border-radius: 1.5rem;
+      transform: translateY(16px) scale(0.985);
+    }
+  }
+  .xp:global(.is-open) .xp-sheet {
+    opacity: 1;
+    transform: none;
+  }
+  .xp-sheet:global(.is-swiping) {
+    transition: none;
+  }
+  .xp-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    --g-shadow: 0 -10px 40px -20px rgb(3 3 6 / 0.45);
+  }
+
+  /* ---------- Header (also the swipe-down handle on phones) ---------- */
+  .xp-head {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'titles close' 'controls controls';
+    gap: 0.75rem 1rem;
+    padding: 1.4rem 1rem 0.9rem;
+    border-bottom: 1px solid rgb(10 12 17 / 0.08);
+    touch-action: none;
+  }
+  @media (min-width: 64rem) {
+    .xp-head {
+      grid-template-columns: 1fr auto auto;
+      grid-template-areas: 'titles controls close';
+      align-items: center;
+      padding: 1.1rem 1.25rem 1.1rem 1.5rem;
+    }
+  }
+  .xp-grab {
+    position: absolute;
+    left: 50%;
+    top: 0.5rem;
+    width: 2.5rem;
+    height: 4px;
+    border-radius: 4px;
+    background: rgb(10 12 17 / 0.2);
+    transform: translateX(-50%);
+  }
+  @media (min-width: 48rem) {
+    .xp-grab {
+      display: none;
+    }
+  }
+  .xp-titles {
+    grid-area: titles;
+    min-width: 0;
+  }
+  .xp-tag {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #3d4651;
+  }
+  .xp-title {
+    font-size: clamp(1.35rem, 3vw, 1.875rem);
+  }
+  .xp-controls {
+    grid-area: controls;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .xp-seg {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 999px;
+    background: rgb(10 12 17 / 0.07);
+  }
+  .xp-seg button {
+    min-height: 2.5rem;
+    padding: 0 1rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #2b333d;
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+  .xp-seg button[aria-pressed='true'] {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .xp-close {
+    grid-area: close;
+    align-self: start;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: rgb(10 12 17 / 0.07);
+    color: var(--color-ink);
+    cursor: pointer;
+  }
+  @media (min-width: 64rem) {
+    .xp-close {
+      align-self: center;
+    }
+  }
+  .xp-close:hover {
+    background: rgb(10 12 17 / 0.13);
+  }
+  .xp :focus-visible {
+    outline-color: var(--color-apex-deep);
+  }
+
+  /* ---------- The page ---------- */
+  .xp-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 1rem 1rem max(1.5rem, env(safe-area-inset-bottom));
+    border-radius: 0 0 1.5rem 1.5rem;
+  }
+  @media (min-width: 48rem) {
+    .xp-scroll {
+      padding: 1.25rem 1.5rem 2rem;
+    }
+  }
+  .xp-view {
+    /* desktop page: never wider than 1440 CSS px (the 2880 px pieces stay sharp at 2x) */
+    margin-inline: auto;
+    max-width: 1440px;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 1px 0 rgb(10 12 17 / 0.06), 0 20px 40px -24px rgb(3 3 6 / 0.35);
+  }
+  .xp-view:global(.is-mobile) {
+    /* phone page: never wider than 390 CSS px (the 1170 px pieces stay sharp at 3x) */
+    max-width: 390px;
+    border-radius: 1.75rem;
+  }
+  .xp-view :global(picture),
+  .xp-view :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .xp-end {
+    display: grid;
+    justify-items: center;
+    gap: 1.25rem;
+    max-width: 40rem;
+    margin: 2.5rem auto 0;
+    text-align: center;
+    color: #2b333d;
+    font-size: 1.0625rem;
+  }
+</style>

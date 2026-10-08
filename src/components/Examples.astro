@@ -1,6 +1,7 @@
 ---
 import Rail from './Rail.astro';
 import ExampleCard from './ExampleCard.astro';
+import NextCard from './NextCard.astro';
 import MoreLink from './MoreLink.astro';
 import { t, url, type Locale } from '../i18n';
 import { getExamples, getNiches } from '../lib/content';
@@ -35,6 +36,9 @@ const nicheLabel = (id: string) => niches.find((n) => n.id === id)?.data.label[l
           </li>
         ))
       }
+      <li class="rail-item">
+        <NextCard locale={locale} number={examples.length + 1} />
+      </li>
     </Rail>
   </div>
   <MoreLink locale={locale} href={url(locale, 'examples')} label={d.examples.moreLabel} />

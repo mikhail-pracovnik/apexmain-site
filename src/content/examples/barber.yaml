@@ -1,0 +1,15 @@
+# Пример = обезличенный макет под брендом ApexMain. Имя файла = id = папка картинок
+# public/media/examples/<id>/ (собирает npm run images:examples из assets/examples-src/<id>/).
+# niche — общая категория из niches.yaml; catalog — prices (вкладка «Цены») или menu («Меню»).
+order: 1
+hidden: false
+niche: beauty
+catalog: prices
+title:
+  ru: Барбершоп
+  kk: Барбершоп
+  en: Barbershop
+summary:
+  ru: Онлайн-запись, услуги и цены по уровням мастеров
+  kk: Онлайн жазылу, шеберлер деңгейі бойынша қызметтер мен бағалар
+  en: Online booking, services and prices by barber level

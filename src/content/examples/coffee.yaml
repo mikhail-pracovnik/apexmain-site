@@ -1,0 +1,12 @@
+order: 2
+hidden: false
+niche: food
+catalog: menu
+title:
+  ru: Кофейня с доставкой
+  kk: Жеткізуі бар кофехана
+  en: Coffee shop with delivery
+summary:
+  ru: Меню, завтраки весь день и заказ доставки
+  kk: Мәзір, күні бойы таңғы ас және жеткізуге тапсырыс
+  en: Menu, all-day breakfast and delivery orders

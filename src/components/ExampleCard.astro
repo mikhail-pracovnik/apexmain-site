@@ -1,9 +1,15 @@
 ---
+/**
+ * Example card: a desktop browser window and a phone with the real mock-up inside (anonymised, under the
+ * ApexMain brand). The desktop home page scrolls slowly through its first screens inside the window,
+ * pauses and comes back; the phone does the same, out of step. Only transform moves; cards off screen
+ * stand still (scripts/example-cards.ts); with reduced motion the first screen is shown.
+ * Caption: niche tag, business type, one line, "I want one like this" (to the lead form, as before).
+ * The rest of the card opens the mock-up's panel on the examples page (/examples/#<id>).
+ */
 import type { CollectionEntry } from 'astro:content';
-import LoopVideo from './LoopVideo.astro';
-import ExamplePlaceholder from './ExamplePlaceholder.astro';
-import { t, url, asset, type Locale } from '../i18n';
-import { inPublic, usableVideo } from '../lib/media';
+import { t, url, type Locale } from '../i18n';
+import { cardStrip, type PictureSet } from '../lib/example-media';
 
 interface Props {
   example: CollectionEntry<'examples'>;
@@ -14,36 +20,62 @@ interface Props {
   level?: 'h3' | 'h2';
   /** Scroll-reveal animation (off inside a rail: cards off to the side would stay hidden). */
   reveal?: boolean;
+  /** Where the card is shown: the home rail or the examples page grid (image sizes differ). */
+  place?: 'rail' | 'grid';
 }
-const { example, locale, nicheLabel, index, level: H = 'h3', reveal = true } = Astro.props;
+const { example, locale, nicheLabel, index, level: H = 'h3', reveal = true, place = 'rail' } = Astro.props;
 const d = t(locale);
 const e = example.data;
-const video = usableVideo(e.video);
-const desktop = inPublic(e.images.desktop) ? e.images.desktop : null;
-const mobile = inPublic(e.images.mobile) ? e.images.mobile : null;
+const id = example.id;
 const title = e.title[locale];
 const wantHref = `${url(locale, 'contact')}?niche=${encodeURIComponent(e.niche)}&example=${encodeURIComponent(title)}#lead`;
+const openHref = `${url(locale, 'examples')}#${id}`;
+
+// CSS width of the window's screen (75% of the card) and of the phone's screen (17.08% of the card)
+const CARD = {
+  rail: ['(max-width: 767px) calc((100vw - 26px) / 1.18)', '(max-width: 1023px) calc((100vw - 64px) / 2.18)', 'calc((100vw - 92px) / 3.2)'],
+  grid: ['(max-width: 767px) calc(100vw - 32px)', '(min-width: 1600px) 756px', 'calc((100vw - 88px) / 2)'],
+}[place];
+const sizes = (share: number) => CARD.map((s) => s.replace(/(calc\(.*\)|\d+px)$/, (m) => `calc(${m} * ${share})`)).join(', ');
+const desktop = cardStrip(id, 'desktop');
+const mobile = cardStrip(id, 'mobile');
+const pics: [PictureSet, string, string][] = [
+  [desktop, sizes(0.75), 'ex-win-screen'],
+  [mobile, sizes(0.1708), 'ex-phone-screen'],
+];
 ---
 
-<article class:list={['example', reveal && 'reveal']} data-niche={e.niche} style={`--i:${index % 2}`}>
+<article class:list={['example', reveal && 'reveal']} data-niche={e.niche} data-example-card style={`--i:${index % 2}`}>
   <div class="example-media">
     {
-      desktop ? (
-        <picture>
-          {mobile && <source media="(max-width: 40rem)" srcset={asset(mobile)} />}
-          <img src={asset(desktop)} alt={`${title} — ${d.examples.desktop}`} loading="lazy" decoding="async" width="960" height="600" />
-        </picture>
-      ) : (
-        <ExamplePlaceholder layout={e.layout} class="example-ph" />
-      )
+      pics.map(([p, s, cls]) => (
+        <div class={cls === 'ex-win-screen' ? 'ex-win' : 'ex-phone'}>
+          {cls === 'ex-win-screen' && (
+            <span class="ex-win-bar" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+              <b />
+            </span>
+          )}
+          <div class={cls}>
+            <picture class="ex-strip">
+              <source type="image/avif" srcset={p.avif} sizes={s} />
+              <source type="image/webp" srcset={p.webp} sizes={s} />
+              <img src={p.src} srcset={p.jpg} sizes={s} width={p.width} height={p.height} alt="" loading="lazy" decoding="async" draggable="false" />
+            </picture>
+          </div>
+        </div>
+      ))
     }
-    {video && <LoopVideo video={video} class="example-video" />}
-    <span class="example-tag glass glass-dark">{nicheLabel}</span>
   </div>
   <div class="example-body">
-    <div>
-      <H class="example-title">{title}</H>
-      {e.summary && <p class="example-summary">{e.summary[locale]}</p>}
+    <div class="example-text">
+      <p class="example-tag">{nicheLabel}</p>
+      <H class="example-title">
+        <a class="example-open" href={openHref} data-example-open={id}>{title}</a>
+      </H>
+      <p class="example-summary">{e.summary[locale]}</p>
     </div>
     <a href={wantHref} class="btn btn-dark example-cta" data-want data-niche={e.niche} data-example={title}>
       {d.examples.cta}
@@ -54,8 +86,14 @@ const wantHref = `${url(locale, 'contact')}?niche=${encodeURIComponent(e.niche)}
   </div>
 </article>
 
+<script>
+  import { initExampleCards } from '../scripts/example-cards';
+  initExampleCards();
+</script>
+
 <style>
   .example {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
@@ -63,58 +101,195 @@ const wantHref = `${url(locale, 'contact')}?niche=${encodeURIComponent(e.niche)}
   .example[hidden] {
     display: none;
   }
+  /* the title link covers the whole card; the "I want one" button sits above it */
+  .example-open::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .example-open:focus-visible {
+    outline: none;
+  }
+  .example:has(.example-open:focus-visible) .example-media {
+    outline: 2px solid var(--color-apex-deep);
+    outline-offset: 3px;
+  }
+  .example-cta {
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+
+  /* ---------- Media: a browser window and a phone (proportions of the former 960×600 drawing) ---------- */
   .example-media {
+    container-type: inline-size;
     position: relative;
     aspect-ratio: 16 / 10;
     border-radius: var(--radius-card);
-    background: var(--color-ink-2);
     overflow: hidden;
+    background:
+      radial-gradient(80% 90% at 75% 20%, rgb(70 200 217 / 0.12), transparent 70%),
+      repeating-linear-gradient(0deg, rgb(148 178 220 / 0.05) 0 1px, transparent 1px 3.333cqw),
+      repeating-linear-gradient(90deg, rgb(148 178 220 / 0.05) 0 1px, transparent 1px 3.333cqw),
+      var(--color-ink-2);
     box-shadow: 0 30px 60px -40px rgb(10 12 17 / 0.6);
     transform: translateZ(0);
   }
-  .example-media :global(.example-ph),
-  .example-media :global(.example-video),
-  .example-media img {
+  .ex-win {
     position: absolute;
-    inset: 0;
+    left: 4.167%;
+    top: 8%;
+    width: 75%;
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1.46cqw;
+    background: var(--color-ink);
+    box-shadow:
+      0 0 0 1px rgb(236 240 241 / 0.12),
+      0 1.5cqw 4cqw -1cqw rgb(0 0 0 / 0.55);
+    overflow: hidden;
+  }
+  .ex-win-bar {
+    position: relative;
+    flex: 0 0 3.54cqw;
+    display: flex;
+    align-items: center;
+    gap: 0.75cqw;
+    padding-left: 1.6cqw;
+    background: #12151c;
+    border-bottom: 1px solid rgb(236 240 241 / 0.08);
+  }
+  .ex-win-bar i {
+    width: 0.94cqw;
+    height: 0.94cqw;
+    border-radius: 50%;
+    background: rgb(236 240 241 / 0.18);
+  }
+  .ex-win-bar b {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 23cqw;
+    height: 1.67cqw;
+    border-radius: 1cqw;
+    background: rgb(236 240 241 / 0.06);
+    transform: translate(-50%, -50%);
+  }
+  .ex-win-screen,
+  .ex-phone-screen {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background: #fff;
+  }
+  .ex-phone {
+    position: absolute;
+    left: 76.67%;
+    top: 26.33%;
+    width: 18.75%;
+    height: 62.67%;
+    padding: 2.6cqw 0.83cqw 1cqw;
+    display: flex;
+    border-radius: 2.7cqw;
+    background: var(--color-ink);
+    box-shadow:
+      0 0 0 0.62cqw rgb(3 3 6 / 0.6),
+      0 0 0 calc(0.62cqw + 1px) rgb(236 240 241 / 0.16),
+      0 2cqw 5cqw -1cqw rgb(0 0 0 / 0.6);
+  }
+  .ex-phone::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0.9cqw;
+    width: 5cqw;
+    height: 1.25cqw;
+    border-radius: 1cqw;
+    background: rgb(236 240 241 / 0.1);
+    transform: translateX(-50%);
+  }
+  .ex-phone-screen {
+    border-radius: 1.7cqw;
+  }
+  .ex-strip,
+  .ex-strip img {
+    display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.9s var(--ease-out-expo);
+    height: auto;
   }
-  .example:hover .example-media :global(.example-ph),
-  .example:hover .example-media :global(.example-video),
-  .example:hover .example-media img {
-    transform: scale(1.025);
+
+  /* Slow scroll through the first screens (transform only), paused while the card is off screen. */
+  :global(html.motion) .ex-strip {
+    animation: ex-scroll-win 16s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-play-state: paused;
   }
-  .example-tag {
-    position: absolute;
-    left: 0.875rem;
-    top: 0.875rem;
-    padding: 0.3rem 0.7rem;
-    border-radius: 999px;
-    /* glass (global.css), always the dark set: the tag lies on the dark mock-up even in a light section */
-    --g-blur: 10px;
-    --g-shadow: 0 4px 12px -6px rgb(0 0 0 / 0.5);
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--color-paper);
+  :global(html.motion) .ex-phone .ex-strip {
+    animation-name: ex-scroll-phone;
+    animation-duration: 17s;
+    animation-delay: -6s;
   }
+  :global(html.motion) .example:global(.is-playing) .ex-strip {
+    animation-play-state: running;
+    will-change: transform;
+  }
+  /* the strip is three screens tall and the screen shows about one: it travels to the third
+     (window: 1 − 0.4646 / 1.406 = 66.9% of the strip; phone: 1 − 0.3557 / 1.1095 = 67.9%) */
+  @keyframes ex-scroll-win {
+    0%,
+    8% {
+      transform: translateY(0);
+    }
+    52%,
+    64% {
+      transform: translateY(-66.9%);
+    }
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+  }
+  @keyframes ex-scroll-phone {
+    0%,
+    10% {
+      transform: translateY(0);
+    }
+    54%,
+    66% {
+      transform: translateY(-67.9%);
+    }
+    82%,
+    100% {
+      transform: translateY(0);
+    }
+  }
+
   .example-body {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
     justify-content: space-between;
     gap: 1rem;
   }
+  .example-tag {
+    margin-bottom: 0.35rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted-dark);
+  }
   .example-title {
     font-size: clamp(1.4rem, 2.6vw, 1.75rem);
+  }
+  .example-open {
+    color: inherit;
   }
   .example-summary {
     margin-top: 0.35rem;
     color: var(--color-muted-dark);
-  }
-  .example-cta {
-    flex-shrink: 0;
   }
 </style>

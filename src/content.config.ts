@@ -37,22 +37,23 @@ const services = defineCollection({
   }),
 });
 
-/** One example = one YAML file in src/content/examples/. */
+/**
+ * One example = one YAML file in src/content/examples/, named by its id (barber.yaml…).
+ * Pictures: public/media/examples/<id>/, made by `npm run images:examples` (see src/data/example-media.json).
+ */
 const examples = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: './src/content/examples' }),
   schema: z.object({
     order: z.number().default(100),
     hidden: z.boolean().default(false),
+    /** General category from niches.yaml (the tag on the card, the filter, the lead form). */
     niche: z.string(),
-    /** Real screenshots, paths relative to /public. While null, a branded placeholder is drawn. */
-    images: z
-      .object({ desktop: z.string().nullable().default(null), mobile: z.string().nullable().default(null) })
-      .default({ desktop: null, mobile: null }),
-    video,
-    /** Placeholder layout variant (1–6) used while there are no real images. */
-    layout: z.number().int().min(1).max(6).default(1),
+    /** The second page of the mock-up: a price list or a menu (tab name in the panel). */
+    catalog: z.enum(['prices', 'menu']).default('prices'),
+    /** Name of the business type: "Барбершоп". */
     title: localized(z.string()),
-    summary: localized(z.string()).optional(),
+    /** One line under the name. */
+    summary: localized(z.string()),
   }),
 });
 
