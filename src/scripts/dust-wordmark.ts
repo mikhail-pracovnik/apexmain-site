@@ -40,6 +40,13 @@ const PAPER = [236, 240, 241];
 const APEX = [70, 200, 217];
 const WEIGHT = 700;
 const LEVELS = 12; // brightness buckets for batched drawing
+/** Click / tap scatter: dots within SCATTER_R fly out and come back slowly for SLOW_MS. */
+const SCATTER_R = 115;
+const SLOW_MS = 1800;
+/** Light wave across the wordmark: every WAVE_EVERY ms, WAVE_MS long; brightness only, dots stay put. */
+const WAVE_EVERY = 7000;
+const WAVE_MS = 1800;
+const WAVE_FIRST = 900;
 
 export class DustWordmark {
   private ctx: CanvasRenderingContext2D;
@@ -56,6 +63,11 @@ export class DustWordmark {
   private rest = 0;
   private family: string;
   private radius = 110;
+  /** until this time the springs are soft (after a scatter) */
+  private slowUntil = 0;
+  /** start of the light wave running now, or 0 */
+  private waveT0 = 0;
+  private waveTimer = 0;
 
   constructor(
     private host: HTMLElement,
@@ -66,6 +78,11 @@ export class DustWordmark {
     this.ctx = canvas.getContext('2d')!;
     this.family = getComputedStyle(document.documentElement).getPropertyValue('--font-display').trim() || 'sans-serif';
     this.bind();
+  }
+
+  /** Brightness ceiling: above the base brightness, so the cursor and the waves still light the dust up. */
+  private get cap() {
+    return Math.min(1, Math.max(0.85, Math.max(this.settings.apex, this.settings.main) + 0.3));
   }
 
   set(settings: Partial<DustSettings>) {
@@ -103,7 +120,7 @@ export class DustWordmark {
     this.canvas.style.width = `${this.w}px`;
     this.canvas.style.height = `${this.h}px`;
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    this.radius = desktop ? 130 : 90;
+    this.radius = desktop ? 80 : 60;
 
 
     // --- measure the wordmark at a reference size
@@ -220,9 +237,14 @@ export class DustWordmark {
     const R = this.radius;
     const R2 = R * R;
     let energy = 0;
+    let away = 0;
+    // after a scatter: soft springs and less damping, the dots drift far and come back slowly
+    const slow = now < this.slowUntil;
+    const spring = slow ? 0.018 : 0.05;
+    const damp = slow ? 0.86 : 0.84;
     for (const d of this.dots) {
-      d.vx += (d.hx - d.x) * 0.05;
-      d.vy += (d.hy - d.y) * 0.05;
+      d.vx += (d.hx - d.x) * spring;
+      d.vy += (d.hy - d.y) * spring;
       if (active) {
         const dx = d.x - mx;
         const dy = d.y - my;
@@ -234,15 +256,19 @@ export class DustWordmark {
           d.vy += (dy / dist) * f;
         }
       }
-      d.vx *= 0.84;
-      d.vy *= 0.84;
+      d.vx *= damp;
+      d.vy *= damp;
       d.x += d.vx;
       d.y += d.vy;
       energy += Math.abs(d.vx) + Math.abs(d.vy);
+      away += Math.abs(d.x - d.hx) + Math.abs(d.y - d.hy);
     }
     this.ripples = this.ripples.filter((r) => now - r.t0 < 2800);
     this.draw(now);
-    const calm = !active && !this.ripples.length && energy / Math.max(1, this.dots.length) < 0.004;
+    if (this.waveT0 && now - this.waveT0 > WAVE_MS) this.waveT0 = 0;
+    const n = Math.max(1, this.dots.length);
+    // rest only once the dots are home again (not while a scatter is still settling) and no wave runs
+    const calm = !active && !this.ripples.length && !slow && !this.waveT0 && energy / n < 0.004 && away / n < 0.05;
     this.rest = calm ? this.rest + 1 : 0;
     if (this.rest > 30) {
       this.running = false;
@@ -261,6 +287,10 @@ export class DustWordmark {
     const { x: mx, y: my, active } = this.pointer;
     const R = this.radius;
     const band = 40;
+    const cap = this.cap;
+    // light wave: a bright band going diagonally left to right
+    const waveT = this.waveT0 ? now - this.waveT0 : -1;
+    const wavePos = waveT >= 0 && waveT <= WAVE_MS ? -300 + (waveT / WAVE_MS) * (this.w + 0.4 * this.h + 600) : null;
     const buckets: number[][] = Array.from({ length: LEVELS * 2 }, () => []);
 
     for (let i = 0; i < this.dots.length; i++) {
@@ -285,10 +315,14 @@ export class DustWordmark {
         y += (dy / dist) * amp;
         boost += env * 1.1; // the ring lights the dust up as it passes
       }
+      if (wavePos !== null) {
+        const k = (d.hx + 0.4 * d.hy - wavePos) / 90;
+        if (k < 3 && k > -3) boost += Math.exp(-k * k) * 0.45;
+      }
       const base = d.main ? this.settings.main : this.settings.apex;
-      const alpha = Math.min(0.85, d.a * base + boost * d.a);
+      const alpha = Math.min(cap, d.a * base + boost * d.a);
       if (alpha < 0.01) continue;
-      const lvl = Math.min(LEVELS - 1, Math.round(alpha * (LEVELS - 1) / 0.85));
+      const lvl = Math.min(LEVELS - 1, Math.round((alpha * (LEVELS - 1)) / cap));
       const bucket = buckets[(d.main ? LEVELS : 0) + lvl];
       bucket.push(x - half, y - half);
     }
@@ -297,7 +331,7 @@ export class DustWordmark {
       if (!list.length) continue;
       const main = b >= LEVELS;
       const lvl = b % LEVELS;
-      const a = Math.max(0.01, (lvl * 0.85) / (LEVELS - 1));
+      const a = Math.max(0.01, (lvl * cap) / (LEVELS - 1));
       const [r, g, bl] = main ? APEX : PAPER;
       ctx.fillStyle = `rgba(${r},${g},${bl},${a.toFixed(3)})`;
       for (let i = 0; i < list.length; i += 2) ctx.fillRect(list[i], list[i + 1], s, s);
@@ -317,7 +351,21 @@ export class DustWordmark {
     const ripple = (cx: number, cy: number) => {
       const p = local(cx, cy);
       if (p.x < 0 || p.y < 0 || p.x > this.w || p.y > this.h) return;
-      this.ripples.push({ ...p, t0: performance.now() });
+      const now = performance.now();
+      // scatter: dots near the click fly out from it, then gather back slowly (soft springs for SLOW_MS)
+      const SR2 = SCATTER_R * SCATTER_R;
+      for (const d of this.dots) {
+        const dx = d.x - p.x;
+        const dy = d.y - p.y;
+        const q = dx * dx + dy * dy;
+        if (q >= SR2 || q < 0.01) continue;
+        const dist = Math.sqrt(q);
+        const f = (1 - dist / SCATTER_R) * (9 + Math.random() * 10);
+        d.vx += (dx / dist) * f + (Math.random() - 0.5) * 3;
+        d.vy += (dy / dist) * f + (Math.random() - 0.5) * 3;
+      }
+      this.slowUntil = now + SLOW_MS;
+      this.ripples.push({ ...p, t0: now });
       if (this.ripples.length > 4) this.ripples.shift();
       this.wake();
     };
@@ -339,6 +387,31 @@ export class DustWordmark {
         cancelAnimationFrame(this.raf);
       }
     }).observe(this.host);
+
+    // light waves: the first one shortly after the wordmark shows (after the intro), then every 7 s;
+    // only on screen, in a visible tab, in the full version with motion; they stop if the light version
+    // is switched on while the page is open (perf-watch.ts)
+    const root = document.documentElement;
+    const waveAllowed = () => root.classList.contains('motion') && !root.classList.contains('lite');
+    const nextWave = (ms: number) => {
+      clearTimeout(this.waveTimer);
+      if (!waveAllowed()) return;
+      this.waveTimer = window.setTimeout(() => {
+        if (!waveAllowed()) return;
+        if (this.visible && !document.hidden && this.dots.length) {
+          this.waveT0 = performance.now();
+          this.wake();
+        }
+        nextWave(WAVE_EVERY);
+      }, ms);
+    };
+    const introOn = () => root.classList.contains('intro-on') && !root.classList.contains('intro-done');
+    if (introOn()) window.addEventListener('intro:end', () => nextWave(WAVE_FIRST), { once: true });
+    else nextWave(WAVE_FIRST);
+    window.addEventListener('perf:lite', () => {
+      clearTimeout(this.waveTimer);
+      this.waveT0 = 0;
+    });
 
     let t = 0;
     let last = '';

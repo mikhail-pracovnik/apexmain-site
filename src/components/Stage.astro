@@ -13,6 +13,7 @@ import BrandMark from './BrandMark.astro';
 import brand from '../data/brand-mark.json';
 import { t, url, locales, htmlLang, accentParts, type Locale } from '../i18n';
 import { intro } from '../config/intro';
+import DarkBackdrop from './DarkBackdrop.astro';
 
 interface Props {
   locale: Locale;
@@ -25,7 +26,8 @@ const [vx, vy, vw, vh] = brand.viewBox;
 const [title1, title2, title3] = d.hero.titleLines.map(accentParts);
 ---
 
-<section class="stage glow" id="top" data-label={d.sections.hero} data-stage data-dust="stacked-shift">
+<section class="stage dark-lit" id="top" data-label={d.sections.hero} data-stage data-dust="stacked-shift">
+  <DarkBackdrop variant="hero" />
   <div class="hero-dust hero-in" aria-hidden="true">
     <canvas data-dust-canvas></canvas>
   </div>
@@ -95,6 +97,13 @@ const [title1, title2, title3] = d.hero.titleLines.map(accentParts);
 <style>
   .stage {
     position: relative;
+    /* the dark-section background (DarkBackdrop) without isolation: the fixed intro inside the stage must
+       stay above the header, so the stage makes no stacking context; the backdrop sits at z-index 0 as the
+       first child, the dust (z-index 0, later in the markup) and the text (z-index 1) above it */
+    isolation: auto;
+  }
+  .stage > :global(.db) {
+    z-index: 0;
   }
 
   /* ---------- Hero ---------- */
@@ -230,7 +239,7 @@ const [title1, title2, title3] = d.hero.titleLines.map(accentParts);
     }
   }
 
-  /* Static wordmark: no JS or reduced motion (same brightness as the dust: apex 34.5%, main 41.4%). */
+  /* Static wordmark: no JS or reduced motion (same brightness as the dust: apex 50%, main 60%). */
   .hero-static {
     position: absolute;
     z-index: 0;
@@ -243,13 +252,13 @@ const [title1, title2, title3] = d.hero.titleLines.map(accentParts);
     font-size: calc((100vw - 2rem) / 3.1);
     line-height: 0.8;
     letter-spacing: -0.01em;
-    color: rgb(232 238 241 / 0.345);
+    color: rgb(232 238 241 / 0.5);
     pointer-events: none;
     user-select: none;
   }
   .hero-static-main {
     padding-left: 0.57em; /* one letter */
-    color: rgb(70 200 217 / 0.414);
+    color: rgb(70 200 217 / 0.6);
   }
   @media (min-width: 68.75rem) {
     .hero-static {

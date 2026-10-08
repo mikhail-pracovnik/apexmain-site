@@ -16,13 +16,18 @@
  */
 interface Props {
   /** start positions of the lights and spots, so the sections differ; *-page: the separate pages */
-  variant: 'services' | 'integrations' | 'process' | 'services-page' | 'process-page' | 'contact';
+  variant: 'hero' | 'services' | 'integrations' | 'process' | 'services-page' | 'process-page' | 'contact';
   /** fade the lights at an edge shared with another dark section (no cut line) */
   fade?: 'top' | 'bottom';
 }
 const { variant, fade } = Astro.props;
 // lights: [kind, css position]; kinds: b indigo, a turquoise, c white (sizes and colours in the styles below)
 const LIGHTS: Record<Props['variant'], [string, string][]> = {
+  hero: [
+    ['b', 'left:-20%;top:-30%'],
+    ['a', 'right:-18%;bottom:-40%'],
+    ['c', 'left:40%;top:10%'],
+  ],
   services: [
     ['b', 'left:-20%;top:-30%'],
     ['a', 'right:-18%;bottom:-40%'],
@@ -62,7 +67,7 @@ const LIGHTS: Record<Props['variant'], [string, string][]> = {
   ],
 };
 // phase of the spots' paths (seconds), so the sections do not move in step
-const PHASE = { services: 0, integrations: 37, process: 83, 'services-page': 11, 'process-page': 53, contact: 71 }[variant];
+const PHASE = { hero: 23, services: 0, integrations: 37, process: 83, 'services-page': 11, 'process-page': 53, contact: 71 }[variant];
 ---
 
 <div class="db" class:list={[fade && `db-fade-${fade}`]} aria-hidden="true" data-dark-bg data-phase={PHASE}>
