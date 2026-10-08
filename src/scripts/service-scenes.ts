@@ -5,8 +5,9 @@
  * element's own size, values converted from the prototype's cqw); the receipt prints with two opposite
  * translations instead of a clip-path. Class changes go through classList (Astro's scope class stays).
  *
- * Playback: each scene loops on its own timeline; it plays while at least 35% of it is on screen, and at most
- * two scenes play at once (the most visible); the rest pause with their lights. A hidden tab stops GSAP's ticker.
+ * Playback: each scene loops on its own timeline; it plays while more than 60% of it is on screen, and at most
+ * two scenes play at once (the two closest to the centre of the screen); the rest stand in the assembled frame and
+ * start as the page or the rail brings them in. The lights inside a card stand still. A hidden tab stops GSAP's ticker.
  * Reduced motion: the assembled frame (62% of the loop, as in the prototype), lights still. A scene waiting
  * for its turn also stands in that frame (not on an empty stage) and plays on from it.
  */
@@ -16,7 +17,7 @@ type Build = (r: HTMLElement) => gsap.core.Timeline;
 const q = <T extends Element = HTMLElement>(s: string, r: ParentNode) => r.querySelector<T>(s)!;
 const qa = <T extends Element = HTMLElement>(s: string, r: ParentNode) => Array.from(r.querySelectorAll<T>(s));
 const MAX_PLAYING = 2;
-const THRESHOLD = 0.35;
+const THRESHOLD = 0.6;
 const ASSEMBLED = 0.62;
 
 /* 01 site: the page assembles, a tap on the button, a lead arrives */
@@ -179,19 +180,8 @@ export function initServiceScenes() {
     // and plays on from it without a jump
     tl.progress(ASSEMBLED, false).pause();
     if (!motion) return { el, tl, extra: [], ratio: 0, playing: false };
-    // lights drift slowly (prototype: ±10cqw / ±8cqw on a 60cqw light = 16.67% / 13.33%)
-    const extra = qa('.orb', el).map((o) => {
-      const i = Number(o.dataset.i);
-      return gsap.to(o, {
-        xPercent: (i % 2 ? -1 : 1) * 16.667,
-        yPercent: ((i % 3) - 1) * 13.333,
-        duration: 9 + (i % 4),
-        ease: 'sine.inOut',
-        yoyo: true,
-        repeat: -1,
-        paused: true,
-      });
-    });
+    // the lights inside the card stand still (the section's background moves); only the cursor blinks
+    const extra: gsap.core.Tween[] = [];
     const cur = el.querySelector('.cur');
     if (cur) extra.push(gsap.to(cur, { opacity: 0, repeat: -1, yoyo: true, duration: 0.5, ease: 'steps(1)', paused: true }));
     return { el, tl, extra, ratio: 0, playing: false };
@@ -210,10 +200,15 @@ export function initServiceScenes() {
       it.extra.forEach((t) => t.pause());
     }
   };
+  // distance of a scene's centre from the centre of the screen
+  const offCentre = (el: HTMLElement) => {
+    const r = el.getBoundingClientRect();
+    return Math.hypot(r.left + r.width / 2 - innerWidth / 2, r.top + r.height / 2 - innerHeight / 2);
+  };
   const pick = () => {
     const on = items
-      .filter((i) => i.ratio >= THRESHOLD)
-      .sort((a, b) => b.ratio - a.ratio)
+      .filter((i) => i.ratio > THRESHOLD)
+      .sort((a, b) => offCentre(a.el) - offCentre(b.el))
       .slice(0, MAX_PLAYING);
     items.forEach((i) => set(i, on.includes(i)));
   };
@@ -225,7 +220,15 @@ export function initServiceScenes() {
       }
       pick();
     },
-    { threshold: [0, 0.2, THRESHOLD, 0.5, 0.65, 0.8, 0.95, 1] },
+    { threshold: [0, 0.3, 0.5, 0.6, 0.61, 0.8, 0.95, 1] },
   );
   items.forEach((i) => io.observe(i.el));
+  // the closest-to-centre order changes while the page or a rail scrolls, without crossing a threshold
+  let queued = false;
+  const onScroll = () => {
+    if (queued || !items.some((i) => i.ratio > THRESHOLD)) return;
+    queued = true;
+    requestAnimationFrame(() => ((queued = false), pick()));
+  };
+  document.addEventListener('scroll', onScroll, { capture: true, passive: true });
 }

@@ -8,7 +8,8 @@
  *  - decorative: aria-hidden, the card's caption carries the meaning.
  * Differences from the prototype (transform-only animation): rows, leads and the scan line move by transform
  * (percent of their own size) instead of top/left; the receipt "prints" with two opposite translations instead
- * of an animated clip-path; white elements (post, leads, receipt) are opaque, without a blurred backdrop.
+ * of an animated clip-path; white elements (post, leads, receipt) are opaque. No backdrop-filter anywhere in a
+ * scene (only smooth lights behind the glass), and the lights inside the card stand still.
  */
 import { t, type Locale } from '../i18n';
 
@@ -318,9 +319,6 @@ const qr = scene === 'pay' ? qrPath() : '';
   .orb-c {
     background: radial-gradient(closest-side, rgb(226 232 240 / 0.28), rgb(226 232 240 / 0));
   }
-  :global(html.motion) .sc:global(.is-playing) .orb {
-    will-change: transform;
-  }
   .st > *,
   .phone > *,
   .term > *,
@@ -332,10 +330,11 @@ const qr = scene === 'pay' ? qrPath() : '';
     position: absolute;
   }
 
-  /* glass: the prototype's look; the prefixed copy in its own @supports (the minifier keeps one of a pair) */
+  /* glass without a blurred backdrop: behind it are only smooth lights and gradients, already soft, so blur
+     shows nothing and costs a lot (it is recomputed every frame while the scene moves under it).
+     The prototype's fill, edge, top highlight and shadows stay. */
   .g {
     background: rgb(255 255 255 / 0.08);
-    backdrop-filter: blur(14px) saturate(170%);
     border: 1px solid rgb(255 255 255 / 0.2);
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.28),
@@ -343,33 +342,11 @@ const qr = scene === 'pay' ? qrPath() : '';
       0 14px 34px rgb(0 0 0 / 0.35);
     border-radius: 3.2cqw;
   }
-  @supports (-webkit-backdrop-filter: none) {
-    .g {
-      -webkit-backdrop-filter: blur(14px) saturate(170%);
-    }
-  }
-  /* weak devices: a semi-transparent fill instead of the blurred backdrop */
-  :global(html.lite) .g {
-    backdrop-filter: none;
-    background: rgb(36 40 56 / 0.72);
-  }
-  @supports (-webkit-backdrop-filter: none) {
-    :global(html.lite) .g {
-      -webkit-backdrop-filter: none;
-    }
-  }
   /* white elements (post, leads, receipt) are opaque */
   .w,
-  .g.w,
-  :global(html.lite) .g.w {
+  .g.w {
     background: #f4f6f7;
     color: #0b0d13;
-    backdrop-filter: none;
-  }
-  @supports (-webkit-backdrop-filter: none) {
-    .g.w {
-      -webkit-backdrop-filter: none;
-    }
   }
 
   /* ---------- 01 site ---------- */
