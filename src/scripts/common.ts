@@ -147,11 +147,6 @@ if (bands.length && 'IntersectionObserver' in window) {
   bands.forEach((b) => io.observe(b));
 }
 
-/* ---------- Temporary glass tuning panel (?glass=tune) ---------- */
-if (new URLSearchParams(location.search).get('glass') === 'tune') {
-  import('./glass-tune').then((m) => m.mountGlassTune());
-}
-
 /* ---------- Scroll reveal ---------- */
 const reveals = document.querySelectorAll<HTMLElement>('.reveal');
 if (motionOk() && 'IntersectionObserver' in window) {

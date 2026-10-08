@@ -386,13 +386,14 @@ html::after {
    light section (dark ≥ 0.71, light ≥ 0.71 with the muted text colours used on them).
    Fixed elements keep the rule from CLAUDE.md: a transparent fixed wrapper, the glass on an inner element. */
 :root {
-  --glass-dark-blur: 20px;
-  --glass-dark-sat: 170%;
-  --glass-dark-fill: 0.74;
-  --glass-dark-hl: 0.14;
-  --glass-light-blur: 20px;
-  --glass-light-sat: 180%;
-  --glass-light-fill: 0.74;
+  /* chosen by the owner on an iPhone, 2026-10-08 */
+  --glass-dark-blur: 5px;
+  --glass-dark-sat: 250%;
+  --glass-dark-fill: 0.71;
+  --glass-dark-hl: 0.25;
+  --glass-light-blur: 5px;
+  --glass-light-sat: 250%;
+  --glass-light-fill: 0.71;
   --glass-light-hl: 0.9;
   /* full-screen menu overlay: a darker fill so the items read over any part of the page */
   --glass-menu-blur: 24px;
