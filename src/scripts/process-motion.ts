@@ -4,9 +4,9 @@
  * build() is the prototype's.
  *
  * Running: built (GSAP + fonts) when the section comes near; until it first plays, it shows the
- * assembled frame of step 1 (1.3s). Starts 1s after the section comes on screen (time to start
- * reading), plays while it is on screen, pauses when it leaves or the
- * tab is hidden, resumes from the same place. The route (65 points) is recomputed only while playing and
+ * assembled frame of step 1 (1.3s). When at least half of the scene is on screen it starts from zero
+ * after a 1s hold; it pauses when it leaves (and starts from zero again next time) or when the tab is
+ * hidden (then it resumes from the same place). The route (65 points) is recomputed only while playing and
  * only when its shape changes; the dot only when it moves. Rings and the trail stay on every device
  * (html.lite is set on iPhones too: Safari reports few CPU cores, and without the trail the rhombus
  * rose over nothing).
@@ -194,19 +194,27 @@ export function initProcessMotion() {
   }
 
   /* ---------- Build near the screen, play only while visible ---------- */
-  let visible = false;
+  // "In view" = at least half of the scene on screen: a scene that only peeks in at the bottom edge
+  // does not start (it used to be half-way through by the time the visitor scrolled to it).
+  // Every time it comes into view it starts from zero after START_DELAY; when it leaves the screen
+  // completely it goes back to the assembled frame of step 1. A hidden tab only pauses it.
+  let inView = false;
+  let fromStart = true;
   let building: Promise<void> | null = null;
-  // When the scene comes into view it holds still for START_DELAY first, so the visitor can start
-  // reading before anything moves (also after scrolling back or returning to the tab).
   let startTimer = 0;
   const update = () => {
     if (!tl) return;
     const timeline = tl;
-    if (visible && !document.hidden) {
+    if (inView && !document.hidden) {
       if (timeline.isActive() || startTimer) return;
       startTimer = window.setTimeout(() => {
         startTimer = 0;
-        if (visible && !document.hidden) timeline.play();
+        if (!inView || document.hidden) return;
+        if (fromStart) {
+          fromStart = false;
+          timeline.time(0);
+        }
+        timeline.play();
       }, START_DELAY);
     } else {
       window.clearTimeout(startTimer);
@@ -223,11 +231,18 @@ export function initProcessMotion() {
   new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && ensureBuilt(), { rootMargin: '100% 0px' }).observe(section);
   new IntersectionObserver(
     (entries) => {
-      visible = entries.some((e) => e.isIntersecting);
-      if (visible) ensureBuilt();
+      const e = entries[entries.length - 1];
+      inView = e.isIntersecting && e.intersectionRatio >= 0.5;
+      if (e.isIntersecting) ensureBuilt();
+      else if (tl && !fromStart) {
+        // off screen: next time it starts from zero; meanwhile it shows the assembled step 1
+        fromStart = true;
+        tl.pause().time(FIRST_FRAME);
+        sync();
+      }
       update();
     },
-    { threshold: 0 },
+    { threshold: [0, 0.5] },
   ).observe(stage);
   document.addEventListener('visibilitychange', update);
 }
