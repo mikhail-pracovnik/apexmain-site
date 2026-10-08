@@ -1,7 +1,11 @@
 /**
  * Behaviour shared by every page: menu, scroll progress, current-section label,
- * scroll reveal, card spotlight, lazy looping videos, back-to-top, messenger popover, phone dock.
+ * scroll reveal, card spotlight, lazy looping videos, back-to-top, messenger popover, phone dock,
+ * the frame-rate check that may switch to the light version (perf-watch.ts).
  */
+import { watchPerformance } from './perf-watch';
+
+watchPerformance();
 const root = document.documentElement;
 const motionOk = () => root.classList.contains('motion');
 /** The full-screen menu is open: the page background stays dark (see "Page background" below). */

@@ -5,7 +5,8 @@
  *   spot 2: x = 72 + 16·sin(0.13 s + 2), y = 66 + 18·cos(0.19 s).
  * Only transforms are written: the spot moves by (dx, dy), the grid inside it by (−dx, −dy).
  * The loop runs only while a section is on screen and the tab is visible. Reduced motion: the spots stay at
- * their start; weak devices (html.lite): no spots at all (hidden in CSS), no loop.
+ * their start; light version (html.lite): no spots (faded out in CSS), no loop — also when lite is switched on
+ * while the page is open (scripts/perf-watch.ts fires 'perf:lite').
  */
 const EASE = 0.06; // pointer follow per 60 Hz frame, as in the prototype
 
@@ -94,7 +95,7 @@ export function initDarkBackdrops() {
     clock += dt / 1000;
     const k = 1 - Math.pow(1 - EASE, dt / 16.7);
     let any = false;
-    for (const b of items) if (b.on) (draw(b, clock, k), (any = true));
+    if (!html.classList.contains('lite')) for (const b of items) if (b.on) (draw(b, clock, k), (any = true));
     raf = any && !document.hidden ? requestAnimationFrame(frame) : 0;
     if (!raf) last = 0;
   };

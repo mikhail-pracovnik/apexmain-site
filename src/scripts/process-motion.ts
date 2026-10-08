@@ -9,7 +9,7 @@
  * resumes from the same place). No other frame is ever shown before it plays: the owner saw the old
  * "assembled step 1" frame (1.3s) as the animation starting from the middle. The route (65 points) is recomputed only while playing and
  * only when its shape changes; the dot only when it moves. Rings and the trail stay on every device
- * (html.lite is set on iPhones too: Safari reports few CPU cores, and without the trail the rhombus
+ * (html.lite used to be set on all iPhones: Safari reports few CPU cores, and without the trail the rhombus
  * rose over nothing).
  * Reduced motion / no JS: the scene is not shown at all (CSS), the plain list of steps is.
  */

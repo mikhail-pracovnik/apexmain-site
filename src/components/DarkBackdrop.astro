@@ -11,7 +11,8 @@
  *     and the grid inside it moves back by the same amount, so the grid stays put (scripts/dark-backdrop.ts);
  *  5. grain: the site's noise in overlay.
  * Everything stands still off screen and in a hidden tab; reduced motion: lights and spots at their start;
- * weak devices (html.lite): no layer 4, no pointer, the lights stand still.
+ * light version (html.lite): no layer 4, no pointer, the lights stand still. lite may be switched on while the
+ * page is open (scripts/perf-watch.ts): the lights then stop where they are and the spots fade out, no jump.
  */
 interface Props {
   /** start positions of the lights and spots, so the sections differ */
@@ -113,7 +114,7 @@ const PHASE = { services: 0, integrations: 37, process: 83 }[variant];
     --drift: db-d3;
     --dur: 18s;
   }
-  :global(html.motion:not(.lite)) .db-orb {
+  :global(html.motion) .db-orb {
     animation: var(--drift) var(--dur) ease-in-out infinite alternate;
     animation-play-state: paused;
     will-change: transform;
@@ -172,8 +173,15 @@ const PHASE = { services: 0, integrations: 37, process: 83 }[variant];
       linear-gradient(90deg, rgb(190 214 226 / 0.26) 1px, transparent 1px);
     will-change: transform;
   }
+  .db-spot {
+    transition: opacity 0.8s ease;
+  }
   :global(html.lite) .db-spot {
-    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.8s ease,
+      visibility 0s 0.8s;
   }
 
   /* 5. grain: the site's noise (html::after), in overlay */
