@@ -11,6 +11,7 @@
  */
 import MoreLink from './MoreLink.astro';
 import { t, url, fill, type Locale } from '../i18n';
+import DarkBackdrop from './DarkBackdrop.astro';
 
 interface Props {
   locale: Locale;
@@ -21,7 +22,8 @@ const steps = d.process.steps;
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
-<section class="section glow" id="process" data-label={d.sections.process} aria-labelledby="process-title">
+<section class="section dark-lit" id="process" data-label={d.sections.process} aria-labelledby="process-title">
+  <DarkBackdrop variant="process" fade="top" />
   <div class="container-x">
     <header class="process-head">
       <p class="eyebrow reveal">{d.process.eyebrow}</p>

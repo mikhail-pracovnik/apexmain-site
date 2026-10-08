@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import { t, asset, type Locale } from '../i18n';
 import { getIntegrations } from '../lib/content';
 import { inPublic } from '../lib/media';
+import DarkBackdrop from './DarkBackdrop.astro';
 
 interface Props {
   locale: Locale;
@@ -32,7 +33,8 @@ const items = (await getIntegrations()).map((it) => {
 });
 ---
 
-<section class="section integ" id="integrations" data-label={d.sections.integrations} aria-labelledby="integ-title">
+<section class="section integ dark-lit" id="integrations" data-label={d.sections.integrations} aria-labelledby="integ-title">
+  <DarkBackdrop variant="integrations" fade="bottom" />
   <div class="container-x integ-head">
     <p class="eyebrow reveal">{d.integrations.eyebrow}</p>
     <h2 id="integ-title" class="integ-title reveal" style="--i:1">{d.integrations.title}</h2>

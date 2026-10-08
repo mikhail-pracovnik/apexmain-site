@@ -334,6 +334,20 @@ html.js.motion .reveal.is-in {
     var(--color-ink);
 }
 
+/* Dark sections with light and a revealed grid (services, integrations, process): layer 1 here,
+   the rest in components/DarkBackdrop.astro (placed first inside the section, under its content). */
+.dark-lit {
+  isolation: isolate;
+  background-color: var(--color-ink);
+  background-image: linear-gradient(170deg, #07090f, #030306 70%);
+  /* muted text a step lighter: ≥ 4.5:1 even where all three lights meet (bg up to ≈ #3d4966) */
+  --color-muted: #b4bcc8;
+}
+/* right under another dark section: the gradient fades in from #030306 with the backdrop (no step at the seam) */
+.dark-lit:has(> .db-fade-top) {
+  background-image: none;
+}
+
 /* Pulling the page down past the top (rubber band) shows what is above the document:
    it keeps the colour of the first section (common.ts → --top-bg) whatever the page background is. */
 body::before {
