@@ -1,7 +1,11 @@
 # Фразы клиентов для ленты «С чем к нам приходят». service — id файла услуги.
+# image — картинка в public/media/pains/ без ширины и расширения (делает scripts/make-pain-images.mjs
+# из assets/pains/); tone — фон картинки, им залита карточка под ней (скрипт печатает значение).
 - id: no-leads
   order: 1
   service: instagram-smm
+  image: media/pains/pain-01
+  tone: '#e1e9eb'
   quote:
     ru: Instagram есть, а заявок нет
     kk: Instagram бар, бірақ өтінім жоқ
@@ -13,6 +17,8 @@
 - id: no-site
   order: 2
   service: sites
+  image: media/pains/pain-02
+  tone: '#dde5e8'
   quote:
     ru: Сайта нет, клиенты пишут в WhatsApp и теряются
     kk: Сайт жоқ, клиенттер WhatsApp-қа жазып, жоғалып кетеді
@@ -24,6 +30,8 @@
 - id: ads-roi
   order: 3
   service: ads
+  image: media/pains/pain-03
+  tone: '#dce5e7'
   quote:
     ru: Платим за рекламу и не знаем, что окупается
     kk: Жарнамаға төлейміз, бірақ қайсысы өзін ақтайтынын білмейміз
@@ -35,6 +43,8 @@
 - id: rating-no-growth
   order: 4
   service: ads
+  image: media/pains/pain-04
+  tone: '#e2e6ea'
   quote:
     ru: В 2ГИС хороший рейтинг, а новых клиентов мало
     kk: 2ГИС-те рейтинг жақсы, бірақ жаңа клиенттер аз
@@ -46,6 +56,8 @@
 - id: slow-replies
   order: 5
   service: sales
+  image: media/pains/pain-05
+  tone: '#dfe7ea'
   quote:
     ru: Администратор не успевает отвечать, клиенты уходят
     kk: Әкімші жауап беріп үлгермейді, клиенттер кетіп қалады
@@ -57,6 +69,8 @@
 - id: no-repeat
   order: 6
   service: sales
+  image: media/pains/pain-06
+  tone: '#e3ebed'
   quote:
     ru: Клиент пришёл один раз и больше не вернулся
     kk: Клиент бір рет келді де, қайтып оралмады

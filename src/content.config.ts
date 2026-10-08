@@ -69,6 +69,10 @@ const pains = defineCollection({
     order: z.number(),
     /** id of the service file this pain leads to */
     service: z.string(),
+    /** Illustration in /public without width and extension: media/pains/pain-01 → pain-01-480.avif … */
+    image: z.string(),
+    /** Background tone of the illustration; the card under it is filled with it. */
+    tone: z.string().regex(/^#[0-9a-f]{6}$/i),
     quote: localized(z.string()),
     answer: localized(z.string()),
   }),

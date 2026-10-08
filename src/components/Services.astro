@@ -1,5 +1,6 @@
 ---
-/** Home page: the four core services as compact tiles (2×2 on phones, 4 in a row on desktop). */
+/** Home page: the services as a rail of cards (see Rail.astro); the button below leads to the services page. */
+import Rail from './Rail.astro';
 import ServiceTile from './ServiceTile.astro';
 import { t, url, type Locale } from '../i18n';
 import { getServices } from '../lib/content';
@@ -19,9 +20,19 @@ const services = await getServices();
       <h2 id="services-title" class="h-section reveal" style="--i:1">{d.services.title}</h2>
       <p class="lead-text reveal" style="--i:2">{d.services.lead}</p>
     </header>
-    <div class="tiles">
-      {services.map((s, i) => <ServiceTile service={s} locale={locale} index={i} />)}
-    </div>
+  </div>
+  <div class="reveal" style="--i:3">
+    <Rail locale={locale} label={d.services.listLabel} kind="cards">
+      {
+        services.map((s, i) => (
+          <li class="rail-item">
+            <ServiceTile service={s} locale={locale} index={i} />
+          </li>
+        ))
+      }
+    </Rail>
+  </div>
+  <div class="container-x">
     <p class="mt-8">
       <a href={url(locale, 'services')} class="btn btn-ghost">
         {d.services.showAll}
@@ -43,22 +54,6 @@ const services = await getServices();
     .sec-head {
       gap: 2rem;
       margin-bottom: 4rem;
-    }
-  }
-  .tiles {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
-  }
-  @media (min-width: 48rem) {
-    .tiles {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 1rem;
-    }
-  }
-  @media (min-width: 80rem) {
-    .tiles {
-      gap: 1.25rem;
     }
   }
 </style>

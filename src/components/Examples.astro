@@ -1,4 +1,5 @@
 ---
+import Rail from './Rail.astro';
 import ExampleCard from './ExampleCard.astro';
 import { t, url, type Locale } from '../i18n';
 import { getExamples, getNiches } from '../lib/content';
@@ -8,7 +9,7 @@ interface Props {
 }
 const { locale } = Astro.props;
 const d = t(locale);
-const examples = (await getExamples()).filter((e) => e.data.featured).slice(0, 4);
+const examples = (await getExamples()).filter((e) => e.data.featured);
 const niches = await getNiches();
 const nicheLabel = (id: string) => niches.find((n) => n.id === id)?.data.label[locale] ?? id;
 ---
@@ -22,9 +23,19 @@ const nicheLabel = (id: string) => niches.find((n) => n.id === id)?.data.label[l
       </div>
       <p class="lead-text reveal" style="--i:2">{d.examples.lead}</p>
     </header>
-    <div class="ex-grid">
-      {examples.map((e, i) => <ExampleCard example={e} locale={locale} nicheLabel={nicheLabel(e.data.niche)} index={i} />)}
-    </div>
+  </div>
+  <div class="reveal" style="--i:3">
+    <Rail locale={locale} label={d.examples.listLabel} kind="cards">
+      {
+        examples.map((e, i) => (
+          <li class="rail-item">
+            <ExampleCard example={e} locale={locale} nicheLabel={nicheLabel(e.data.niche)} index={i} reveal={false} />
+          </li>
+        ))
+      }
+    </Rail>
+  </div>
+  <div class="container-x">
     <p class="ex-more reveal">
       <a href={url(locale, 'examples')} class="btn btn-ghost">
         {d.examples.all}
@@ -46,15 +57,6 @@ const nicheLabel = (id: string) => niches.find((n) => n.id === id)?.data.label[l
     .ex-head {
       gap: 2rem;
       margin-bottom: 4.5rem;
-    }
-  }
-  .ex-grid {
-    display: grid;
-    gap: 3rem 1.5rem;
-  }
-  @media (min-width: 48rem) {
-    .ex-grid {
-      grid-template-columns: repeat(2, 1fr);
     }
   }
   .ex-more {

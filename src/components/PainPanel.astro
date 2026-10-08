@@ -1,0 +1,250 @@
+---
+/**
+ * Panel for a pain card: a native modal <dialog> (like the menu) — the rest of the page is inert,
+ * Escape closes it, focus is trapped and returns to the card. Phones: a sheet from the bottom, up to 85%
+ * of the height, swipe down to close; desktop: centred, up to 560px wide. All six pains are rendered,
+ * the card shows one (scripts/pain-panel.ts).
+ * The <dialog> itself is a transparent full-screen wrapper and is display:none while closed; the sheet's
+ * look lives on an inner layer (.pd-bg), the same rule as the header and the dock (Safari toolbar tint).
+ */
+import type { CollectionEntry } from 'astro:content';
+import PainPicture from './PainPicture.astro';
+import { t, url, type Locale } from '../i18n';
+import { getServices } from '../lib/content';
+
+interface Props {
+  locale: Locale;
+  pains: CollectionEntry<'pains'>[];
+}
+const { locale, pains } = Astro.props;
+const d = t(locale);
+const services = await getServices();
+const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.title[locale];
+---
+
+<dialog id="pain-panel" class="pain-dialog" data-pain-dialog>
+  <div class="pd-sheet" data-pd-sheet>
+    <span class="pd-bg glass glass--light" aria-hidden="true"></span>
+    <span class="pd-grab" aria-hidden="true"></span>
+    <button type="button" class="pd-close" data-pd-close aria-label={d.pains.close}>
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+        ><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"></path></svg
+      >
+    </button>
+    {
+      pains.map((p) => (
+        <article class="pd-panel" data-pd-panel={p.id} hidden>
+          <PainPicture image={p.data.image} class="pd-img" sizes="160px" />
+          <p class="pd-quote" id={`pd-q-${p.id}`}>
+            «{p.data.quote[locale]}»
+          </p>
+          <div class="pd-answer">
+            <p class="pd-label">{d.pains.solution}</p>
+            <p>{p.data.answer[locale]}</p>
+          </div>
+          <div class="pd-actions">
+            {serviceTitle(p.data.service) && (
+              <a class="pd-service" href={`${url(locale, 'services')}#${p.data.service}`}>
+                {serviceTitle(p.data.service)}
+                <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+                  <path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none" />
+                </svg>
+              </a>
+            )}
+            <a class="btn btn-dark pd-cta" href="#lead" data-pd-cta>
+              {d.hero.ctaPrimary}
+            </a>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+</dialog>
+
+<script>
+  import { initPainPanel } from '../scripts/pain-panel';
+  initPainPanel();
+</script>
+
+<style>
+  .pain-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-ink);
+    overflow: hidden;
+  }
+  .pain-dialog:not([open]) {
+    display: none;
+  }
+  .pain-dialog[open] {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  @media (min-width: 48rem) {
+    .pain-dialog[open] {
+      align-items: center;
+      padding: 1.5rem;
+    }
+  }
+  /* page under the panel: slightly darkened and blurred */
+  .pain-dialog::backdrop {
+    background: rgb(3 3 6 / 0.32);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .pain-dialog:global(.is-open)::backdrop {
+    opacity: 1;
+  }
+
+  .pd-sheet {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    max-height: 85dvh;
+    padding: 1.5rem 1.25rem max(1.25rem, env(safe-area-inset-bottom));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border-radius: 1.5rem 1.5rem 0 0;
+    opacity: 0;
+    transform: translateY(100%);
+    transition:
+      transform 0.28s var(--ease-out-expo),
+      opacity 0.2s;
+  }
+  @media (min-width: 48rem) {
+    .pd-sheet {
+      max-width: 35rem;
+      max-height: min(85dvh, 46rem);
+      padding: 2rem;
+      border-radius: 1.5rem;
+      transform: translateY(16px) scale(0.98);
+    }
+  }
+  .pain-dialog:global(.is-open) .pd-sheet {
+    opacity: 1;
+    transform: none;
+  }
+  /* finger following during a swipe-down (scripts/pain-panel.ts) */
+  .pd-sheet:global(.is-swiping) {
+    transition: none;
+  }
+  .pd-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: rgb(244 247 248 / 0.96);
+  }
+  .pd-grab {
+    position: absolute;
+    left: 50%;
+    top: 0.5rem;
+    width: 2.5rem;
+    height: 4px;
+    border-radius: 4px;
+    background: rgb(10 12 17 / 0.2);
+    transform: translateX(-50%);
+  }
+  @media (min-width: 48rem) {
+    .pd-grab {
+      display: none;
+    }
+  }
+  .pd-close {
+    position: absolute;
+    right: 0.75rem;
+    top: 0.75rem;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    color: var(--color-ink);
+    background: rgb(10 12 17 / 0.06);
+    cursor: pointer;
+  }
+  .pd-close:hover {
+    background: rgb(10 12 17 / 0.12);
+  }
+  .pd-close:focus-visible,
+  .pd-panel :focus-visible {
+    outline-color: var(--color-apex-deep);
+  }
+  .pd-panel {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .pd-panel :global(.pd-img) {
+    display: block;
+    width: 6.5rem;
+    aspect-ratio: 928 / 1152;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+  .pd-panel :global(.pd-img img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pd-quote {
+    padding-right: 2.5rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(1.4rem, 5vw, 1.875rem);
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+  }
+  .pd-answer {
+    display: grid;
+    gap: 0.5rem;
+    color: var(--color-muted-dark);
+  }
+  .pd-label {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-apex-deep);
+  }
+  .pd-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.25rem;
+  }
+  .pd-service {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid rgb(10 12 17 / 0.18);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    color: var(--color-ink);
+    transition: border-color 0.2s;
+  }
+  .pd-service:hover {
+    border-color: var(--color-ink);
+  }
+  @media (max-width: 30rem) {
+    .pd-cta {
+      width: 100%;
+    }
+  }
+</style>

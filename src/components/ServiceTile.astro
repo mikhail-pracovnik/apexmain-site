@@ -1,5 +1,9 @@
 ---
-/** Compact home-page service card: a small looping image and the name; links to the services page. */
+/**
+ * Home-page service card: number, small looping image, name and one sentence (`short`).
+ * The whole card leads to the service on the services page. Without a small loop (videoMini)
+ * the media box stays a neutral placeholder with the big faint number.
+ */
 import type { CollectionEntry } from 'astro:content';
 import LoopVideo from './LoopVideo.astro';
 import { url, type Locale } from '../i18n';
@@ -12,14 +16,19 @@ interface Props {
 }
 const { service, locale, index } = Astro.props;
 const video = usableVideo(service.data.videoMini);
+const num = String(index + 1).padStart(2, '0');
 ---
 
-<a href={`${url(locale, 'services')}#${service.id}`} class="tile reveal" style={`--i:${index}`}>
+<a href={`${url(locale, 'services')}#${service.id}`} class="tile">
   <span class="tile-media">
-    <span class="tile-num" aria-hidden="true">0{index + 1}</span>
+    <span class="tile-ph" aria-hidden="true">{num}</span>
     {video && <LoopVideo video={video} class="tile-video" play="visible" />}
   </span>
-  <span class="tile-title">{service.data.title[locale]}</span>
+  <span class="tile-body">
+    <span class="tile-num">{num}</span>
+    <span class="tile-title">{service.data.title[locale]}</span>
+    {service.data.short && <span class="tile-short">{service.data.short[locale]}</span>}
+  </span>
   <svg class="tile-arrow" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"
     ><path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" stroke-width="1.8" fill="none"></path></svg
   >
@@ -28,16 +37,14 @@ const video = usableVideo(service.data.videoMini);
 <style>
   .tile {
     position: relative;
-    display: grid;
-    grid-template-rows: auto 1fr;
-    gap: 0.75rem;
-    padding: 0.5rem 0.5rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.5rem 0.5rem 1.1rem;
     border: 1px solid var(--color-line);
-    border-radius: 1rem;
+    border-radius: var(--radius-card);
     background: var(--color-ink-2);
-    transition:
-      border-color 0.3s,
-      transform 0.4s var(--ease-out-expo);
+    transition: border-color 0.3s;
   }
   .tile:hover {
     border-color: rgb(148 178 220 / 0.32);
@@ -51,15 +58,15 @@ const video = usableVideo(service.data.videoMini);
     display: grid;
     place-items: center;
     aspect-ratio: 1;
-    border-radius: 0.65rem;
+    border-radius: 0.875rem;
     background: var(--color-ink);
     overflow: hidden;
   }
-  .tile-num {
+  .tile-ph {
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: 2.5rem;
-    color: rgb(148 178 220 / 0.14);
+    font-size: clamp(3rem, calc(var(--w, 20rem) * 0.28), 7rem);
+    color: rgb(148 178 220 / 0.12);
   }
   .tile-media :global(.tile-video) {
     position: absolute;
@@ -68,18 +75,39 @@ const video = usableVideo(service.data.videoMini);
     height: 100%;
     object-fit: cover;
   }
+  .tile-body {
+    display: grid;
+    gap: 0.45rem;
+    padding-inline: 0.6rem 2.2rem;
+  }
+  .tile-num {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
   .tile-title {
-    padding-inline: 0.4rem;
-    padding-right: 1.6rem;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: clamp(1rem, 3.6vw, 1.375rem);
-    line-height: 1.15;
+    font-size: clamp(1.25rem, 2.2vw, 1.625rem);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  .tile-short {
+    color: var(--color-muted);
+    font-size: 0.9375rem;
+    line-height: 1.45;
+  }
+  @media (min-width: 64rem) {
+    .tile-short {
+      font-size: 1rem;
+    }
   }
   .tile-arrow {
     position: absolute;
-    right: 0.75rem;
-    bottom: 0.95rem;
+    right: 1rem;
+    bottom: 1.2rem;
     color: var(--color-muted);
     transition:
       transform 0.3s var(--ease-out-expo),

@@ -1,0 +1,19 @@
+---
+/** Pain illustration: AVIF and WebP at 480 and 960 px (made by scripts/make-pain-images.mjs). Decorative: empty alt. */
+import { asset } from '../i18n';
+
+interface Props {
+  /** media/pains/pain-01 — path in /public without width and extension */
+  image: string;
+  sizes: string;
+  class?: string;
+}
+const { image, sizes, class: className } = Astro.props;
+const set = (ext: string) => [480, 960].map((w) => `${asset(`${image}-${w}.${ext}`)} ${w}w`).join(', ');
+---
+
+<picture class={className}>
+  <source type="image/avif" srcset={set('avif')} sizes={sizes} />
+  <source type="image/webp" srcset={set('webp')} sizes={sizes} />
+  <img src={asset(`${image}-480.webp`)} alt="" width="480" height="596" loading="lazy" decoding="async" draggable="false" />
+</picture>

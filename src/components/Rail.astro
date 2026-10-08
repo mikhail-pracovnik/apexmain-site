@@ -1,0 +1,226 @@
+---
+/**
+ * Horizontal rail of cards (home page: pains, services, examples). One component for all three.
+ *
+ * - Native horizontal scrolling with scroll-snap: a vertical swipe scrolls the page, a horizontal one the rail.
+ * - Starts at the left edge of the container and runs past the right edge of the screen; the last card
+ *   stops with the container's right margin.
+ * - Card width comes from the rail's visible width (container left edge → screen right edge) and one
+ *   variable: --per = how many cards fit, the fraction is the peeking next card. Per breakpoint:
+ *   perS (< 768px), perM (768–1023px), perL (≥ 1024px); defaults by `kind`.
+ * - Mouse: drag with inertia and snapping, arrows (glass); keyboard: ←/→ by one card. See scripts/rail.ts.
+ * Items: pass <li class="rail-item"> elements in the default slot.
+ */
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  /** Accessible name of the rail. */
+  label: string;
+  /** pains — 2.5 / 3.5 / 3.2 visible; cards — 1.18 / 2.18 / 3.2 (services, examples). */
+  kind: 'pains' | 'cards';
+  perS?: number;
+  perM?: number;
+  perL?: number;
+}
+const DEFAULTS = { pains: [2.5, 3.5, 3.2], cards: [1.18, 2.18, 3.2] } as const;
+const { locale, label, kind } = Astro.props;
+const [dS, dM, dL] = DEFAULTS[kind];
+const { perS = dS, perM = dM, perL = dL } = Astro.props;
+const d = t(locale);
+// --per = cards in view; --full = whole cards (gaps between them), e.g. 2.5 → 2 whole + half of the third
+const vars = [
+  ['s', perS],
+  ['m', perM],
+  ['l', perL],
+]
+  .map(([k, v]) => `--per-${k}:${v};--full-${k}:${Math.floor(Number(v))}`)
+  .join(';');
+---
+
+<div class={`rail rail--${kind}`} data-rail style={vars}>
+  <div class="rail-viewport" data-rail-viewport tabindex="0" role="region" aria-label={label}>
+    <ul class="rail-track" role="list">
+      <slot />
+    </ul>
+  </div>
+  <div class="rail-foot">
+    <span class="rail-bar" aria-hidden="true"><span class="rail-thumb" data-rail-thumb></span></span>
+    <div class="rail-arrows">
+      <button type="button" class="rail-arrow" data-rail-prev aria-label={d.rail.prev}>
+        <span class="rail-arrow-bg glass" aria-hidden="true"></span>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+          ><path d="M14.5 6 8.5 12l6 6" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"
+          ></path></svg
+        >
+      </button>
+      <button type="button" class="rail-arrow" data-rail-next aria-label={d.rail.next}>
+        <span class="rail-arrow-bg glass" aria-hidden="true"></span>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+          ><path d="m9.5 6 6 6-6 6" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"
+          ></path></svg
+        >
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initRails } from '../scripts/rail';
+  initRails();
+</script>
+
+<style>
+  .rail {
+    /* the rail spans the whole section width; container units below are relative to it */
+    container-type: inline-size;
+    --pad: 1rem;
+    --gap: 0.625rem;
+    --per: var(--per-s);
+    --full: var(--full-s);
+  }
+  @media (min-width: 48rem) {
+    .rail {
+      --pad: 2rem;
+      --gap: 1rem;
+      --per: var(--per-m);
+      --full: var(--full-m);
+    }
+  }
+  @media (min-width: 64rem) {
+    .rail {
+      --gap: 1.25rem;
+      --per: var(--per-l);
+      --full: var(--full-l);
+    }
+  }
+  .rail-viewport {
+    /* left edge of .container-x content (its max width is 100rem including padding) */
+    --off: calc(max(0px, (100cqw - 100rem) / 2) + var(--pad));
+    /* card width: the visible part (container left edge → screen right edge) holds --per cards
+       and the gaps after the --full whole ones */
+    --w: calc((100cqw - var(--off) - var(--gap) * var(--full)) / var(--per));
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--off);
+    scrollbar-width: none;
+    outline-offset: -2px;
+  }
+  .rail-viewport::-webkit-scrollbar {
+    display: none;
+  }
+  .rail-track {
+    display: flex;
+    gap: var(--gap);
+    width: max-content;
+    margin: 0;
+    /* the end padding lets the last card stop at the container's right edge */
+    padding: 0.25rem var(--off);
+    list-style: none;
+  }
+  .rail-track > :global(.rail-item) {
+    flex: 0 0 var(--w);
+    width: var(--w);
+    scroll-snap-align: start;
+    display: flex;
+  }
+  .rail-track > :global(.rail-item > *) {
+    flex: 1;
+    min-width: 0;
+  }
+  /* mouse drag in progress (scripts/rail.ts): free scrolling, no selection */
+  .rail-viewport:global(.is-dragging) {
+    scroll-snap-type: none;
+    cursor: grabbing;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .rail-viewport:global(.is-dragging) :global(*) {
+    pointer-events: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .rail-viewport {
+      cursor: grab;
+    }
+  }
+  .rail-track :global(img) {
+    -webkit-user-drag: none;
+  }
+
+  /* ---------- Position indicator + arrows ---------- */
+  .rail-foot {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 100rem;
+    margin: 1.25rem auto 0;
+    padding-inline: var(--pad);
+  }
+  .rail-bar {
+    position: relative;
+    flex: 1;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-line);
+    overflow: hidden;
+  }
+  :global(.theme-light) .rail-bar {
+    background: var(--color-line-dark);
+  }
+  .rail-thumb {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 30%;
+    border-radius: inherit;
+    background: var(--color-paper);
+    transform-origin: 0 50%;
+  }
+  :global(.theme-light) .rail-thumb {
+    background: var(--color-ink);
+  }
+  .rail-arrows {
+    display: none;
+    gap: 0.5rem;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .rail-arrows {
+      display: flex;
+    }
+  }
+  .rail-arrow {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    border-radius: 999px;
+    color: var(--color-paper);
+    cursor: pointer;
+    transition: opacity 0.25s;
+  }
+  :global(.theme-light) .rail-arrow {
+    color: var(--color-ink);
+  }
+  .rail-arrow-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+  }
+  .rail-arrow:hover:not([aria-disabled='true']) svg {
+    transform: scale(1.08);
+  }
+  .rail-arrow svg {
+    transition: transform 0.2s;
+  }
+  .rail-arrow[aria-disabled='true'] {
+    opacity: 0.32;
+    cursor: default;
+  }
+</style>

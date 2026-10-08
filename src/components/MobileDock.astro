@@ -82,7 +82,8 @@ const greeting = encodeURIComponent(d.messenger.greeting);
       -webkit-backdrop-filter: var(--dock-blur);
     }
   }
-  :global(html.intro-on:not(.intro-done)) .dock {
+  :global(html.intro-on:not(.intro-done)) .dock,
+  :global(html.panel-open) .dock {
     transform: translateY(calc(100% + 2rem + env(safe-area-inset-bottom)));
   }
   @media (min-width: 48rem) {

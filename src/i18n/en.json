@@ -66,7 +66,8 @@
     "title": "When a business needs more",
     "lead": "Growth starts with the right question. See the tasks people bring to us.",
     "solution": "What we do",
-    "toService": "More about this service"
+    "close": "Close",
+    "listLabel": "What brings people to us: cards"
   },
   "services": {
     "eyebrow": "02 — Services",
@@ -77,7 +78,8 @@
     "currency": "₸",
     "discuss": "Discuss",
     "catalog": "All services",
-    "showAll": "Show all services"
+    "showAll": "Show all services",
+    "listLabel": "Services: cards"
   },
   "examples": {
     "eyebrow": "03 — Examples",
@@ -89,7 +91,8 @@
     "filterAll": "All",
     "desktop": "Desktop version",
     "mobile": "Mobile version",
-    "empty": "No concepts in this niche yet. Leave a request — yours will be the first."
+    "empty": "No concepts in this niche yet. Leave a request — yours will be the first.",
+    "listLabel": "Solution examples: cards"
   },
   "process": {
     "eyebrow": "04 — Process",
@@ -277,5 +280,9 @@
       "crm": "CRM",
       "pos": "Point of sale and accounting"
     }
+  },
+  "rail": {
+    "prev": "Previous",
+    "next": "Next"
   }
 }

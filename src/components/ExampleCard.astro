@@ -12,8 +12,10 @@ interface Props {
   index: number;
   /** Heading level inside the card. */
   level?: 'h3' | 'h2';
+  /** Scroll-reveal animation (off inside a rail: cards off to the side would stay hidden). */
+  reveal?: boolean;
 }
-const { example, locale, nicheLabel, index, level: H = 'h3' } = Astro.props;
+const { example, locale, nicheLabel, index, level: H = 'h3', reveal = true } = Astro.props;
 const d = t(locale);
 const e = example.data;
 const video = usableVideo(e.video);
@@ -23,7 +25,7 @@ const title = e.title[locale];
 const wantHref = `${url(locale, 'contact')}?niche=${encodeURIComponent(e.niche)}&example=${encodeURIComponent(title)}#lead`;
 ---
 
-<article class="example reveal" data-niche={e.niche} style={`--i:${index % 2}`}>
+<article class:list={['example', reveal && 'reveal']} data-niche={e.niche} style={`--i:${index % 2}`}>
   <div class="example-media">
     {
       desktop ? (
