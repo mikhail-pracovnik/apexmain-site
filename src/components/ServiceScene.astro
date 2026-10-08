@@ -1,0 +1,793 @@
+---
+/**
+ * Live scene of a service (owner's prototype assets/design-src/services-motion.html): a small interface scene
+ * drawn in code, played by scripts/service-scenes.ts. Used in the home card (ServiceTile) and on the services page.
+ *  - the stage is 4:3 and measured in container units (cqw), so it looks the same at any card width; in a box
+ *    of another shape it is centred and the background and lights fill the rest;
+ *  - texts from i18n (services.scene); prices and sums in tenge in every language;
+ *  - decorative: aria-hidden, the card's caption carries the meaning.
+ * Differences from the prototype (transform-only animation): rows, leads and the scan line move by transform
+ * (percent of their own size) instead of top/left; the receipt "prints" with two opposite translations instead
+ * of an animated clip-path; white elements (post, leads, receipt) are opaque, without a blurred backdrop.
+ */
+import { t, type Locale } from '../i18n';
+
+type Scene = 'site' | 'brand' | 'search' | 'crm' | 'pay';
+interface Props {
+  scene: Scene;
+  locale: Locale;
+}
+const { scene, locale } = Astro.props;
+const s = t(locale).services.scene;
+
+// light behind the glass: [kind, left, top] in cqw; kinds a (muted turquoise), b (indigo), c (pale white).
+// "i" = the light's index in the prototype (its drift: direction by i % 2 and i % 3, duration 9 + i % 4 s)
+const ORBS: Record<Scene, [string, number, number, number][]> = {
+  site: [['b', -14, 28, 0], ['a', 50, -22, 1]],
+  brand: [['a', -18, -20, 2], ['b', 46, 30, 3], ['c', 30, -10, 4]],
+  search: [['b', -10, -24, 5], ['a', 52, 34, 6]],
+  crm: [['a', -16, 30, 7], ['b', 40, -26, 8], ['c', 62, 28, 9]],
+  pay: [['b', -12, -18, 10], ['a', 48, 30, 11]],
+};
+
+// 02: the feed of a clothing shop, nine soft colours
+const ICON: Record<string, string> = {
+  tee: '<path d="M8 3.5 3.5 6.5l2 4 2-1V20h9V9.5l2 1 2-4L16 3.5c-.8 1.4-2.2 2-4 2s-3.2-.6-4-2z"/>',
+  shorts: '<path d="M5 5h14l1.2 10.5-6.2 1-2-5.2-2 5.2-6.2-1z"/>',
+  pants: '<path d="M7 3h10l1.2 18h-4.4L12 10.5 10.2 21H5.8z"/>',
+  shoe: '<path d="M2.5 16.5c0-2.4 1.2-4.6 3.2-4.6l2.8-2.9 2.6 1.9c2 1.3 5 1.4 7.7 2.3 1.9.6 2.7 1.7 2.7 3.3z"/><path d="M2.5 18.5h18.7v-2H2.5z" opacity=".55"/>',
+  bag: '<path d="M5.2 9h13.6l1.2 11.5H4z"/><path d="M8.6 9.5V7.6a3.4 3.4 0 0 1 6.8 0v1.9" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+  cap: '<path d="M4 14.2c0-5 3.3-8.2 8-8.2s8 3.2 8 8.2z"/><path d="M2 14h12.5v2.4H2z" opacity=".6"/>',
+};
+const ITEMS: [string, string, string][] = [
+  ['tee', '#e8dccb', '#2a2622'],
+  ['shoe', '#cfdbe8', '#1b2030'],
+  ['pants', '#c9d6c3', '#2c3a2c'],
+  ['bag', '#2f4a3a', '#e9edf1'],
+  ['shorts', '#f1e3c2', '#5a4526'],
+  ['cap', '#ecd3cf', '#5a2e2a'],
+  ['shoe', '#e9edf1', '#1b2030'],
+  ['tee', '#b9c2cb', '#1b2030'],
+  ['pants', '#d8c3a5', '#3b2c1c'],
+];
+
+// 05: the QR code of the prototype (same seed), drawn once here as an SVG path
+function qrPath() {
+  let seed = 7;
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const on = Array.from({ length: 25 }, () => Array(25).fill(false));
+  for (let i = 0; i < 25; i++) for (let j = 0; j < 25; j++) if (rnd() > 0.52) on[i][j] = true;
+  for (const [a, b] of [
+    [0, 0],
+    [18, 0],
+    [0, 18],
+  ]) {
+    for (let i = 0; i < 7; i++)
+      for (let j = 0; j < 7; j++) {
+        const ring = Math.max(Math.abs(i - 3), Math.abs(j - 3));
+        on[a + i][b + j] = ring !== 2;
+      }
+  }
+  let d = '';
+  for (let i = 0; i < 25; i++) for (let j = 0; j < 25; j++) if (on[i][j]) d += `M${i} ${j}h1v1h-1z`;
+  return d;
+}
+const qr = scene === 'pay' ? qrPath() : '';
+---
+
+<div class="sc" aria-hidden="true" data-scene={scene}>
+  <div class:list={['st', `s-${scene}`]}>
+    {ORBS[scene].map(([k, x, y, i]) => <i class={`orb orb-${k}`} style={`left:${x}cqw;top:${y}cqw`} data-i={i} />)}
+
+    {
+      scene === 'site' && (
+        <Fragment>
+          <div class="phone g">
+            <div class="bar" />
+            <div class="hero">
+              <svg viewBox="0 0 64 40">
+                <g fill="none" stroke="#e9edf1" stroke-width="2.2" stroke-linecap="round">
+                  <circle cx="13" cy="29" r="5" />
+                  <circle cx="13" cy="13" r="5" />
+                  <path d="M17.5 26.5 44 9M17.5 15.5 44 31" />
+                </g>
+                <g fill="#c9a36a">
+                  <rect x="38" y="17" width="22" height="5" rx="1.5" />
+                </g>
+                <g stroke="#c9a36a" stroke-width="1.6" stroke-linecap="round">
+                  <path d="M40 22v4M43 22v4M46 22v4M49 22v4M52 22v4M55 22v4M58 22v4" />
+                </g>
+              </svg>
+            </div>
+            <div class="l1" />
+            <div class="l2" />
+            <div class="l3" />
+            <div class="book">{s.book}</div>
+            <div class="row" style="top:53cqw" />
+          </div>
+          <div class="tap" />
+          <div class="toast g">
+            <span class="dot" />
+            <span class="k">{s.leadKicker}</span>
+            <span class="v">{s.leadText}</span>
+            <span class="s">{s.leadReply}</span>
+          </div>
+        </Fragment>
+      )
+    }
+
+    {
+      scene === 'brand' && (
+        <Fragment>
+          <div class="feed g">
+            {ITEMS.map(([k, bg, fg], i) => (
+              <div class="tile" data-c={bg} style={`left:${2.2 + (i % 3) * 15.4}cqw;top:${2.2 + Math.floor(i / 3) * 18}cqw`}>
+                <i style="left:17%;top:16%;width:66%;height:68%">
+                  <svg viewBox="0 0 24 24" width="100%" height="100%" fill={fg} color={fg} set:html={ICON[k]} />
+                </i>
+              </div>
+            ))}
+          </div>
+          <div class="post w g">
+            <div class="img">
+              <svg viewBox="0 0 24 24" fill="#1b2030">
+                <path d="M2.5 16.5c0-2.4 1.2-4.6 3.2-4.6l2.8-2.9 2.6 1.9c2 1.3 5 1.4 7.7 2.3 1.9.6 2.7 1.7 2.7 3.3z" />
+                <path d="M2.5 18.5h18.7v-2H2.5z" fill="#f4f6f7" stroke="#1b2030" stroke-width=".6" />
+              </svg>
+            </div>
+            <span class="lbl">{s.postLabel}</span>
+            <div class="meta">
+              <span class="heart">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    data-heart
+                    d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.4.7-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"
+                    fill="none"
+                    stroke="#0b0d13"
+                    stroke-width="1.8"
+                  />
+                </svg>
+              </span>
+              <span class="cnt">828</span>
+            </div>
+          </div>
+          <div class="msg g">{s.message}</div>
+        </Fragment>
+      )
+    }
+
+    {
+      scene === 'search' && (
+        <Fragment>
+          <div class="bar g" data-query={s.query}>
+            <span class="q" />
+            <span class="cur" />
+          </div>
+          <div class="res g">
+            <i />
+            <span>{s.place1}</span>
+            <span class="sub">{s.dist1}</span>
+          </div>
+          <div class="res g">
+            <i />
+            <span>{s.place2}</span>
+            <span class="sub">{s.dist2}</span>
+          </div>
+          <div class="res g me">
+            <i />
+            <span>{s.yours}</span>
+            <span class="sub">{s.dist3}</span>
+          </div>
+          <div class="chart g">
+            <span class="k">{s.requests}</span>
+            <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+              <path
+                data-line
+                d="M0 52 C 15 50, 22 46, 34 44 S 55 36, 64 30 S 84 12, 100 6"
+                fill="none"
+                stroke="#46c8d9"
+                stroke-width="2.4"
+                vector-effect="non-scaling-stroke"
+                stroke-linecap="round"
+                pathLength="1"
+              />
+            </svg>
+          </div>
+        </Fragment>
+      )
+    }
+
+    {
+      scene === 'crm' && (
+        <Fragment>
+          <div class="col g" style="left:5cqw">
+            <span class="h">{s.colNew}</span>
+          </div>
+          <div class="col g" style="left:36.5cqw">
+            <span class="h">{s.colWork}</span>
+          </div>
+          <div class="col g" style="left:68cqw">
+            <span class="h">{s.colPaid}</span>
+          </div>
+          <div class="lead w" data-lead="a">
+            <b>{s.fromSite}</b>
+            <span>{s.leadA}</span>
+          </div>
+          <div class="lead w" data-lead="b">
+            <b>WhatsApp</b>
+            <span>{s.leadB}</span>
+          </div>
+          <div class="lead w" data-lead="c">
+            <b>Instagram</b>
+            <span>{s.leadC}</span>
+          </div>
+          <div class="bell g">🔔 {s.reminder}</div>
+        </Fragment>
+      )
+    }
+
+    {
+      scene === 'pay' && (
+        <Fragment>
+          <div class="term g">
+            <div class="qr">
+              <svg viewBox="0 0 25 25" shape-rendering="crispEdges">
+                <path d={qr} fill="#0b0d13" />
+              </svg>
+            </div>
+            <div class="scan" />
+            <div class="ok">
+              <svg viewBox="0 0 24 24">
+                <path data-check d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#030306" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" pathLength="1" />
+              </svg>
+            </div>
+            <div class="sum">12 500 ₸</div>
+            <div class="lbl">{s.qr}</div>
+          </div>
+          <div class="receipt">
+            <div class="rc-box w g">
+              <div>
+                <span class="k">{s.receipt}</span>
+                <span class="k">{s.receiptNo}</span>
+              </div>
+              <div>
+                <span>{s.item1}</span>
+                <span>3 000</span>
+              </div>
+              <div>
+                <span>{s.item2}</span>
+                <span>3 200</span>
+              </div>
+              <div>
+                <span>{s.item3}</span>
+                <span>6 300</span>
+              </div>
+              <div class="tot">
+                <span>{s.total}</span>
+                <span>12 500 ₸</span>
+              </div>
+            </div>
+          </div>
+          <div class="tag g">✓ {s.posted}</div>
+        </Fragment>
+      )
+    }
+  </div>
+</div>
+
+<script>
+  import { initServiceScenes } from '../scripts/service-scenes';
+  initServiceScenes();
+</script>
+
+<style>
+  /* ---------- Stage (values from the prototype; lights in the colours of the dark sections) ---------- */
+  .sc {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    container-type: size;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(160deg, #0e1220, #07080c 70%);
+    color: #eef1f4;
+    pointer-events: none;
+    --accent: #46c8d9;
+    --muted: #8a93a3;
+  }
+  .st {
+    position: relative;
+    width: min(100cqw, 133.333cqh);
+    aspect-ratio: 4 / 3;
+    container-type: inline-size;
+    font-family: var(--font-body);
+    line-height: 1.5;
+  }
+  .orb {
+    position: absolute;
+    width: 60cqw;
+    height: 60cqw;
+    border-radius: 50%;
+  }
+  .orb-a {
+    background: radial-gradient(closest-side, rgb(110 178 192 / 0.36), rgb(110 178 192 / 0));
+  }
+  .orb-b {
+    background: radial-gradient(closest-side, rgb(98 96 212 / 0.6), rgb(98 96 212 / 0));
+  }
+  .orb-c {
+    background: radial-gradient(closest-side, rgb(226 232 240 / 0.28), rgb(226 232 240 / 0));
+  }
+  :global(html.motion) .sc:global(.is-playing) .orb {
+    will-change: transform;
+  }
+  .st > *,
+  .phone > *,
+  .term > *,
+  .feed > * {
+    position: absolute;
+  }
+  .chart svg,
+  .dot {
+    position: absolute;
+  }
+
+  /* glass: the prototype's look; the prefixed copy in its own @supports (the minifier keeps one of a pair) */
+  .g {
+    background: rgb(255 255 255 / 0.08);
+    backdrop-filter: blur(14px) saturate(170%);
+    border: 1px solid rgb(255 255 255 / 0.2);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.28),
+      inset 0 -1px 0 rgb(255 255 255 / 0.05),
+      0 14px 34px rgb(0 0 0 / 0.35);
+    border-radius: 3.2cqw;
+  }
+  @supports (-webkit-backdrop-filter: none) {
+    .g {
+      -webkit-backdrop-filter: blur(14px) saturate(170%);
+    }
+  }
+  /* weak devices: a semi-transparent fill instead of the blurred backdrop */
+  :global(html.lite) .g {
+    backdrop-filter: none;
+    background: rgb(36 40 56 / 0.72);
+  }
+  @supports (-webkit-backdrop-filter: none) {
+    :global(html.lite) .g {
+      -webkit-backdrop-filter: none;
+    }
+  }
+  /* white elements (post, leads, receipt) are opaque */
+  .w,
+  .g.w,
+  :global(html.lite) .g.w {
+    background: #f4f6f7;
+    color: #0b0d13;
+    backdrop-filter: none;
+  }
+  @supports (-webkit-backdrop-filter: none) {
+    .g.w {
+      -webkit-backdrop-filter: none;
+    }
+  }
+
+  /* ---------- 01 site ---------- */
+  .s-site .phone {
+    left: 9cqw;
+    top: 8cqw;
+    width: 34cqw;
+    height: 66cqw;
+    border-radius: 5cqw;
+    overflow: hidden;
+  }
+  .s-site .phone .bar {
+    left: 3cqw;
+    right: 3cqw;
+    top: 3cqw;
+    height: 3cqw;
+    border-radius: 1cqw;
+    background: rgb(255 255 255 / 0.14);
+  }
+  .s-site .phone .hero {
+    left: 3cqw;
+    right: 3cqw;
+    top: 8cqw;
+    height: 20cqw;
+    border-radius: 2cqw;
+    background:
+      radial-gradient(50% 60% at 50% 45%, #3a3f4a, rgb(58 63 74 / 0) 75%),
+      linear-gradient(150deg, #262a33, #14171d);
+  }
+  .s-site .phone .hero svg {
+    position: absolute;
+    left: 18%;
+    top: 10%;
+    width: 64%;
+    height: 80%;
+  }
+  .s-site .phone .l1 {
+    left: 3cqw;
+    top: 31cqw;
+    width: 22cqw;
+    height: 2.6cqw;
+    border-radius: 1cqw;
+    background: rgb(255 255 255 / 0.75);
+  }
+  .s-site .phone .l2 {
+    left: 3cqw;
+    top: 35cqw;
+    width: 16cqw;
+    height: 2cqw;
+    border-radius: 1cqw;
+    background: rgb(255 255 255 / 0.3);
+  }
+  .s-site .phone .l3 {
+    left: 3cqw;
+    top: 38.5cqw;
+    width: 19cqw;
+    height: 2cqw;
+    border-radius: 1cqw;
+    background: rgb(255 255 255 / 0.3);
+  }
+  .s-site .phone .book {
+    left: 3cqw;
+    right: 3cqw;
+    top: 44cqw;
+    height: 6.4cqw;
+    border-radius: 99px;
+    background: #fff;
+    color: #0b0d13;
+    font: 700 2.6cqw var(--font-body);
+    display: grid;
+    place-items: center;
+  }
+  .s-site .phone .row {
+    left: 3cqw;
+    right: 3cqw;
+    height: 7cqw;
+    border-radius: 1.6cqw;
+    background: rgb(255 255 255 / 0.08);
+  }
+  .s-site .tap {
+    width: 8cqw;
+    height: 8cqw;
+    border-radius: 50%;
+    border: 0.4cqw solid #fff;
+    left: 22cqw;
+    top: 55cqw;
+    opacity: 0;
+  }
+  .s-site .toast {
+    left: 47cqw;
+    top: 22cqw;
+    width: 46cqw;
+    padding: 3cqw 3.4cqw;
+    display: grid;
+    gap: 0.8cqw;
+  }
+  .s-site .toast .k {
+    font: 500 2.3cqw var(--font-mono);
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    padding-left: 3cqw;
+  }
+  .s-site .toast .v {
+    font: 600 3.5cqw var(--font-body);
+  }
+  .s-site .toast .s {
+    font: 500 2.6cqw var(--font-body);
+    color: var(--muted);
+  }
+  .s-site .dot {
+    left: 3.4cqw;
+    top: 3.4cqw;
+    width: 2cqw;
+    height: 2cqw;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* ---------- 02 brand ---------- */
+  .s-brand .feed {
+    left: 8cqw;
+    top: 9cqw;
+    width: 50cqw;
+    height: 57cqw;
+    padding: 2.2cqw;
+  }
+  .s-brand .tile {
+    width: 14.2cqw;
+    height: 17cqw;
+    border-radius: 1.4cqw;
+    background: rgb(255 255 255 / 0.07);
+    overflow: hidden;
+  }
+  .s-brand .tile i {
+    position: absolute;
+    display: block;
+  }
+  .s-brand .post {
+    left: 52cqw;
+    top: 16cqw;
+    width: 40cqw;
+    padding: 2.4cqw;
+    display: block;
+  }
+  .s-brand .post .img {
+    position: relative;
+    height: 24cqw;
+    border-radius: 2cqw;
+    background:
+      radial-gradient(45% 50% at 50% 62%, #fff, rgb(255 255 255 / 0) 72%),
+      linear-gradient(160deg, #f3ece2, #d8c3a5);
+  }
+  .s-brand .post .img svg {
+    position: absolute;
+    left: 18%;
+    top: 12%;
+    width: 64%;
+    height: 76%;
+  }
+  .s-brand .post .lbl {
+    position: relative;
+    display: block;
+    margin-top: 2cqw;
+    font: 500 2.2cqw var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #5e6672;
+  }
+  .s-brand .post .meta {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 2cqw;
+    margin-top: 2.4cqw;
+    font: 600 3cqw var(--font-body);
+  }
+  .s-brand .heart {
+    position: relative;
+    width: 5cqw;
+    height: 5cqw;
+  }
+  .s-brand .heart svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .s-brand .msg {
+    left: 38cqw;
+    top: 66cqw;
+    padding: 2.4cqw 3.4cqw;
+    border-radius: 3cqw 3cqw 3cqw 0.8cqw;
+    font: 600 3cqw var(--font-body);
+  }
+
+  /* ---------- 03 search ---------- */
+  .s-search .bar {
+    left: 8cqw;
+    right: 8cqw;
+    top: 9cqw;
+    height: 10cqw;
+    border-radius: 99px;
+    display: flex;
+    align-items: center;
+    padding-left: 4.4cqw;
+    font: 500 3.6cqw var(--font-body);
+  }
+  .s-search .bar .cur {
+    position: static;
+    display: inline-block;
+    width: 0.4cqw;
+    height: 4.2cqw;
+    background: #eef1f4;
+    margin-left: 0.4cqw;
+    vertical-align: -0.6cqw;
+  }
+  /* rows stand at the first place; GSAP moves them down by 125% of their height per place (13cqw) */
+  .s-search .res {
+    left: 8cqw;
+    right: 30cqw;
+    top: 23cqw;
+    height: 10.4cqw;
+    padding: 0 3cqw;
+    display: flex;
+    align-items: center;
+    gap: 2.4cqw;
+    font: 600 3.1cqw var(--font-body);
+  }
+  .s-search .res i {
+    width: 3.6cqw;
+    height: 3.6cqw;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.18);
+    flex: 0 0 auto;
+  }
+  .s-search .res.me {
+    border-color: rgb(70 200 217 / 0.75);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.2),
+      0 0 0 0.3cqw rgb(70 200 217 / 0.22),
+      0 14px 30px rgb(0 0 0 / 0.35);
+  }
+  .s-search .res.me i {
+    background: var(--accent);
+  }
+  .s-search .res .sub {
+    margin-left: auto;
+    font: 500 2.4cqw var(--font-mono);
+    color: var(--muted);
+  }
+  .s-search .chart {
+    right: 6cqw;
+    bottom: 8cqw;
+    width: 21cqw;
+    height: 30cqw;
+    padding: 2.4cqw;
+  }
+  .s-search .chart .k {
+    font: 500 2.1cqw var(--font-mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .s-search .chart svg {
+    left: 2cqw;
+    right: 2cqw;
+    bottom: 2cqw;
+    width: calc(100% - 4cqw);
+    height: 60%;
+  }
+
+  /* ---------- 04 crm ---------- */
+  .s-crm .col {
+    top: 9cqw;
+    width: 27cqw;
+    height: 62cqw;
+    padding: 2cqw;
+  }
+  .s-crm .col .h {
+    font: 500 2.3cqw var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  /* leads stand in the first slot (7cqw, 15cqw); GSAP moves them by percent of their own size */
+  .s-crm .lead {
+    left: 7cqw;
+    top: 15cqw;
+    width: 23cqw;
+    height: 11.4cqw;
+    border-radius: 2cqw;
+    padding: 2.2cqw;
+    display: grid;
+    align-content: center;
+    gap: 0.8cqw;
+  }
+  .s-crm .lead b {
+    font: 600 2.6cqw/1.1 var(--font-body);
+    white-space: nowrap;
+  }
+  .s-crm .lead span {
+    font: 500 2.1cqw/1.1 var(--font-mono);
+    color: #5e6672;
+    white-space: nowrap;
+  }
+  .s-crm .lead:global(.paid) {
+    outline: 0.35cqw solid var(--accent);
+  }
+  .s-crm .bell {
+    white-space: nowrap;
+    left: 20cqw;
+    top: 66cqw;
+    padding: 2cqw 3cqw;
+    font: 600 2.8cqw var(--font-body);
+  }
+
+  /* ---------- 05 payment ---------- */
+  .s-pay .term {
+    left: 12cqw;
+    top: 8cqw;
+    width: 36cqw;
+    height: 60cqw;
+    border-radius: 5cqw;
+    overflow: hidden;
+  }
+  .s-pay .qr {
+    left: 6cqw;
+    top: 9cqw;
+    width: 24cqw;
+    height: 24cqw;
+    background: #fff;
+    border-radius: 2cqw;
+    padding: 2cqw;
+  }
+  .s-pay .qr svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  /* the scan line stands at the top of the code; GSAP moves it down by 4000% of its height (24cqw) */
+  .s-pay .scan {
+    left: 5cqw;
+    width: 26cqw;
+    height: 0.6cqw;
+    background: var(--accent);
+    box-shadow: 0 0 3cqw var(--accent);
+    top: 9cqw;
+    opacity: 0;
+  }
+  .s-pay .sum {
+    left: 0;
+    right: 0;
+    top: 37cqw;
+    text-align: center;
+    font: 700 4.6cqw var(--font-display);
+  }
+  .s-pay .lbl {
+    left: 0;
+    right: 0;
+    top: 44cqw;
+    text-align: center;
+    font: 500 2.4cqw var(--font-mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .s-pay .ok {
+    left: 9cqw;
+    top: 12cqw;
+    width: 18cqw;
+    height: 18cqw;
+    border-radius: 50%;
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    opacity: 0;
+  }
+  .s-pay .ok svg {
+    width: 55%;
+    height: 55%;
+  }
+  /* receipt: a window (overflow hidden) sliding down from above while the paper inside slides up by the same
+     amount, so the paper stands still and appears from the top (the prototype's clip-path, by transform) */
+  .s-pay .receipt {
+    left: 54cqw;
+    top: 14cqw;
+    width: 36cqw;
+    overflow: hidden;
+    border-radius: 3.2cqw;
+  }
+  .s-pay .rc-box {
+    padding: 3cqw;
+    display: grid;
+    gap: 1.4cqw;
+    font: 500 2.6cqw var(--font-body);
+  }
+  .s-pay .rc-box div {
+    display: flex;
+    justify-content: space-between;
+    gap: 2cqw;
+    white-space: nowrap;
+  }
+  .s-pay .rc-box .k {
+    font: 500 2.2cqw var(--font-mono);
+    color: #5e6672;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .s-pay .rc-box .tot {
+    font-weight: 700;
+    border-top: 0.3cqw dashed #c8ced4;
+    padding-top: 1.4cqw;
+  }
+  .s-pay .tag {
+    left: 54cqw;
+    top: 58cqw;
+    padding: 2cqw 3cqw;
+    font: 600 2.8cqw var(--font-body);
+  }
+</style>

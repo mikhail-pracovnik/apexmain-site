@@ -1,10 +1,9 @@
 ---
 /** Services page: every service from src/content/services with who it is for and what is included. */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import LoopVideo from '../../../components/LoopVideo.astro';
+import ServiceScene from '../../../components/ServiceScene.astro';
 import { t, url, fill, localeStaticPaths, type Locale } from '../../../i18n';
 import { getServices, formatPrice } from '../../../lib/content';
-import { usableVideo } from '../../../lib/media';
 
 export const getStaticPaths = localeStaticPaths;
 
@@ -36,13 +35,12 @@ const contact = url(locale, 'contact');
       <div class="svc-list">
         {
           services.map((s, i) => {
-            const v = usableVideo(s.data.video);
             const price = s.data.priceFrom
               ? fill(d.services.priceFrom, { price: formatPrice(s.data.priceFrom, d.services.currency) })
               : d.services.priceOnRequest;
             return (
               <article class="svc reveal" id={s.id} aria-labelledby={`${s.id}-t`}>
-                <div class="svc-media">{v && <LoopVideo video={v} class="svc-video" />}</div>
+                <div class="svc-media">{s.data.scene && <ServiceScene scene={s.data.scene} locale={locale} />}</div>
                 <div class="svc-body">
                   <p class="eyebrow">0{i + 1}</p>
                   <h2 id={`${s.id}-t`} class="svc-title">
@@ -144,13 +142,6 @@ const contact = url(locale, 'contact');
       border-bottom: 0;
       border-right: 1px solid var(--color-line);
     }
-  }
-  .svc-media :global(.svc-video) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
   .svc-body {
     display: grid;

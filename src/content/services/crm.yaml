@@ -2,10 +2,7 @@ order: 8
 draft: true
 hidden: true  # скрыта с сайта, файл оставлен
 priceFrom: null
-video:
-  webm: media/services/crm.webm
-  mp4: media/services/crm.mp4
-  poster: media/services/crm.jpg
+scene: null     # сцена в карточке и на странице услуг: site, brand, search, crm, pay; null — заглушка с номером
 title:
   ru: CRM
   kk: CRM

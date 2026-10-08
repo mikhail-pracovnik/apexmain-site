@@ -2,14 +2,7 @@ order: 4
 draft: true
 hidden: false
 priceFrom: null
-video:
-  webm: media/services/sales.webm
-  mp4: media/services/sales.mp4
-  poster: media/services/sales.jpg
-videoMini:
-  webm: media/services/mini/sales.webm
-  mp4: media/services/mini/sales.mp4
-  poster: media/services/mini/sales.jpg
+scene: crm      # сцена в карточке и на странице услуг: site, brand, search, crm, pay; null — заглушка с номером
 title:
   ru: Продажи и CRM
   kk: Сатылым және CRM

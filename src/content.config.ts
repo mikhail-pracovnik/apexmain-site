@@ -5,12 +5,6 @@ import { z } from 'astro/zod';
 /** Text in all three site languages. */
 const localized = <T extends z.ZodType>(schema: T) => z.object({ ru: schema, kk: schema, en: schema });
 
-/** Short looping video: WebM + MP4 + poster, paths relative to /public. */
-const video = z
-  .object({ webm: z.string(), mp4: z.string(), poster: z.string() })
-  .nullable()
-  .default(null);
-
 /** One service = one YAML file in src/content/services/. */
 const services = defineCollection({
   loader: glob({ pattern: '**/*.{yaml,yml}', base: './src/content/services' }),
@@ -22,10 +16,8 @@ const services = defineCollection({
     hidden: z.boolean().default(false),
     /** Starting price in tenge; null shows "price after the audit". */
     priceFrom: z.number().nullable().default(null),
-    /** Large loop for the services page. */
-    video,
-    /** Small square loop for the home-page card (one big, simple image). Without it the card shows a placeholder. */
-    videoMini: video,
+    /** Live scene drawn in code (components/ServiceScene.astro), in the home card and on the services page; null: a placeholder. */
+    scene: z.enum(['site', 'brand', 'search', 'crm', 'pay']).nullable().default(null),
     title: localized(z.string()),
     /** One sentence for the home-page card. */
     short: localized(z.string()).optional(),

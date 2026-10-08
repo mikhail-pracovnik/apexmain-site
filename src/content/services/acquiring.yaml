@@ -2,11 +2,7 @@ order: 5
 draft: true
 hidden: false
 priceFrom: null
-video:
-  webm: media/services/acquiring.webm
-  mp4: media/services/acquiring.mp4
-  poster: media/services/acquiring.jpg
-# videoMini нет: на карточке главной нейтральная заглушка
+scene: pay      # сцена в карточке и на странице услуг: site, brand, search, crm, pay; null — заглушка с номером
 title:
   ru: Подключение эквайринга (онлайн продажи)
   kk: Эквайрингті қосу (онлайн сатылым)

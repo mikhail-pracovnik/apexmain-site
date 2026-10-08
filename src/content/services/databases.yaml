@@ -2,10 +2,7 @@ order: 9
 draft: true
 hidden: true  # скрыта с сайта, файл оставлен
 priceFrom: null
-video:
-  webm: media/services/databases.webm
-  mp4: media/services/databases.mp4
-  poster: media/services/databases.jpg
+scene: null     # сцена в карточке и на странице услуг: site, brand, search, crm, pay; null — заглушка с номером
 title:
   ru: Разработка баз данных
   kk: Деректер базасын әзірлеу

@@ -5,14 +5,7 @@ order: 1
 draft: true          # служебная пометка, на сайте не показывается
 hidden: false        # true — скрыть услугу, не удаляя файл
 priceFrom: null      # число в тенге, например 250000; null — «цена после аудита»
-video:
-  webm: media/services/sites.webm
-  mp4: media/services/sites.mp4
-  poster: media/services/sites.jpg
-videoMini:
-  webm: media/services/mini/sites.webm
-  mp4: media/services/mini/sites.mp4
-  poster: media/services/mini/sites.jpg
+scene: site     # сцена в карточке и на странице услуг: site, brand, search, crm, pay; null — заглушка с номером
 title:
   ru: Сайты
   kk: Сайттар

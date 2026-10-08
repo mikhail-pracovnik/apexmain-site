@@ -79,7 +79,8 @@ Geologica (заголовки), Onest (текст), IBM Plex Mono (метки) �
 
 ## Ролики (Remotion)
 Проект в `video/`. `cd video && npm install && node scripts/render-all.mjs` — рендерит все ролики
-в `public/media/` (WebM + MP4 + постер, каждый до 500 КБ).
+в `public/media/` (WebM + MP4 + постер, каждый до 500 КБ). На сайте ролики больше не используются:
+в карточках услуг живые сцены, нарисованные кодом (`src/components/ServiceScene.astro`). Папка оставлена как исходник.
 Лицензия Remotion: бесплатно для частных лиц и компаний до 3 сотрудников, иначе нужна Company License
 (https://www.remotion.pro/license).
 

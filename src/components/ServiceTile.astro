@@ -1,13 +1,12 @@
 ---
 /**
- * Home-page service card: number, small looping image, name and one sentence (`short`).
- * The whole card leads to the service on the services page. Without a small loop (videoMini)
- * the media box stays a neutral placeholder with the big faint number.
+ * Home-page service card: number, live scene (ServiceScene, 4:3 as in the owner's prototype), name and one
+ * sentence (`short`). The whole card leads to the service on the services page. Without a scene the media box
+ * stays a neutral placeholder with the big faint number.
  */
 import type { CollectionEntry } from 'astro:content';
-import LoopVideo from './LoopVideo.astro';
+import ServiceScene from './ServiceScene.astro';
 import { url, type Locale } from '../i18n';
-import { usableVideo } from '../lib/media';
 
 interface Props {
   service: CollectionEntry<'services'>;
@@ -15,14 +14,13 @@ interface Props {
   index: number;
 }
 const { service, locale, index } = Astro.props;
-const video = usableVideo(service.data.videoMini);
 const num = String(index + 1).padStart(2, '0');
 ---
 
-<a href={`${url(locale, 'services')}#${service.id}`} class="tile">
+<a href={`${url(locale, 'services')}#${service.id}`} class="tile glass">
   <span class="tile-media">
     <span class="tile-ph" aria-hidden="true">{num}</span>
-    {video && <LoopVideo video={video} class="tile-video" play="visible" />}
+    {service.data.scene && <ServiceScene scene={service.data.scene} locale={locale} />}
   </span>
   <span class="tile-body">
     <span class="tile-num">{num}</span>
@@ -41,9 +39,8 @@ const num = String(index + 1).padStart(2, '0');
     flex-direction: column;
     gap: 1rem;
     padding: 0.5rem 0.5rem 1.1rem;
-    border: 1px solid var(--color-line);
     border-radius: var(--radius-card);
-    background: var(--color-ink-2);
+    /* glass like the menus (global .glass, dark set): the section's grid and light show through */
     transition: border-color 0.3s;
   }
   .tile:hover {
@@ -57,7 +54,7 @@ const num = String(index + 1).padStart(2, '0');
     position: relative;
     display: grid;
     place-items: center;
-    aspect-ratio: 1;
+    aspect-ratio: 4 / 3;
     border-radius: 0.875rem;
     background: var(--color-ink);
     overflow: hidden;
@@ -67,13 +64,6 @@ const num = String(index + 1).padStart(2, '0');
     font-weight: 800;
     font-size: clamp(3rem, calc(var(--w, 20rem) * 0.28), 7rem);
     color: rgb(148 178 220 / 0.12);
-  }
-  .tile-media :global(.tile-video) {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
   }
   .tile-body {
     display: grid;

@@ -2,14 +2,7 @@ order: 3
 draft: true
 hidden: false
 priceFrom: null
-video:
-  webm: media/services/ads.webm
-  mp4: media/services/ads.mp4
-  poster: media/services/ads.jpg
-videoMini:
-  webm: media/services/mini/ads.webm
-  mp4: media/services/mini/ads.mp4
-  poster: media/services/mini/ads.jpg
+scene: search   # сцена в карточке и на странице услуг: site, brand, search, crm, pay; null — заглушка с номером
 title:
   ru: Таргетинг и SEO
   kk: Таргетинг және SEO
