@@ -32,7 +32,7 @@ const initialLabel = pageLabel[path] ?? site.name;
 
 <header id="site-header" class="site-header">
   <div class="plate">
-    <span class="plate-bg" aria-hidden="true"></span>
+    <span class="plate-bg glass glass-top" aria-hidden="true"></span>
     <a href={home} class="plate-mark" aria-label={d.a11y.home}>
       <BrandMark id="header-mark" class="h-[18px] w-auto" />
     </a>
@@ -119,24 +119,45 @@ const initialLabel = pageLabel[path] ?? site.name;
     isolation: isolate;
   }
   /* The plate's look sits on an inner layer under the content, the same way as the phone dock
-     (MobileDock.astro): Safari 26 tints its toolbar areas with the background of fixed elements at the screen edge. */
+     (MobileDock.astro): Safari 26 tints its toolbar areas with the background of fixed elements at the screen edge.
+     Material: glass (global.css), light while a light section is under the header (html.top-light). */
   .plate-bg {
     position: absolute;
     inset: -1px;
     z-index: -1;
-    border: 1px solid var(--color-line);
     border-radius: 0.5rem;
-    background: color-mix(in srgb, var(--color-ink-2) 82%, transparent);
-    --plate-blur: blur(14px) saturate(140%);
-    backdrop-filter: var(--plate-blur);
-    box-shadow: 0 10px 30px -14px rgb(0 0 0 / 0.6);
     pointer-events: none;
   }
-  /* The prefixed copy in its own rule: in one rule the CSS minifier keeps only one of the pair. */
-  @supports (-webkit-backdrop-filter: none) {
-    .plate-bg {
-      -webkit-backdrop-filter: var(--plate-blur);
-    }
+  /* Over a light section the plate is light glass: text and icons turn dark. */
+  :global(html.top-light) .plate {
+    color: var(--color-ink);
+  }
+  :global(html.top-light) .plate-sep {
+    background: var(--color-line-dark);
+  }
+  :global(html.top-light) .plate-lang a {
+    color: #3d4651;
+  }
+  :global(html.top-light) .plate-lang a:hover,
+  :global(html.top-light) .plate-lang a[aria-current] {
+    color: var(--color-ink);
+  }
+  :global(html.top-light) .plate-lang a[aria-current] {
+    background: rgb(10 12 17 / 0.07);
+  }
+  :global(html.top-light) .plate-icon {
+    border-color: var(--color-line-dark);
+    color: var(--color-ink);
+  }
+  :global(html.top-light) .plate-icon:hover {
+    border-color: rgb(10 12 17 / 0.4);
+  }
+  :global(html.top-light) .plate-menu {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  :global(html.top-light #header-mark [data-tone='paper']) {
+    fill: var(--color-ink);
   }
   .plate-mark {
     display: inline-flex;
@@ -179,7 +200,8 @@ const initialLabel = pageLabel[path] ?? site.name;
   .plate-lang a {
     padding: 0.45rem 0.55rem;
     border-radius: 0.375rem;
-    color: var(--color-muted);
+    /* lighter than --color-muted: stays ≥ 4.5:1 on the glass even over a light section */
+    color: #b4bcc5;
     transition: color 0.2s;
   }
   .plate-lang a:hover,
@@ -231,6 +253,7 @@ const initialLabel = pageLabel[path] ?? site.name;
     border: 1px solid var(--color-line);
     border-radius: 0.5rem;
     background: var(--color-ink-2);
+    color: var(--color-paper); /* stays light when the plate turns light */
     box-shadow: 0 20px 40px -20px rgb(0 0 0 / 0.8);
     visibility: hidden;
     opacity: 0;

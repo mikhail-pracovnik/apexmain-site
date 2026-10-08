@@ -4,6 +4,9 @@
  */
 const root = document.documentElement;
 const motionOk = () => root.classList.contains('motion');
+/** The full-screen menu is open: the page background stays dark (see "Page background" below). */
+let menuOpen = false;
+let refreshPageBg = () => {};
 
 /* ---------- Menu (native modal <dialog> at body level) ---------- */
 const menu = document.getElementById('site-menu') as HTMLDialogElement | null;
@@ -12,6 +15,8 @@ if (menu && menuOpener) {
   menuOpener.addEventListener('click', () => {
     menu.showModal();
     root.style.overflow = 'hidden'; // no page scroll behind the menu
+    menuOpen = true;
+    refreshPageBg();
     menu.querySelector<HTMLElement>('[data-menu-close]')?.focus();
   });
   menu.querySelector('[data-menu-close]')?.addEventListener('click', () => menu.close());
@@ -19,6 +24,8 @@ if (menu && menuOpener) {
   // Esc is handled natively by <dialog>; 'close' fires for every way of closing.
   menu.addEventListener('close', () => {
     root.style.overflow = '';
+    menuOpen = false;
+    refreshPageBg();
     menuOpener.focus();
   });
 }
@@ -93,12 +100,13 @@ const bands = Array.from(document.querySelectorAll<HTMLElement>('main > :not(scr
 if (bands[0]) root.style.setProperty('--top-bg', getComputedStyle(bands[0]).backgroundColor);
 // While the intro is on, everything stays dark (#030306): the intro covers the screen, but the
 // section at the bottom edge under it may be light. stage.ts fires 'intro:end' when it is over.
+// The same while the (dark glass) menu covers the page.
 let introOn = root.classList.contains('intro-on') && !root.classList.contains('intro-done');
 if (bands.length && 'IntersectionObserver' in window) {
   const atBottom = new Map<HTMLElement, boolean>();
   let pageLight: boolean | null = null;
   const apply = () => {
-    const bottom = introOn ? undefined : bands.filter((b) => atBottom.get(b)).pop();
+    const bottom = introOn || menuOpen ? undefined : bands.filter((b) => atBottom.get(b)).pop();
     const light = !!bottom?.classList.contains('theme-light');
     if (light === pageLight) return;
     pageLight = light;
@@ -116,10 +124,32 @@ if (bands.length && 'IntersectionObserver' in window) {
     { rootMargin: '-98% 0px 0px 0px' },
   );
   bands.forEach((b) => io.observe(b));
+  refreshPageBg = apply;
   window.addEventListener('intro:end', () => {
     introOn = false;
     apply();
   });
+}
+
+/* ---------- Section under the header: html.top-light for the header glass ----------
+   The plate is light glass with dark text while a light section is under it (global.css .glass-top). */
+if (bands.length && 'IntersectionObserver' in window) {
+  const atTop = new Map<HTMLElement, boolean>();
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => atTop.set(e.target as HTMLElement, e.isIntersecting));
+      const under = bands.filter((b) => atTop.get(b)).pop();
+      root.classList.toggle('top-light', !!under?.classList.contains('theme-light'));
+    },
+    // a thin strip at the height of the middle of the header plate
+    { rootMargin: '-4.5% 0px -94.5% 0px' },
+  );
+  bands.forEach((b) => io.observe(b));
+}
+
+/* ---------- Temporary glass tuning panel (?glass=tune) ---------- */
+if (new URLSearchParams(location.search).get('glass') === 'tune') {
+  import('./glass-tune').then((m) => m.mountGlassTune());
 }
 
 /* ---------- Scroll reveal ---------- */

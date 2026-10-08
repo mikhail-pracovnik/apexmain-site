@@ -371,3 +371,88 @@ html::after {
     padding-bottom: var(--dock-h);
   }
 }
+
+/* ---------- Glass ----------
+   Used on: header plate (.plate-bg), dock (.dock-bg), pain panel, example tags, rail arrows, menu overlay.
+   Never on cards, the intro language buttons or the form.
+   One look for every browser: blur + saturation of what is behind, a translucent fill, a light rim along
+   the top edge, a thin inner shadow along the bottom, a soft outer shadow (no SVG refraction: Chromium only).
+   Two sets of values: dark (on dark sections) and light (on light ones). Which one applies:
+     .glass-top    — html.top-light (section under the header, common.ts);
+     .glass-bottom — html.page-light (section at the bottom edge, common.ts);
+     .glass        — inside .theme-light → light, otherwise dark;
+     .glass-light / .glass-dark — fixed.
+   Fills are high enough for text contrast ≥ 4.5:1 over any background, including the edge of a dark and a
+   light section (dark ≥ 0.71, light ≥ 0.71 with the muted text colours used on them).
+   Fixed elements keep the rule from CLAUDE.md: a transparent fixed wrapper, the glass on an inner element. */
+:root {
+  --glass-dark-blur: 20px;
+  --glass-dark-sat: 170%;
+  --glass-dark-fill: 0.74;
+  --glass-dark-hl: 0.14;
+  --glass-light-blur: 20px;
+  --glass-light-sat: 180%;
+  --glass-light-fill: 0.74;
+  --glass-light-hl: 0.9;
+  /* full-screen menu overlay: a darker fill so the items read over any part of the page */
+  --glass-menu-blur: 24px;
+  --glass-menu-fill: 0.84;
+}
+.glass {
+  --g-rgb: 9 11 15;
+  --g-fill: var(--glass-dark-fill);
+  --g-blur: var(--glass-dark-blur);
+  --g-sat: var(--glass-dark-sat);
+  --g-hl: rgb(255 255 255 / var(--glass-dark-hl));
+  --g-inner: rgb(0 0 0 / 0.28);
+  --g-border: rgb(236 240 241 / 0.12);
+  --g-shadow: 0 10px 30px -14px rgb(0 0 0 / 0.55);
+  border: 1px solid var(--g-border);
+  background: rgb(var(--g-rgb) / var(--g-fill));
+  backdrop-filter: blur(var(--g-blur)) saturate(var(--g-sat));
+  box-shadow:
+    inset 0 1px 0 var(--g-hl),
+    inset 0 -1px 0 var(--g-inner),
+    var(--g-shadow);
+}
+/* the prefixed copy lives in its own rule: in one rule the CSS minifier keeps only one of the pair */
+@supports (-webkit-backdrop-filter: none) {
+  .glass {
+    -webkit-backdrop-filter: blur(var(--g-blur)) saturate(var(--g-sat));
+  }
+}
+.glass-light,
+.theme-light .glass:not(.glass-dark),
+html.top-light .glass-top,
+html.page-light .glass-bottom {
+  --g-rgb: 248 250 251;
+  --g-fill: var(--glass-light-fill);
+  --g-blur: var(--glass-light-blur);
+  --g-sat: var(--glass-light-sat);
+  --g-hl: rgb(255 255 255 / var(--glass-light-hl));
+  --g-inner: rgb(10 12 17 / 0.07);
+  --g-border: rgb(10 12 17 / 0.08);
+  --g-shadow: 0 10px 28px -16px rgb(10 12 17 / 0.35);
+}
+.glass-menu {
+  --g-fill: var(--glass-menu-fill);
+  --g-blur: var(--glass-menu-blur);
+  --g-shadow: none;
+}
+/* over a flat background blur shows nothing: same look without the cost of a blurred layer */
+.glass-flat {
+  backdrop-filter: none;
+}
+@supports (-webkit-backdrop-filter: none) {
+  .glass-flat {
+    -webkit-backdrop-filter: none;
+  }
+}
+/* no backdrop-filter at all: a dense fill keeps everything readable */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --glass-dark-fill: 0.95;
+    --glass-light-fill: 0.95;
+    --glass-menu-fill: 0.95;
+  }
+}

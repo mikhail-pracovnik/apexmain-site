@@ -24,7 +24,7 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
 
 <dialog id="pain-panel" class="pain-dialog" data-pain-dialog>
   <div class="pd-sheet" data-pd-sheet>
-    <span class="pd-bg glass glass--light" aria-hidden="true"></span>
+    <span class="pd-bg glass glass-light" aria-hidden="true"></span>
     <span class="pd-grab" aria-hidden="true"></span>
     <button type="button" class="pd-close" data-pd-close aria-label={d.pains.close}>
       <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
@@ -97,9 +97,15 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
   }
   /* page under the panel: slightly darkened and blurred */
   .pain-dialog::backdrop {
-    background: rgb(3 3 6 / 0.32);
+    background: rgb(3 3 6 / 0.3);
+    backdrop-filter: blur(6px);
     opacity: 0;
     transition: opacity 0.25s;
+  }
+  @supports (-webkit-backdrop-filter: none) {
+    .pain-dialog::backdrop {
+      -webkit-backdrop-filter: blur(6px);
+    }
   }
   .pain-dialog:global(.is-open)::backdrop {
     opacity: 1;
@@ -137,12 +143,13 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
   .pd-sheet:global(.is-swiping) {
     transition: none;
   }
+  /* glass, always the light set (the panel opens from a light section) */
   .pd-bg {
     position: absolute;
     inset: 0;
     z-index: -1;
     border-radius: inherit;
-    background: rgb(244 247 248 / 0.96);
+    --g-shadow: 0 -10px 40px -20px rgb(3 3 6 / 0.45);
   }
   .pd-grab {
     position: absolute;
@@ -204,10 +211,11 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
     line-height: 1.15;
     letter-spacing: -0.015em;
   }
+  /* text on glass: darker than the usual muted tones, ≥ 4.5:1 even where the dimmed page shows through */
   .pd-answer {
     display: grid;
     gap: 0.5rem;
-    color: var(--color-muted-dark);
+    color: #3d4651;
   }
   .pd-label {
     font-family: var(--font-mono);
@@ -215,7 +223,7 @@ const serviceTitle = (id: string) => services.find((s) => s.id === id)?.data.tit
     font-size: 0.8125rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-apex-deep);
+    color: #0a5b68;
   }
   .pd-actions {
     display: flex;

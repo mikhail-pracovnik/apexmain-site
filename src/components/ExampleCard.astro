@@ -38,7 +38,7 @@ const wantHref = `${url(locale, 'contact')}?niche=${encodeURIComponent(e.niche)}
       )
     }
     {video && <LoopVideo video={video} class="example-video" />}
-    <span class="example-tag">{nicheLabel}</span>
+    <span class="example-tag glass glass-dark">{nicheLabel}</span>
   </div>
   <div class="example-body">
     <div>
@@ -93,9 +93,9 @@ const wantHref = `${url(locale, 'contact')}?niche=${encodeURIComponent(e.niche)}
     top: 0.875rem;
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--color-ink) 72%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    /* glass (global.css), always the dark set: the tag lies on the dark mock-up even in a light section */
+    --g-blur: 10px;
+    --g-shadow: 0 4px 12px -6px rgb(0 0 0 / 0.5);
     font-family: var(--font-mono);
     font-size: 0.8125rem;
     color: var(--color-paper);
