@@ -1,6 +1,7 @@
 ---
 /**
- * "We integrate and set up": a half-screen block with a strip of monochrome logos drifting right to left.
+ * "We integrate and set up": a compact sub-section (no number, half the usual section padding) with a strip
+ * of monochrome logos drifting right to left.
  * Logos come from src/content/integrations.yaml; without a logo file the name is shown as text.
  * The strip pauses on hover/focus and the hovered logo shows its brand colours (<id>-color.svg next to the mono file);
  * with reduced motion it becomes a static wrapped row.
@@ -68,8 +69,14 @@ const items = (await getIntegrations()).map((it) => {
     flex-direction: column;
     justify-content: center;
     gap: 3rem;
-    min-height: 50svh;
+    /* a sub-section: half the padding of a regular section */
+    padding-block: 2.75rem;
     border-top: 1px solid var(--color-line);
+  }
+  @media (min-width: 64rem) {
+    .integ {
+      padding-block: 4.25rem;
+    }
   }
   .integ-head {
     display: grid;
