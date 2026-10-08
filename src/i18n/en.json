@@ -4,16 +4,16 @@
   "langShort": "EN",
   "meta": {
     "title": "ApexMain — websites, ads and sales for businesses in Kazakhstan",
-    "description": "We build websites, ads, Instagram and sales systems for local businesses in Almaty and across Kazakhstan. Free audit: we show where you lose customers.",
+    "description": "We bring together business strategy, technology and marketing: websites, brand in digital, targeting and SEO, sales and CRM, payment acquiring. For businesses in Almaty and across Kazakhstan.",
     "examplesTitle": "What we can do — ApexMain",
     "examplesDescription": "Website concepts for different niches: florists, cosmetology, beauty salons, barbershops and more.",
     "servicesTitle": "Services — ApexMain",
-    "servicesDescription": "Websites, Instagram and SMM, ads and promotion, sales setup.",
+    "servicesDescription": "Websites, brand in digital, targeting and SEO, sales and CRM, payment acquiring setup.",
     "privacyTitle": "Privacy policy — ApexMain",
     "notFoundTitle": "Page not found — ApexMain",
     "processTitle": "How we work — ApexMain",
-    "processDescription": "Four steps from a free audit to a turnkey launch. Publishing and all the technical work are on us.",
-    "contactTitle": "Request a free audit — ApexMain",
+    "processDescription": "Four steps from an initial audit to a turnkey launch. Publishing and all the technical work are on us.",
+    "contactTitle": "Request an initial audit — ApexMain",
     "contactDescription": "Send a request via Telegram or WhatsApp: we will look at your Instagram, 2GIS and website and tell you where to start."
   },
   "a11y": {
@@ -32,7 +32,7 @@
     "lead": "Contact",
     "allExamples": "All examples",
     "home": "Home",
-    "cta": "Free audit"
+    "cta": "Initial audit"
   },
   "sections": {
     "intro": "ApexMain",
@@ -49,29 +49,31 @@
     "chooseLanguage": "Choose a language"
   },
   "hero": {
-    "eyebrow": "Design · Performance · Sales Systems",
-    "line1": "Customers are searching.",
-    "line2Before": "Let them find ",
-    "accent": "you",
-    "line2After": ".",
-    "sub": "Websites, ads and sales for businesses in Kazakhstan — from the first request to loyal customers.",
-    "ctaPrimary": "Get a free audit",
+    "eyebrow": "IT Development • Marketing • Automation",
+    "sub": "We bring together business strategy, technology and marketing so companies can grow faster and go through change with confidence.",
+    "ctaPrimary": "Get an initial audit",
     "ctaSecondary": "See examples",
-    "titleFitEm": 11.81
+    "titleFitEm": 8.43,
+    "titleLines": [
+      "Business changes.",
+      "We help it",
+      "*keep up*."
+    ],
+    "titleFitEmWide": 8.86
   },
   "pains": {
-    "eyebrow": "01 — Sound familiar?",
-    "title": "What brings people to us",
-    "lead": "Usually the business is already good: happy customers, reviews, a solid rating on 2GIS. One thing is missing — new customers who actually book.",
+    "eyebrow": "01 — What brings people to us",
+    "title": "When a business needs more",
+    "lead": "Growth starts with the right question. See the tasks people bring to us.",
     "solution": "What we do",
     "toService": "More about this service"
   },
   "services": {
     "eyebrow": "02 — Services",
     "title": "What we do",
-    "lead": "Take one thing or everything together. In the free audit we will tell you where it makes sense to start.",
+    "lead": "Take one thing or everything together. In the initial audit we will tell you where it makes sense to start.",
     "priceFrom": "from {price}",
-    "priceOnRequest": "Price — after the free audit",
+    "priceOnRequest": "Price — after the audit",
     "currency": "₸",
     "discuss": "Discuss",
     "catalog": "All services",
@@ -79,8 +81,8 @@
   },
   "examples": {
     "eyebrow": "03 — Examples",
-    "title": "What we can do",
-    "lead": "Website concepts for different niches.",
+    "title": "Solution examples",
+    "lead": "Website concepts for different niches and business tasks.",
     "cta": "I want one like this",
     "all": "All examples",
     "filterLabel": "Niche",
@@ -94,7 +96,7 @@
     "title": "How we work",
     "steps": [
       {
-        "title": "Free audit",
+        "title": "Initial audit",
         "text": "We look at your Instagram, 2GIS and website, if you have one. We walk the customer's path to a request and show where people drop off."
       },
       {
@@ -113,7 +115,7 @@
   },
   "lead": {
     "eyebrow": "05 — Request",
-    "title": "Get a free audit",
+    "title": "Get an initial audit",
     "lead": "Tell us about your business — we will find where customers get lost and suggest what to fix first.",
     "name": "Your name",
     "namePlaceholder": "Name",
@@ -138,7 +140,7 @@
       "consent": "Consent to data processing is required"
     },
     "message": {
-      "greeting": "Hello! Free audit request from the ApexMain website.",
+      "greeting": "Hello! Initial audit request from the ApexMain website.",
       "name": "Name",
       "contact": "Contact",
       "niche": "Niche",
@@ -172,10 +174,10 @@
   },
   "servicesPage": {
     "title": "Services",
-    "lead": "Take one service or several together. In the free audit we will tell you where it makes sense to start.",
+    "lead": "Take one service or several together. In the initial audit we will tell you where it makes sense to start.",
     "forWhom": "Who it is for",
     "includes": "What is included",
-    "cta": "Discuss this service",
+    "cta": "Get an initial audit",
     "back": "Home",
     "tech": "Integrations and technical setup"
   },
@@ -199,7 +201,7 @@
       },
       {
         "title": "3. Why",
-        "text": "To contact you, run the free audit and prepare an offer. We do not sell or share data with third parties except where required by law."
+        "text": "To contact you, run the initial audit and prepare an offer. We do not sell or share data with third parties except where required by law."
       },
       {
         "title": "4. How long we keep it",
@@ -254,7 +256,7 @@
       "All access and rights are yours",
       "Support after launch"
     ],
-    "cta": "Start with a free audit"
+    "cta": "Start with an initial audit"
   },
   "contactPage": {
     "title": "Request",

@@ -11,7 +11,7 @@
  */
 import BrandMark from './BrandMark.astro';
 import brand from '../data/brand-mark.json';
-import { t, url, locales, htmlLang, type Locale } from '../i18n';
+import { t, url, locales, htmlLang, accentParts, type Locale } from '../i18n';
 import { intro } from '../config/intro';
 
 interface Props {
@@ -21,6 +21,8 @@ const { locale } = Astro.props;
 const d = t(locale);
 const peak = brand.shapes.find((s) => s.id === 'peak')!;
 const [vx, vy, vw, vh] = brand.viewBox;
+// Headline: three lines on phones; from 48rem the 2nd and 3rd join into one line.
+const [title1, title2, title3] = d.hero.titleLines.map(accentParts);
 ---
 
 <section class="stage glow" id="top" data-label={d.sections.hero} data-stage data-dust="stacked-shift">
@@ -33,9 +35,12 @@ const [vx, vy, vw, vh] = brand.viewBox;
   </p>
   <div class="hero container-x">
     <p class="eyebrow hero-eyebrow hero-in" data-dust-top>{d.hero.eyebrow}</p>
-    <h1 class="hero-title" data-dust-title style={`--fit:${d.hero.titleFitEm}`}>
-      <span class="hero-in">{d.hero.line1}</span>
-      <span class="hero-in">{d.hero.line2Before}<span class="accent">{d.hero.accent}</span>{d.hero.line2After}</span>
+    <h1 class="hero-title" data-dust-title style={`--fit:${d.hero.titleFitEm};--fit-wide:${d.hero.titleFitEmWide}`}>
+      <span class="hero-in">{title1.map((p) => (p.accent ? <span class="accent">{p.text}</span> : p.text))}</span>
+      <span class="hero-in">
+        <span class="hero-l">{title2.map((p) => (p.accent ? <span class="accent">{p.text}</span> : p.text))}</span>{' '}
+        <span class="hero-l">{title3.map((p) => (p.accent ? <span class="accent">{p.text}</span> : p.text))}</span>
+      </span>
     </h1>
     <div class="hero-bottom hero-in">
       <p class="hero-sub">{d.hero.sub}</p>
@@ -148,35 +153,41 @@ const [vx, vy, vw, vh] = brand.viewBox;
     /* may lie on the dust of the wordmark: almost white so it stays readable */
     color: rgb(236 240 241 / 0.92);
   }
+  /* Narrow phones: the eyebrow stays on one line, so the dust wordmark above keeps its height */
+  @media (max-width: 26rem) {
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+  }
   .hero-title {
     display: grid;
-    /* Phones/tablets: exactly two lines. The size follows the screen width so the longest line of the
-       current language fits (--fit = its width in em, set from i18n hero.titleFitEm). */
+    /* Phones: three lines; from 48rem two (the 2nd and 3rd lines join). The size follows the screen width
+       so the longest line of the current language fits: --fit / --fit-wide = its width in em
+       (i18n hero.titleFitEm for three lines, hero.titleFitEmWide for two). No line ever wraps. */
     font-size: min(calc((100vw - 2rem) / var(--fit, 9) * 0.97), 4.5rem);
     line-height: 0.98;
     letter-spacing: -0.035em;
   }
+  .hero-title > span,
+  .hero-l {
+    display: block;
+    white-space: nowrap;
+  }
   @media (min-width: 48rem) {
     .hero-title {
-      font-size: min(calc((100vw - 4rem) / var(--fit, 9) * 0.97), 4.5rem);
+      font-size: min(calc((100vw - 4rem) / var(--fit-wide, 9) * 0.97), 4.5rem);
     }
-  }
-  @media (max-width: 63.99rem) {
-    .hero-title > span {
-      white-space: nowrap;
+    .hero-l {
+      display: inline;
     }
   }
   @media (min-width: 64rem) {
     .hero-title {
-      /* two lines on desktop too: the longest line takes at most ~66% of the width */
-      font-size: min(6.3vw, 8.5rem, calc(66vw / var(--fit, 9)));
+      /* the longest line takes at most ~66% of the width */
+      font-size: min(6.3vw, 8.5rem, calc(66vw / var(--fit-wide, 9)));
     }
-    .hero-title > span {
-      white-space: nowrap;
-    }
-  }
-  .hero-title > span {
-    display: block;
   }
   .hero-bottom {
     display: grid;

@@ -49,6 +49,14 @@ export function asset(path: string): string {
   return `${base}/${path.replace(/^\//, '')}`;
 }
 
+/** Split "text *accent* text" into parts; the starred part is shown in the accent colour. */
+export function accentParts(text: string): { text: string; accent: boolean }[] {
+  return text
+    .split(/(\*[^*]+\*)/)
+    .filter(Boolean)
+    .map((part) => (part.startsWith('*') ? { text: part.slice(1, -1), accent: true } : { text: part, accent: false }));
+}
+
 /** Replace {placeholders} in a template string. */
 export function fill(template: string, values: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? `{${key}}`));

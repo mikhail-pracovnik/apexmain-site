@@ -22,7 +22,7 @@ const services = defineCollection({
     hidden: z.boolean().default(false),
     /** core — shown on the home page; tech — integrations & technical setup (services page only). */
     group: z.enum(['core', 'tech']).default('core'),
-    /** Starting price in tenge; null shows "price after the free audit". */
+    /** Starting price in tenge; null shows "price after the audit". */
     priceFrom: z.number().nullable().default(null),
     video,
     /** Small square loop for the compact home-page card (one big, simple image). */

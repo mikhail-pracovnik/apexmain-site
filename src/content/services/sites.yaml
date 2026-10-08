@@ -3,7 +3,7 @@ order: 1
 draft: true          # служебная пометка, на сайте не показывается
 hidden: false        # true — скрыть услугу, не удаляя файл
 group: core            # core — на главной; tech — только на странице услуг
-priceFrom: null      # число в тенге, например 250000; null — «цена после разбора»
+priceFrom: null      # число в тенге, например 250000; null — «цена после аудита»
 video:
   webm: media/services/sites.webm
   mp4: media/services/sites.mp4

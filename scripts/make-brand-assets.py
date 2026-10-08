@@ -51,15 +51,15 @@ icon(512, radius_ratio=0).convert("RGB").save(PUBLIC / "icon-512.png")
 icon(192, radius_ratio=0).convert("RGB").save(PUBLIC / "icon-192.png")
 icon(48).save(PUBLIC / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)])
 
-# Open Graph 1200x630, one per locale
+# Open Graph 1200x630, one per locale: the hero headline in three lines (as on phones), *accent* in turquoise
 OG = {
-    "ru": ("Клиенты ищут.", "Пусть ", "находят", " вас."),
-    "kk": ("Клиенттер іздейді.", "Сізді ", "тапсын", "."),
-    "en": ("Customers are searching.", "Let them ", "find", " you."),
+    "ru": ("Бизнес меняется.", "Мы помогаем", "ему *успевать*."),
+    "kk": ("Бизнес өзгереді.", "Біз оған *үлгеруге*", "көмектесеміз."),
+    "en": ("Business changes.", "We help it", "*keep up*."),
 }
 display = ROOT / "fonts-src/Geologica.ttf"
 mono = ROOT / "fonts-src/PlexMono-Medium.ttf"
-for loc, (l1, a, accent, b) in OG.items():
+for loc, lines in OG.items():
     ss = 2
     W, H = 1200 * ss, 630 * ss
     img = Image.new("RGB", (W, H), C["ink"])
@@ -75,13 +75,13 @@ for loc, (l1, a, accent, b) in OG.items():
     except OSError:
         pass
     m = ImageFont.truetype(str(mono), 24 * ss)
-    x, y = 72 * ss, 330 * ss
     d.text((72 * ss, 72 * ss), "APEXMAIN", font=m, fill=C["apex"])
-    d.text((x, y), l1, font=f, fill=C["paper"])
-    y += 86 * ss
-    d.text((x, y), a, font=f, fill=C["paper"])
-    x2 = x + d.textlength(a, font=f)
-    d.text((x2, y), accent, font=f, fill=C["apex"])
-    d.text((x2 + d.textlength(accent, font=f), y), b, font=f, fill=C["paper"])
+    y = 250 * ss
+    for line in lines:
+        x = 72 * ss
+        for i, part in enumerate(line.split("*")):
+            d.text((x, y), part, font=f, fill=C["apex"] if i % 2 else C["paper"])
+            x += d.textlength(part, font=f)
+        y += 86 * ss
     img.resize((1200, 630), Image.LANCZOS).save(PUBLIC / f"og-{loc}.png", optimize=True)
 print("ok")
