@@ -3,6 +3,7 @@
  * Example mock-ups for the site: assets/examples-src/<id>/*.png (anonymised screenshots, not in git)
  * → public/media/examples/<id>/… and the manifest src/data/example-media.json.
  * Usage: npm run images:examples   (deterministic; the sources are never modified)
+ *        npm run images:examples -- bg   only the card backdrops (fast; the rest of the manifest is kept)
  *
  * Quality is the owner's requirement (these are the showcase): AVIF q70 4:4:4, WebP near-lossless (better than
  * lossy q90: full colour resolution), JPEG q90 4:4:4,
@@ -12,20 +13,22 @@
  *  - card-desktop-<w>: the top three desktop screens (strip for the card's browser window, it scrolls);
  *  - card-mobile-<w>:  the top three phone screens (strip for the card's phone);
  *  - thumb-<w>:        the first desktop screen, small (background grid of the "your business" card);
+ *  - bg:               the card's backdrop: the first desktop screen, small and heavily blurred here (not by a
+ *                      CSS filter in the browser); its average colour goes to the manifest as the placeholder;
  *  - <device>-<page>-<nn>-<w>: full pages for the panel, in pieces. Safari on iPhone does not decode images
  *    much over ~16 MP, so a page is cut into pieces of at most 2880×3000 (desktop) / 1170×3000 (phone).
  *    The page is resized as a whole first and cut after, so the pieces are slices of one image; each piece
  *    also repeats the first OVERLAP rows of the next one (the CSS pulls the next piece up over them), so no
  *    seam can open at any zoom. Widths are chosen so every scale gives whole pixels.
  */
-import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import sharp from 'sharp';
 
 sharp.concurrency(4);
 const SRC = 'assets/examples-src';
 const OUT = 'public/media/examples';
 const MANIFEST = 'src/data/example-media.json';
-const IDS = ['barber', 'coffee', 'clinic', 'salon', 'florist', 'beauty'];
+const IDS = ['salon', 'coffee', 'clinic', 'barber', 'florist', 'beauty'];
 
 const ENC = {
   avif: (s) => s.avif({ quality: 70, chromaSubsampling: '4:4:4', effort: 4 }),
@@ -44,11 +47,31 @@ const CARD = {
   mobile: { file: 'mobile-index.png', screen: 2532, screens: 3, widths: [130, 260, 390] },
 };
 const THUMB_WIDTHS = [240, 480, 720, 960];
+// backdrop: 400×250, Gaussian sigma 25 (= the owner's sketch: sigma 20 at 320 px); a blurred image needs no more pixels
+const BG = { width: 400, height: 250, sigma: 25 };
+// no small text in a blur: plain lossy WebP q90 is enough (near-lossless would be 20× heavier)
+const ENC_BG = { ...ENC, webp: (s) => s.webp({ quality: 90, effort: 5 }) };
+const ONLY_BG = process.argv.includes('bg');
 const PAGES = { index: { desktop: 'desktop-index-full.png', mobile: 'mobile-index.png' }, catalog: { desktop: 'desktop-catalog.png', mobile: 'mobile-catalog.png' } };
 
 const open = (file) => sharp(file, { limitInputPixels: false });
-async function writeAll(img, base) {
-  await Promise.all(Object.entries(ENC).map(([ext, enc]) => enc(img.clone()).toFile(`${base}.${ext}`)));
+async function writeAll(img, base, enc = ENC) {
+  await Promise.all(Object.entries(enc).map(([ext, e]) => e(img.clone()).toFile(`${base}.${ext}`)));
+}
+
+async function makeBg(id) {
+  const src = `${SRC}/${id}/desktop-index.png`;
+  await writeAll(open(src).resize(BG.width, BG.height, { kernel: 'lanczos3' }).blur(BG.sigma), `${OUT}/${id}/bg`, ENC_BG);
+  const { data } = await open(src).resize(1, 1, { kernel: 'cubic' }).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  return { width: BG.width, height: BG.height, color: '#' + [...data].map((v) => v.toString(16).padStart(2, '0')).join('') };
+}
+
+if (ONLY_BG) {
+  const manifest = JSON.parse(readFileSync(MANIFEST, 'utf8'));
+  for (const id of IDS) manifest.examples[id].bg = await makeBg(id);
+  writeFileSync(MANIFEST, JSON.stringify(manifest, null, 2) + '\n');
+  console.log(`backdrops → ${OUT}/*/bg.*, ${MANIFEST}`);
+  process.exit(0);
 }
 
 const manifest = { device: DEVICE, card: {}, examples: {} };
@@ -75,6 +98,7 @@ for (const id of IDS) {
   }
   // thumbnails of the first desktop screen
   for (const w of THUMB_WIDTHS) await writeAll(open(`${dir}/desktop-index.png`).resize({ width: w, kernel: 'lanczos3' }), `${out}/thumb-${w}`);
+  entry.bg = await makeBg(id);
 
   // full pages in pieces
   for (const [page, files] of Object.entries(PAGES)) {

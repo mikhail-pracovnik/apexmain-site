@@ -46,6 +46,8 @@ npm run check:names  # проверка на названия сторонних
 
     npm run images:examples
 
+Только размытые фоны карточек (быстро): `npm run images:examples -- bg`.
+
 Скрипт `scripts/make-example-images.mjs` делает AVIF/WebP/JPEG всех нужных ширин, режет длинные страницы
 на куски до 2880×3000 и 1170×3000 и пишет `src/data/example-media.json`. Исходники не меняет.
 Новый макет: папка с теми же пятью файлами в `assets/examples-src/`, его id в списке `IDS` скрипта

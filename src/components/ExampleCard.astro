@@ -4,12 +4,15 @@
  * ApexMain brand). The desktop home page scrolls slowly through its first screens inside the window,
  * pauses and comes back; the phone does the same, out of step. Only transform moves; cards off screen
  * stand still (scripts/example-cards.ts); with reduced motion the first screen is shown.
+ * Backdrop ("glow of the mock-up", owner's sketch, variant 1): the same mock-up's first screen, blurred at build
+ * time (scripts/make-example-images.mjs), slightly enlarged so the blur's edges stay outside; a soft light in the
+ * top left corner and a faint shade over it so the window and the phone stand out.
  * Caption: niche tag, business type, one line, "I want one like this" (to the lead form, as before).
  * The rest of the card opens the mock-up's panel on the examples page (/examples/#<id>).
  */
 import type { CollectionEntry } from 'astro:content';
 import { t, url, type Locale } from '../i18n';
-import { cardStrip, type PictureSet } from '../lib/example-media';
+import { cardBg, cardStrip, type PictureSet } from '../lib/example-media';
 
 interface Props {
   example: CollectionEntry<'examples'>;
@@ -39,6 +42,7 @@ const CARD = {
 const sizes = (share: number) => CARD.map((s) => s.replace(/(calc\(.*\)|\d+px)$/, (m) => `calc(${m} * ${share})`)).join(', ');
 const desktop = cardStrip(id, 'desktop');
 const mobile = cardStrip(id, 'mobile');
+const bg = cardBg(id);
 const pics: [PictureSet, string, string][] = [
   [desktop, sizes(0.75), 'ex-win-screen'],
   [mobile, sizes(0.1708), 'ex-phone-screen'],
@@ -46,7 +50,13 @@ const pics: [PictureSet, string, string][] = [
 ---
 
 <article class:list={['example', reveal && 'reveal']} data-niche={e.niche} data-example-card style={`--i:${index % 2}`}>
-  <div class="example-media">
+  <div class="example-media" style={`--ex-bg:${bg.color}`}>
+    <picture class="ex-bg" aria-hidden="true">
+      <source type="image/avif" srcset={bg.avif} />
+      <source type="image/webp" srcset={bg.webp} />
+      <img src={bg.jpg} width={bg.width} height={bg.height} alt="" loading="lazy" decoding="async" draggable="false" />
+    </picture>
+    <span class="ex-bg-light" aria-hidden="true"></span>
     {
       pics.map(([p, s, cls]) => (
         <div class={cls === 'ex-win-screen' ? 'ex-win' : 'ex-phone'}>
@@ -128,13 +138,30 @@ const pics: [PictureSet, string, string][] = [
     aspect-ratio: 16 / 10;
     border-radius: var(--radius-card);
     overflow: hidden;
-    background:
-      radial-gradient(80% 90% at 75% 20%, rgb(70 200 217 / 0.12), transparent 70%),
-      repeating-linear-gradient(0deg, rgb(148 178 220 / 0.05) 0 1px, transparent 1px 3.333cqw),
-      repeating-linear-gradient(90deg, rgb(148 178 220 / 0.05) 0 1px, transparent 1px 3.333cqw),
-      var(--color-ink-2);
+    background: var(--color-paper);
     box-shadow: 0 30px 60px -40px rgb(10 12 17 / 0.6);
     transform: translateZ(0);
+  }
+  /* backdrop: blurred mock-up at 90% over paper (its average colour until it loads), enlarged past the edges */
+  .ex-bg {
+    position: absolute;
+    inset: -10%;
+    background: var(--ex-bg);
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+  .ex-bg img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .ex-bg-light {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 90% at 30% 20%, rgb(255 255 255 / 0.18), transparent 60%),
+      rgb(0 0 0 / 0.08);
   }
   .ex-win {
     position: absolute;

@@ -41,6 +41,13 @@ export function thumb(id: string): PictureSet {
   return set((w) => `${dir(id)}/thumb-${w}`, manifest.thumbWidths, (w) => Math.round((w * 1800) / 2880));
 }
 
+/** Card backdrop: the first desktop screen, small and blurred at build time; color = its average (placeholder). */
+export function cardBg(id: string) {
+  const b = manifest.examples[id as keyof typeof manifest.examples].bg;
+  const f = (ext: string) => asset(`${dir(id)}/bg.${ext}`);
+  return { avif: f('avif'), webp: f('webp'), jpg: f('jpg'), width: b.width, height: b.height, color: b.color };
+}
+
 export function exampleIds() {
   return Object.keys(manifest.examples);
 }
