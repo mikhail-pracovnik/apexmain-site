@@ -1,7 +1,7 @@
 # Пример = обезличенный макет под брендом ApexMain. Имя файла = id = папка картинок
 # public/media/examples/<id>/ (собирает npm run images:examples из assets/examples-src/<id>/).
 # niche — общая категория из niches.yaml; catalog — prices (вкладка «Цены») или menu («Меню»).
-order: 1
+order: 4
 hidden: false
 niche: beauty
 catalog: prices
