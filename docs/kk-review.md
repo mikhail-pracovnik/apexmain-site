@@ -104,7 +104,7 @@ public/og-kk.png — заголовок hero (делается scripts/make-bran
 | `examples.panel.menu` | Меню | Мәзір |
 | `examples.panel.close` | Закрыть | Жабу |
 | `examples.panel.outro` | Каждый проект мы создаём под конкретный бизнес: с другой структурой, стилем и логикой. Но уровень проработки, дизайна и качества останется таким же. | Әр жобаны нақты бизнеске арнап жасаймыз: басқа құрылыммен, стильмен және логикамен. Бірақ пысықтау, дизайн және сапа деңгейі дәл осындай болады. |
-| `examples.panel.imageAlt` | Макет сайта «{title}»: {page}, версия для {device} | «{title}» сайтының макеті: {page}, {device} нұсқасы |
+| `examples.panel.imageAlt` | Концепт сайта «{title}»: {page}, версия для {device} | «{title}» сайтының макеті: {page}, {device} нұсқасы |
 | `examples.panel.deviceAlt.desktop` | компьютера | компьютер |
 | `examples.panel.deviceAlt.mobile` | телефона | телефон |
 | `examples.next.kicker` | Ваш бизнес | Сіздің бизнесіңіз |
@@ -115,3 +115,34 @@ public/og-kk.png — заголовок hero (делается scripts/make-bran
 | `examples.next.summary` | Сделаем концепцию под ваши задачи | Сіздің міндеттеріңізге тұжырымдама жасаймыз |
 | `examples.next.cta` | Обсудить проект | Жобаны талқылау |
 | `examples.next.label` | Ваш бизнес — следующий. Обсудить проект | Келесі — сіздің бизнесіңіз. Жобаны талқылау |
+
+## Сцены в карточках услуг (добавлено 8 октября 2026)
+
+Короткие надписи внутри анимированных сцен. Должны помещаться в маленькие плашки: если перевод длиннее, лучше короче по смыслу. WhatsApp и Instagram не переводятся, суммы в тенге.
+
+| Ключ | Русский | Казахский (черновик) |
+|---|---|---|
+| `services.scene.book` | Записаться | Жазылу |
+| `services.scene.leadKicker` | Новая заявка · сайт | Жаңа өтінім · сайт |
+| `services.scene.leadText` | Стрижка, сегодня 18:00 | Шаш қию, бүгін 18:00 |
+| `services.scene.leadReply` | ответить в WhatsApp → | WhatsApp-та жауап беру → |
+| `services.scene.postLabel` | Новинка недели | Апта жаңалығы |
+| `services.scene.message` | Здравствуйте! Есть 42-й размер? | Сәлеметсіз бе! 42 өлшем бар ма? |
+| `services.scene.query` | кофейня рядом | жақын кофехана |
+| `services.scene.place1` | Кофейня у парка | Саябақтағы кофехана |
+| `services.scene.place2` | Кофейня на углу | Бұрыштағы кофехана |
+| `services.scene.yours` | Ваша кофейня | Сіздің кофеханаңыз |
+| `services.scene.requests` | Заявки | Өтінімдер |
+| `services.scene.colNew` | Новые | Жаңа |
+| `services.scene.colWork` | В работе | Жұмыста |
+| `services.scene.colPaid` | Оплачено | Төленді |
+| `services.scene.fromSite` | С сайта | Сайттан |
+| `services.scene.leadB` | доставка · 2 шт | жеткізу · 2 дана |
+| `services.scene.leadC` | консультация | кеңес |
+| `services.scene.reminder` | Клиенту ушло напоминание | Клиентке еске салу кетті |
+| `services.scene.qr` | оплата по QR | QR арқылы төлем |
+| `services.scene.receipt` | Чек | Чек |
+| `services.scene.item2` | Сырники | Сырниктер |
+| `services.scene.item3` | Доставка | Жеткізу |
+| `services.scene.total` | Итого | Барлығы |
+| `services.scene.posted` | Оплата пришла в учёт | Төлем есепке түсті |

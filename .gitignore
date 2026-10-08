@@ -33,3 +33,5 @@ skills-lock.json
 .env.*
 .DS_Store
 Thumbs.db
+# эталоны дизайна владельца (прототипы), хранятся у владельца
+assets/design-src/
