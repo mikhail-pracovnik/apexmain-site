@@ -32,12 +32,24 @@ npm run check:names  # проверка на названия сторонних
 
 ### Добавить услугу
 Скопировать любой файл из `src/content/services/`, переименовать, поменять тексты. Код трогать не нужно.
-`priceFrom: 250000` покажет «от 250 000 ₸», `null` — «цена после разбора». `hidden: true` скрывает услугу.
+`priceFrom: 250000` покажет «от 250 000 ₸», `null` — «цена после аудита». `hidden: true` скрывает услугу.
 
-### Заменить болванку примера реальным макетом
-Положить картинки в `public/media/examples/` и вписать пути в `images.desktop` / `images.mobile`
-нужного файла в `src/content/examples/`. Ролик — в `video` (WebM + MP4 + постер). Пока файлов нет,
-сайт рисует фирменную болванку.
+### Примеры (макеты сайтов)
+Шесть обезличенных макетов под брендом ApexMain: barber, coffee, clinic, salon, florist, beauty.
+Тексты карточек — `src/content/examples/<id>.yaml`, картинки — `public/media/examples/<id>/`.
+
+Исходники (PNG-скриншоты, около 250 МБ) в git не хранятся: они в `assets/examples-src/<id>/`
+у владельца (папка в `.gitignore`). В каждой папке `desktop-index.png`, `desktop-index-full.png`,
+`desktop-catalog.png`, `mobile-index.png`, `mobile-catalog.png`.
+
+Пересобрать картинки для сайта из исходников (после замены любого скриншота или нового макета):
+
+    npm run images:examples
+
+Скрипт `scripts/make-example-images.mjs` делает AVIF/WebP/JPEG всех нужных ширин, режет длинные страницы
+на куски до 2880×3000 и 1170×3000 и пишет `src/data/example-media.json`. Исходники не меняет.
+Новый макет: папка с теми же пятью файлами в `assets/examples-src/`, его id в списке `IDS` скрипта
+и yaml-файл в `src/content/examples/`.
 
 ### Открыть сайт для поисковиков
 `demo: false` в `src/config/site.ts` — уберёт `noindex` со страниц и откроет robots.txt.

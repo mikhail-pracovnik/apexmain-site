@@ -11,6 +11,8 @@ content/raw/
 content/sources/
 assets/raw/
 assets/source/
+# example mock-up sources (~250 MB): kept by the owner, see README
+assets/examples-src/
 *.psd
 *.fig
 *.sketch
