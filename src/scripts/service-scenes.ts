@@ -6,20 +6,22 @@
  * translations instead of a clip-path. Class changes go through classList (Astro's scope class stays).
  *
  * Playback: each scene loops on its own timeline. Before it starts, a card shows the assembled frame (62% of the
- * loop, the reduced-motion frame), never an empty stage. While the card is within 200 px of the screen the timeline
- * is moved on to the next moment where something moves (nothing changes in between, so the frame is the same):
- * once it plays, motion is immediate. It plays when a third of it is on screen; at most three scenes at once on
- * desktop (from 1024 px), two on phones and tablets — the ones closest to the centre of the screen. Off screen it
- * pauses and later goes on from the same place. The lights inside a card stand still. A hidden tab stops GSAP's
- * ticker. Reduced motion: the assembled frame.
+ * loop, the reduced-motion frame), never an empty stage. First start: the assembled frame fades out in 0.25 s
+ * (the .st-fx wrapper, so the timeline's own opacity values are untouched), the timeline is put at its very
+ * beginning while the wrapper is invisible, the wrapper comes back and the story plays from 0 — its first tweens
+ * start at 0.2 s, so the story moves about 0.45 s after the start (it used to play out the end of the loop from
+ * the assembled frame first: 1.2–3.1 s of stillness and a fade). Later, off screen it pauses and on return goes on
+ * from the same place, without a fade. It plays when a quarter of it is on screen; at most three scenes at once on
+ * desktop (from 1024 px), two on phones and tablets — the ones closest to the centre of the screen. The lights
+ * inside a card stand still. A hidden tab stops GSAP's ticker. Reduced motion: the assembled frame.
  */
 import gsap from 'gsap';
 
 type Build = (r: HTMLElement) => gsap.core.Timeline;
 const q = <T extends Element = HTMLElement>(s: string, r: ParentNode) => r.querySelector<T>(s)!;
 const qa = <T extends Element = HTMLElement>(s: string, r: ParentNode) => Array.from(r.querySelectorAll<T>(s));
-const THRESHOLD = 1 / 3;
-const NEAR = '200px';
+const THRESHOLD = 1 / 4;
+const FADE = 0.25; // first start: the assembled frame fades out
 const maxPlaying = () => (window.matchMedia('(min-width: 64rem)').matches ? 3 : 2);
 const ASSEMBLED = 0.62;
 
@@ -167,22 +169,8 @@ interface Item {
   extra: gsap.core.Tween[];
   ratio: number;
   playing: boolean;
-  /** has played at least once (then it resumes where it paused, no more jumps) */
+  /** has started once (then it resumes where it paused, no more fades) */
   started: boolean;
-}
-
-/** Move a waiting timeline on to the next moment where a tween runs, if nothing runs now (same frame). */
-function primeMotion(tl: gsap.core.Timeline) {
-  const t = tl.time();
-  const tweens = tl.getChildren(true, true, false).filter((c) => c.duration() > 0);
-  const startOf = (c: gsap.core.Animation) => {
-    let s = c.startTime();
-    for (let p = c.parent; p && p !== tl; p = p.parent) s += p.startTime();
-    return s;
-  };
-  if (tweens.some((c) => startOf(c) <= t + 0.05 && startOf(c) + c.totalDuration() > t + 0.05)) return;
-  const next = Math.min(...tweens.map(startOf).filter((s) => s > t));
-  if (Number.isFinite(next)) tl.time(next - 0.02, false);
 }
 
 export function initServiceScenes() {
@@ -211,9 +199,28 @@ export function initServiceScenes() {
     if (it.playing === on) return;
     it.playing = on;
     it.el.classList.toggle('is-playing', on);
-    if (on) {
-      if (!it.started) primeMotion(it.tl);
+    if (on && !it.started) {
+      // first start: fade the assembled frame out, then the story from its beginning
       it.started = true;
+      const fx = it.el.querySelector('.st-fx');
+      gsap.to(fx, {
+        opacity: 0,
+        duration: FADE,
+        ease: 'power1.out',
+        onComplete: () => {
+          // from the assembled frame back to the start, rendered just past 0 so the opening .set()/.call()
+          // values are in place before the wrapper shows again (no empty or stale frame)
+          it.tl.time(0, false).time(0.001, false);
+          gsap.set(fx, { opacity: 1 });
+          if (it.playing) {
+            it.tl.play();
+            it.extra.forEach((t) => t.play());
+          }
+        },
+      });
+      return;
+    }
+    if (on) {
       it.tl.play();
       it.extra.forEach((t) => t.play());
     } else {
@@ -241,20 +248,9 @@ export function initServiceScenes() {
       }
       pick();
     },
-    { threshold: [0, 0.15, THRESHOLD, 0.5, 0.75, 1] },
+    { threshold: [0, 0.1, THRESHOLD, 0.5, 0.75, 1] },
   );
   items.forEach((i) => io.observe(i.el));
-  // on the way in: get the timeline to its next moving moment while the card is still off screen
-  const near = new IntersectionObserver(
-    (entries) => {
-      for (const e of entries) {
-        const it = items.find((i) => i.el === e.target);
-        if (it && e.isIntersecting && !it.started) primeMotion(it.tl);
-      }
-    },
-    { rootMargin: NEAR },
-  );
-  items.forEach((i) => near.observe(i.el));
   // the closest-to-centre order changes while the page or a rail scrolls, without crossing a threshold
   let queued = false;
   const onScroll = () => {

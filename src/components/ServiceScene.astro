@@ -79,6 +79,8 @@ const qr = scene === 'pay' ? qrPath() : '';
 <div class="sc" aria-hidden="true" data-scene={scene}>
   <div class:list={['st', `s-${scene}`]}>
     {ORBS[scene].map(([k, x, y, i]) => <i class={`orb orb-${k}`} style={`left:${x}cqw;top:${y}cqw`} data-i={i} />)}
+    {/* the scene itself (the lights stay outside): faded out once before the first run, see service-scenes.ts */}
+    <div class="st-fx">
 
     {
       scene === 'site' && (
@@ -273,6 +275,7 @@ const qr = scene === 'pay' ? qrPath() : '';
         </Fragment>
       )
     }
+    </div>
   </div>
 </div>
 
@@ -321,10 +324,14 @@ const qr = scene === 'pay' ? qrPath() : '';
     background: radial-gradient(closest-side, rgb(226 232 240 / 0.28), rgb(226 232 240 / 0));
   }
   .st > *,
+  .st-fx > *,
   .phone > *,
   .term > *,
   .feed > * {
     position: absolute;
+  }
+  .st-fx {
+    inset: 0;
   }
   .chart svg,
   .dot {
