@@ -4,7 +4,8 @@
  * build() is the prototype's.
  *
  * Running: built (GSAP + fonts) when the section comes near; until it first plays, it shows the
- * assembled frame of step 1 (1.3s). Plays while the section is on screen, pauses when it leaves or the
+ * assembled frame of step 1 (1.3s). Starts 1s after the section comes on screen (time to start
+ * reading), plays while it is on screen, pauses when it leaves or the
  * tab is hidden, resumes from the same place. The route (65 points) is recomputed only while playing and
  * only when its shape changes; the dot only when it moves. Rings and the trail stay on every device
  * (html.lite is set on iPhones too: Safari reports few CPU cores, and without the trail the rhombus
@@ -15,6 +16,8 @@ type Gsap = typeof import('gsap').gsap;
 
 const STEP = 3;
 const FIRST_FRAME = 1.3;
+/** Pause before the loop starts (or resumes) once the scene is on screen, ms. */
+const START_DELAY = 1000;
 const X0 = 8,
   X1 = 92,
   HOLE = 62;
@@ -193,10 +196,23 @@ export function initProcessMotion() {
   /* ---------- Build near the screen, play only while visible ---------- */
   let visible = false;
   let building: Promise<void> | null = null;
+  // When the scene comes into view it holds still for START_DELAY first, so the visitor can start
+  // reading before anything moves (also after scrolling back or returning to the tab).
+  let startTimer = 0;
   const update = () => {
     if (!tl) return;
-    if (visible && !document.hidden) tl.play();
-    else tl.pause();
+    const timeline = tl;
+    if (visible && !document.hidden) {
+      if (timeline.isActive() || startTimer) return;
+      startTimer = window.setTimeout(() => {
+        startTimer = 0;
+        if (visible && !document.hidden) timeline.play();
+      }, START_DELAY);
+    } else {
+      window.clearTimeout(startTimer);
+      startTimer = 0;
+      timeline.pause();
+    }
   };
   const ensureBuilt = () =>
     (building ??= Promise.all([import('gsap'), document.fonts?.ready]).then(([m]) => {
