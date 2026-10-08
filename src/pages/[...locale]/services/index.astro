@@ -15,7 +15,7 @@ const contact = url(locale, 'contact');
 ---
 
 <BaseLayout locale={locale} title={d.meta.servicesTitle} description={d.meta.servicesDescription} path="services">
-  <section class="section svc-page dark-lit" data-label={d.nav.services} aria-labelledby="svc-title">
+  <section class="section page-top svc-page dark-lit" data-label={d.nav.services} aria-labelledby="svc-title">
     <DarkBackdrop variant="services-page" fade="bottom" />
     <div class="container-x">
       <header class="svc-head">
@@ -82,19 +82,16 @@ const contact = url(locale, 'contact');
 </BaseLayout>
 
 <style>
-  .svc-page {
-    padding-top: 8.5rem;
-  }
   .svc-head {
     display: grid;
     gap: 1.5rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
   }
   .svc-index {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 4rem;
+    margin-bottom: 2.75rem;
   }
   .svc-index a {
     display: inline-flex;

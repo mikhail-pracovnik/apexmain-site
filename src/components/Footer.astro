@@ -135,17 +135,19 @@ const year = new Date().getFullYear();
     border-top: 1px solid var(--color-line);
   }
   .quotes {
-    padding-block: 5.5rem 4rem;
+    padding-block: 3.5rem 3rem;
   }
   @media (min-width: 64rem) {
     .quotes {
-      padding-block: 8rem 5rem;
+      padding-block: 5.5rem 4rem;
     }
   }
+  /* height kept for the longest quote (no jump when they change); quotes sit at the top, not centred,
+     so a short one leaves no hole between the section above and the quote */
   .quotes-stage {
     display: grid;
     min-height: 15rem;
-    align-items: center;
+    align-items: start;
   }
   @media (min-width: 64rem) {
     .quotes-stage {

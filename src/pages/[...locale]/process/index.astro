@@ -12,7 +12,7 @@ const steps = d.process.steps.map((s, i) => ({ ...s, details: d.processPage.deta
 ---
 
 <BaseLayout locale={locale} title={d.meta.processTitle} description={d.meta.processDescription} path="process">
-  <section class="section proc-page dark-lit" data-label={d.nav.process} aria-labelledby="proc-title">
+  <section class="section page-top proc-page dark-lit" data-label={d.nav.process} aria-labelledby="proc-title">
     <DarkBackdrop variant="process-page" />
     <div class="container-x">
       <header class="proc-head">
@@ -69,13 +69,10 @@ const steps = d.process.steps.map((s, i) => ({ ...s, details: d.processPage.deta
 </BaseLayout>
 
 <style>
-  .proc-page {
-    padding-top: 8.5rem;
-  }
   .proc-head {
     display: grid;
     gap: 1.5rem;
-    margin-bottom: 3.5rem;
+    margin-bottom: 2.5rem;
   }
   .proc-steps {
     border-top: 1px solid var(--color-line);

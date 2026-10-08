@@ -12,7 +12,7 @@ const d = t(locale);
 ---
 
 <BaseLayout locale={locale} title={d.meta.contactTitle} description={d.meta.contactDescription} path="contact">
-  <section class="section contact-page dark-lit" data-label={d.nav.lead} aria-labelledby="contact-title">
+  <section class="section page-top contact-page dark-lit" data-label={d.nav.lead} aria-labelledby="contact-title">
     <DarkBackdrop variant="contact" />
     <div class="container-x contact-inner">
       <header class="contact-head">
@@ -39,8 +39,7 @@ const d = t(locale);
 
 <style>
   .contact-page {
-    padding-top: 8.5rem;
-    padding-bottom: 3rem;
+    padding-bottom: 2.5rem;
   }
   .contact-inner {
     display: grid;

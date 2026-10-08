@@ -19,7 +19,7 @@ const updated = new Date().toISOString().slice(0, 10);
 ---
 
 <BaseLayout locale={locale} title={d.meta.privacyTitle} description={d.privacy.title} path="privacy" noindex>
-  <article class="section policy" data-label={d.footer.privacy}>
+  <article class="section page-top policy" data-label={d.footer.privacy}>
     <div class="container-x policy-inner">
       <h1 class="policy-title">{d.privacy.title}</h1>
       {isDraft && <p class="policy-note">{d.privacy.draftNote}</p>}
@@ -37,9 +37,6 @@ const updated = new Date().toISOString().slice(0, 10);
 </BaseLayout>
 
 <style>
-  .policy {
-    padding-top: 8.5rem;
-  }
   .policy-inner {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
