@@ -106,26 +106,26 @@
     }
   }
 
-  /* Vertical rhythm (9.10.2026, was 5.5 / 8.5rem): two sections meet with one even gap, no holes */
+  /* Vertical rhythm (9.10.2026: 5.5 / 8.5 → 3.5 / 4.5 / 5.5 → 2.5 / 3 / 3.5rem): two sections meet with one even, tight gap */
   .section {
     position: relative;
-    padding-block: 3.5rem;
+    padding-block: 2.5rem;
     /* every section paints its own background: the page background under it may be light */
     background: var(--color-ink);
   }
   @media (min-width: 48rem) {
     .section {
-      padding-block: 4.5rem;
+      padding-block: 3rem;
     }
   }
   @media (min-width: 64rem) {
     .section {
-      padding-block: 5.5rem;
+      padding-block: 3.5rem;
     }
   }
   /* separate pages: the first section clears the fixed header */
   .page-top {
-    padding-top: 6.5rem;
+    padding-top: 6.25rem;
   }
   @media (min-width: 64rem) {
     .page-top {
