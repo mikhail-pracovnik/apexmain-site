@@ -115,7 +115,11 @@ if (bands.length && 'IntersectionObserver' in window) {
     if (light === pageLight) return;
     pageLight = light;
     const bg = light ? getComputedStyle(bottom!).backgroundColor : darkBg;
-    root.style.setProperty('--page-bg', bg);
+    // the colour itself on html and body, not a custom property on html: a custom property is inherited, and
+    // changing it restyled the whole document (7–10 ms on a desktop, several times that on a phone, right when
+    // the screen passes from a light section to a dark one)
+    root.style.backgroundColor = bg;
+    document.body.style.backgroundColor = bg;
     root.classList.toggle('page-light', light);
     themeMeta?.setAttribute('content', bg);
   };

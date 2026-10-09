@@ -29,11 +29,11 @@
 
 /* ---------- Base ---------- */
 @layer base {
-  /* Page background follows the section at the bottom edge of the screen (common.ts → --page-bg):
+  /* Page background follows the section at the bottom edge of the screen (common.ts sets it on html and body):
      the new Safari tints the area under its floating toolbar with this colour. */
   html,
   body {
-    background-color: var(--page-bg, var(--color-ink));
+    background-color: var(--color-ink);
   }
   html {
     color: var(--color-paper);

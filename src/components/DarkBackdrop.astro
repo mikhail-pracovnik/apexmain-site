@@ -2,16 +2,22 @@
 /**
  * Background of the dark sections (owner's prototype assets/design-src/dark-sections.html, variant C
  * "tiles revealed by light"). Layers, bottom to top:
- *  1. the gradient (.dark-lit in global.css, repeated on the group so the grain's overlay has it under it);
+ *  1. the gradient (.dark-lit in global.css, repeated on the group: under a faded edge it shows through from
+ *     #030306), with a barely visible 140px grid and the site's grain painted together with it: one still layer,
+ *     rastered once (9.10.2026: the grain used to lie on top in `overlay`; a blend mode over moving light made the
+ *     GPU copy and re-blend the whole section every frame, the main cause of dropped frames on desktops);
  *  2. three large soft lights (indigo, muted turquoise, pale white) drifting back and forth (CSS, transform only);
- *  3. a barely visible 140px grid over the whole section;
- *  4. the same grid, brighter, seen only inside two soft spots that wander over the section; on devices with a
- *     mouse the first one follows the pointer. The prototype moved a mask with CSS variables every frame
- *     (a repaint of a large layer); here each spot is an element with a fixed radial mask moved by transform,
- *     and the grid inside it moves back by the same amount, so the grid stays put (scripts/dark-backdrop.ts);
- *  5. grain: the site's noise in overlay.
+ *  3. the same grid, brighter, seen only inside two soft spots that wander over the section along the prototype's
+ *     paths (sines). Each spot has a fixed radial mask; CSS animations move it (x and y on two nested wrappers,
+ *     sine easing) and move the grid inside it back by the same amount (two more wrappers with the opposite
+ *     keyframes), so the grid stays put. They run on the compositor: no script and no main-thread work per frame
+ *     (it used to be a script writing transforms every frame, the main cost on phones). The script
+ *     (scripts/dark-backdrop.ts) is left only for the pointer (the first spot follows the mouse) and for a section
+ *     much taller than the screen (db-tall: the spots wander over its visible part);
+ *  4. at an edge shared with another dark section, a strip of #030306 fading out over 9rem (not a mask: a mask over
+ *     moving content is one more offscreen pass every frame).
  * Everything stands still off screen and in a hidden tab; reduced motion: lights and spots at their start;
- * light version (html.lite): no layer 4, no pointer, the lights stand still. lite may be switched on while the
+ * light version (html.lite): no layer 3, no pointer, the lights stand still. lite may be switched on while the
  * page is open (scripts/perf-watch.ts): the lights then stop where they are and the spots fade out, no jump.
  */
 interface Props {
@@ -68,16 +74,38 @@ const LIGHTS: Record<Props['variant'], [string, string][]> = {
 };
 // phase of the spots' paths (seconds), so the sections do not move in step
 const PHASE = { hero: 23, services: 0, integrations: 37, process: 83, 'services-page': 11, 'process-page': 53, contact: 71 }[variant];
+// The prototype's paths in % of the section: spot 1 x = 30 + 22·sin(0.17 s), y = 42 + 20·sin(0.23 s + 1);
+// spot 2 x = 72 + 16·sin(0.13 s + 2), y = 66 + 18·cos(0.19 s). In CSS: an alternate animation from −A to +A with
+// sine easing is −A·cos(ω·t), half a period π/ω long, so A·sin(ω·(s + phase) + c) is that animation delayed by
+// −((c + π/2)/ω + phase). A in % of the spot box (56% × 80% of the section).
+const axis = (amp: number, box: number, w: number, c: number) =>
+  `--a:${(amp / box).toFixed(4)}%;--t:${(Math.PI / w).toFixed(4)}s;--d:${(-((c + Math.PI / 2) / w + PHASE)).toFixed(4)}s`;
+const SPOTS = [
+  { bx: 30, by: 42, x: axis(22, 0.56, 0.17, 0), y: axis(20, 0.8, 0.23, 1) },
+  { bx: 72, by: 66, x: axis(16, 0.56, 0.13, 2), y: axis(18, 0.8, 0.19, Math.PI / 2) },
+];
 ---
 
 <div class="db" class:list={[fade && `db-fade-${fade}`]} aria-hidden="true" data-dark-bg data-phase={PHASE}>
   <div class="db-lights">
     {LIGHTS[variant].map(([k, pos]) => <i class={`db-orb db-orb-${k}`} style={pos} />)}
   </div>
-  <div class="db-grid db-faint"></div>
-  <div class="db-spot" style="--bx:30%;--by:42%" data-spot="1"><div class="db-grid db-lit"></div></div>
-  <div class="db-spot" style="--bx:72%;--by:66%" data-spot="2"><div class="db-grid db-lit"></div></div>
-  <div class="db-grain"></div>
+  {
+    SPOTS.map((p, i) => (
+      <div class="db-spot" style={`--bx:${p.bx}%;--by:${p.by}%`} data-spot={i + 1}>
+        <div class="db-sx" style={p.x}>
+          <div class="db-sy" style={p.y}>
+            <div class="db-cy" style={p.y}>
+              <div class="db-cx" style={p.x}>
+                <div class="db-grid db-lit" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    ))
+  }
+  {fade && <div class="db-edge" />}
 </div>
 
 <script>
@@ -93,16 +121,47 @@ const PHASE = { hero: 23, services: 0, integrations: 37, process: 83, 'services-
     overflow: hidden;
     pointer-events: none;
     --tile: 140px;
-    /* layer 1 again inside the group: the grain blends (overlay) with what is under it in this group */
-    background: linear-gradient(170deg, #07090f, #030306 70%);
+    /* layer 1 with the faint grid (lines rgba(238,241,244,.03), centred horizontally); the grid lies under the
+       lights now (it was over them: the difference is under one level of brightness) */
+    background-color: #030306;
+    background-image:
+      linear-gradient(rgb(238 241 244 / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(238 241 244 / 0.03) 1px, transparent 1px),
+      linear-gradient(170deg, #07090f, #030306 70%);
+    background-size:
+      var(--tile) var(--tile),
+      var(--tile) var(--tile),
+      auto;
+    background-position:
+      center top,
+      center top,
+      0 0;
   }
-  .db-fade-top {
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 9rem);
-    mask-image: linear-gradient(to bottom, transparent, #000 9rem);
+  /* the site's grain in normal blending, painted with layer 1 (not composited, rastered once). In overlay at 0.1 it
+     added up to 9% of the local brightness, i.e. only in the lit parts; at 0.012 it adds about as much there, and
+     the site's own grain (html::after) lies over everything anyway */
+  .db::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.012;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-  .db-fade-bottom {
-    -webkit-mask-image: linear-gradient(to top, transparent, #000 9rem);
-    mask-image: linear-gradient(to top, transparent, #000 9rem);
+  /* an edge shared with another dark section: everything fades into #030306 over 9rem (as the old mask did: the
+     section under it is #030306 there) */
+  .db-edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 9rem;
+  }
+  .db-fade-top > .db-edge {
+    top: 0;
+    background: linear-gradient(to bottom, #030306, rgb(3 3 6 / 0));
+  }
+  .db-fade-bottom > .db-edge {
+    bottom: 0;
+    background: linear-gradient(to top, #030306, rgb(3 3 6 / 0));
   }
 
   /* 2. drifting light */
@@ -165,29 +224,83 @@ const PHASE = { hero: 23, services: 0, integrations: 37, process: 83, 'services-
     }
   }
 
-  /* 3–4. the grid: faint everywhere, brighter inside the spots */
+  /* 3. the grid, brighter inside the spots */
   .db-grid {
     position: absolute;
     background-size: var(--tile) var(--tile);
     background-position: center top;
   }
-  .db-faint {
-    inset: 0;
-    background-image:
-      linear-gradient(rgb(238 241 244 / 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(238 241 244 / 0.03) 1px, transparent 1px);
-  }
   /* a spot: 56% × 80% of the section around (--bx, --by), opaque in the middle, gone at 75% of its radius
-     (= radial-gradient(28% 40% at x y, #000, transparent 75%) of the prototype) */
+     (= radial-gradient(28% 40% at x y, #000, transparent 75%) of the prototype). The box itself is moved only by
+     the script (pointer offset, tall sections); the paths are the wrappers' CSS animations. */
   .db-spot {
     position: absolute;
     left: calc(var(--bx) - 28%);
     top: calc(var(--by) - 40%);
     width: 56%;
     height: 80%;
+  }
+  .db-sx,
+  .db-sy,
+  .db-cy,
+  .db-cx {
+    position: absolute;
+    inset: 0;
+    animation: var(--k) var(--t) cubic-bezier(0.37, 0, 0.63, 1) var(--d) infinite alternate both;
+    animation-play-state: paused;
+  }
+  .db-sx {
+    --k: db-x;
+  }
+  .db-sy {
+    --k: db-y;
     -webkit-mask-image: radial-gradient(50% 50% at 50% 50%, #000, transparent 75%);
     mask-image: radial-gradient(50% 50% at 50% 50%, #000, transparent 75%);
-    will-change: transform;
+  }
+  .db-cy {
+    --k: db-cy;
+  }
+  .db-cx {
+    --k: db-cx;
+  }
+  :global(html.motion:not(.lite)) .db:global(.db-on) :is(.db-sx, .db-sy, .db-cy, .db-cx) {
+    animation-play-state: running;
+  }
+  /* tall sections: the script moves the spot over the visible band instead */
+  .db:global(.db-tall) :is(.db-sx, .db-sy, .db-cy, .db-cx) {
+    animation: none;
+  }
+  @keyframes db-x {
+    from {
+      transform: translateX(calc(var(--a) * -1));
+    }
+    to {
+      transform: translateX(var(--a));
+    }
+  }
+  @keyframes db-y {
+    from {
+      transform: translateY(calc(var(--a) * -1));
+    }
+    to {
+      transform: translateY(var(--a));
+    }
+  }
+  @keyframes db-cx {
+    from {
+      transform: translateX(var(--a));
+    }
+    to {
+      transform: translateX(calc(var(--a) * -1));
+    }
+  }
+  @keyframes db-cy {
+    from {
+      transform: translateY(var(--a));
+    }
+    to {
+      transform: translateY(calc(var(--a) * -1));
+    }
   }
   /* the grid inside is section-sized and placed at the section's origin, so it lines up with the faint one */
   .db-lit {
@@ -198,7 +311,6 @@ const PHASE = { hero: 23, services: 0, integrations: 37, process: 83, 'services-
     background-image:
       linear-gradient(rgb(190 214 226 / 0.26) 1px, transparent 1px),
       linear-gradient(90deg, rgb(190 214 226 / 0.26) 1px, transparent 1px);
-    will-change: transform;
   }
   .db-spot {
     transition: opacity 0.8s ease;
@@ -221,12 +333,4 @@ const PHASE = { hero: 23, services: 0, integrations: 37, process: 83, 'services-
       visibility 0s 0.8s;
   }
 
-  /* 5. grain: the site's noise (html::after), in overlay */
-  .db-grain {
-    position: absolute;
-    inset: 0;
-    opacity: 0.1;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
 </style>

@@ -105,11 +105,18 @@ export function initProcessMotion() {
     }
   }
 
-  function build(gsap: Gsap) {
+  // The build is cut into short tasks (yield between them): in one go it took 60–90 ms on a phone-speed CPU, a
+  // long task right while the visitor scrolls through the section above.
+  const yieldTask = () => new Promise<void>((r) => window.setTimeout(r, 0));
+  async function build(gsap: Gsap) {
     slides.forEach((s) => {
       split(s.querySelector<HTMLElement>('[data-pm-letters]')!, 'letters');
       split(s.querySelector<HTMLElement>('[data-pm-words]')!, 'words');
     });
+    // GSAP reads each target's transform once (getComputedStyle) and caches it: all reads here, before the first
+    // write, cost one style recalculation instead of one per tween
+    [...stage.querySelectorAll<HTMLElement>('.l, .dw, .pm-rule'), ...bars, numcol, ...sq].forEach((el) => gsap.getProperty(el, 'x'));
+    await yieldTask();
     const ROW_Y = [26, 50, 74],
       ROW_X2 = [92, 80, 68];
     const POS = [
@@ -128,7 +135,8 @@ export function initProcessMotion() {
 
     const t = gsap.timeline({ repeat: -1, paused: true, onUpdate: sync });
 
-    slides.forEach((slide, k) => {
+    for (const [k, slide] of slides.entries()) {
+      await yieldTask();
       const t0 = k * STEP;
       const L = slide.querySelectorAll('.l'),
         W = slide.querySelectorAll('.dw');
@@ -143,7 +151,8 @@ export function initProcessMotion() {
         .to(L, { yPercent: -115, duration: 0.42, ease: 'power3.in', stagger: 0.014 }, t0 + 2.36);
       t.fromTo(bars[k], { '--p': 0 }, { '--p': 1, duration: STEP, ease: 'none' }, t0);
       t.to(numcol, { yPercent: -20 * (k + 1), duration: 0.8, ease: 'expo.inOut' }, t0 + 2.2);
-    });
+    }
+    await yieldTask();
 
     // 01 the client's bumpy route: the line draws, a point walks it and stops at the pothole
     t.to(route, { strokeDashoffset: 0, duration: 0.7, ease: 'power2.out' }, 0.05).to(state, { u: HOLE_U, duration: 1, ease: 'power1.inOut' }, 0.45);
@@ -222,8 +231,8 @@ export function initProcessMotion() {
     }
   };
   const ensureBuilt = () =>
-    (building ??= Promise.all([import('gsap'), document.fonts?.ready]).then(([m]) => {
-      build(m.gsap);
+    (building ??= Promise.all([import('gsap'), document.fonts?.ready]).then(async ([m]) => {
+      await build(m.gsap);
       update();
     }));
 
