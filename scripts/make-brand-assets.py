@@ -51,11 +51,11 @@ icon(512, radius_ratio=0).convert("RGB").save(PUBLIC / "icon-512.png")
 icon(192, radius_ratio=0).convert("RGB").save(PUBLIC / "icon-192.png")
 icon(48).save(PUBLIC / "favicon.ico", sizes=[(16, 16), (32, 32), (48, 48)])
 
-# Open Graph 1200x630, one per locale: the hero headline in three lines (as on phones), *accent* in turquoise
+# Open Graph 1200x630, one per locale: the hero headline in two lines (as on the site), *accent* in turquoise
 OG = {
-    "ru": ("Бизнес меняется.", "Мы помогаем", "ему *успевать*."),
-    "kk": ("Бизнес өзгереді.", "Біз оған *үлгеруге*", "көмектесеміз."),
-    "en": ("Business changes.", "We help it", "*keep up*."),
+    "ru": ("Развиваем бизнес.", "Создаём *возможности*."),
+    "kk": ("Бизнесті дамытамыз.", "*Мүмкіндіктер* жасаймыз."),
+    "en": ("Growing businesses.", "Creating *opportunities*."),
 }
 display = ROOT / "fonts-src/Geologica.ttf"
 mono = ROOT / "fonts-src/PlexMono-Medium.ttf"
@@ -68,7 +68,8 @@ for loc, lines in OG.items():
     for gx in range(0, W, 60 * ss):
         d.line([(gx, 0), (gx, H)], fill="#11151c", width=ss)
     draw_mark(img, W - 520 * ss, 120 * ss, 420 * ss)
-    f = ImageFont.truetype(str(display), 68 * ss)
+    # 48 px, below the mark (it ends at y ≈ 415)
+    f = ImageFont.truetype(str(display), 48 * ss)
     try:
         axes = f.get_variation_axes()
         f.set_variation_by_axes([700 if a["name"] in (b"Weight", "Weight") else (100 if a["name"] in (b"Sharpness", "Sharpness") else a["default"]) for a in axes])
@@ -76,12 +77,12 @@ for loc, lines in OG.items():
         pass
     m = ImageFont.truetype(str(mono), 24 * ss)
     d.text((72 * ss, 72 * ss), "APEXMAIN", font=m, fill=C["apex"])
-    y = 250 * ss
+    y = 452 * ss
     for line in lines:
         x = 72 * ss
         for i, part in enumerate(line.split("*")):
             d.text((x, y), part, font=f, fill=C["apex"] if i % 2 else C["paper"])
             x += d.textlength(part, font=f)
-        y += 86 * ss
+        y += 62 * ss
     img.resize((1200, 630), Image.LANCZOS).save(PUBLIC / f"og-{loc}.png", optimize=True)
 print("ok")

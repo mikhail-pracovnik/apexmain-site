@@ -22,8 +22,8 @@ const { locale } = Astro.props;
 const d = t(locale);
 const peak = brand.shapes.find((s) => s.id === 'peak')!;
 const [vx, vy, vw, vh] = brand.viewBox;
-// Headline: three lines on phones; from 48rem the 2nd and 3rd join into one line.
-const [title1, title2, title3] = d.hero.titleLines.map(accentParts);
+// Headline: always two lines, on every screen.
+const [title1, title2] = d.hero.titleLines.map(accentParts);
 ---
 
 <section class="stage dark-lit" id="top" data-label={d.sections.hero} data-stage data-dust="stacked-shift">
@@ -37,12 +37,9 @@ const [title1, title2, title3] = d.hero.titleLines.map(accentParts);
   </p>
   <div class="hero container-x">
     <p class="eyebrow hero-eyebrow hero-in" data-dust-top>{d.hero.eyebrow}</p>
-    <h1 class="hero-title" data-dust-title style={`--fit:${d.hero.titleFitEm};--fit-wide:${d.hero.titleFitEmWide}`}>
+    <h1 class="hero-title" data-dust-title style={`--fit:${d.hero.titleFitEm}`}>
       <span class="hero-in">{title1.map((p) => (p.accent ? <span class="accent">{p.text}</span> : p.text))}</span>
-      <span class="hero-in">
-        <span class="hero-l">{title2.map((p) => (p.accent ? <span class="accent">{p.text}</span> : p.text))}</span>{' '}
-        <span class="hero-l">{title3.map((p) => (p.accent ? <span class="accent">{p.text}</span> : p.text))}</span>
-      </span>
+      <span class="hero-in">{title2.map((p) => (p.accent ? <span class="accent">{p.text}</span> : p.text))}</span>
     </h1>
     <div class="hero-bottom hero-in">
       <p class="hero-sub">{d.hero.sub}</p>
@@ -172,30 +169,25 @@ const [title1, title2, title3] = d.hero.titleLines.map(accentParts);
   }
   .hero-title {
     display: grid;
-    /* Phones: three lines; from 48rem two (the 2nd and 3rd lines join). The size follows the screen width
-       so the longest line of the current language fits: --fit / --fit-wide = its width in em
-       (i18n hero.titleFitEm for three lines, hero.titleFitEmWide for two). No line ever wraps. */
-    font-size: min(calc((100vw - 2rem) / var(--fit, 9) * 0.97), 4.5rem);
+    /* Two lines on every screen. The size follows the screen width so the longer line of the current
+       language fits: --fit = its width in em (i18n hero.titleFitEm, measured with the font). No line ever wraps. */
+    font-size: min(calc((100vw - 2rem) / var(--fit, 11) * 0.99), 4.5rem);
     line-height: 0.98;
     letter-spacing: -0.035em;
   }
-  .hero-title > span,
-  .hero-l {
+  .hero-title > span {
     display: block;
     white-space: nowrap;
   }
   @media (min-width: 48rem) {
     .hero-title {
-      font-size: min(calc((100vw - 4rem) / var(--fit-wide, 9) * 0.97), 4.5rem);
-    }
-    .hero-l {
-      display: inline;
+      font-size: min(calc((100vw - 4rem) / var(--fit, 11) * 0.97), 4.5rem);
     }
   }
   @media (min-width: 64rem) {
     .hero-title {
       /* the longest line takes at most ~66% of the width */
-      font-size: min(6.3vw, 8.5rem, calc(66vw / var(--fit-wide, 9)));
+      font-size: min(6.3vw, 8.5rem, calc(66vw / var(--fit, 11)));
     }
   }
   .hero-bottom {

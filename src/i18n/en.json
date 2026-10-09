@@ -50,16 +50,14 @@
   },
   "hero": {
     "eyebrow": "IT Development • Marketing • Automation",
-    "sub": "We bring together business strategy, technology and marketing so companies can grow faster and go through change with confidence.",
+    "sub": "We bring together strategy, technology and marketing to win more customers, make work simpler and open up new opportunities for growth.",
     "ctaPrimary": "Get an initial audit",
     "ctaSecondary": "See examples",
-    "titleFitEm": 8.43,
+    "titleFitEm": 10.94,
     "titleLines": [
-      "Business changes.",
-      "We help it",
-      "*keep up*."
-    ],
-    "titleFitEmWide": 8.86
+      "Growing businesses.",
+      "Creating *opportunities*."
+    ]
   },
   "pains": {
     "eyebrow": "01 — What brings people to us",
