@@ -18,7 +18,7 @@ import { intro as timing, introKeys } from '../config/intro';
 type Gsap = typeof import('gsap').gsap;
 
 /** Dust wordmark behind the hero: brightness of each word (share of the text colour) and dot size. */
-const DUST: DustSettings = { apex: 0.5, main: 0.6, size: 1 };
+const DUST: DustSettings = { apex: 0.8, main: 0.95, size: 1.4 };
 /** The chosen button stays filled this long before the buttons leave (s). */
 const CHOSEN_HOLD = 0.12;
 /** Longest wait for the page to get ready before the reel starts anyway (ms). */

@@ -231,7 +231,7 @@ const [title1, title2] = d.hero.titleLines.map(accentParts);
     }
   }
 
-  /* Static wordmark: no JS or reduced motion (same brightness as the dust: apex 50%, main 60%). */
+  /* Static wordmark: no JS or reduced motion (same brightness as the dust: apex 80%, main 95%). */
   .hero-static {
     position: absolute;
     z-index: 0;
@@ -244,13 +244,13 @@ const [title1, title2] = d.hero.titleLines.map(accentParts);
     font-size: calc((100vw - 2rem) / 3.1);
     line-height: 0.8;
     letter-spacing: -0.01em;
-    color: rgb(232 238 241 / 0.5);
+    color: rgb(232 238 241 / 0.8);
     pointer-events: none;
     user-select: none;
   }
   .hero-static-main {
     padding-left: 0.57em; /* one letter */
-    color: rgb(70 200 217 / 0.6);
+    color: rgb(70 200 217 / 0.95);
   }
   @media (min-width: 68.75rem) {
     .hero-static {

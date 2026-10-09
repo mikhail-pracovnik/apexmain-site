@@ -40,9 +40,20 @@ const PAPER = [236, 240, 241];
 const APEX = [70, 200, 217];
 const WEIGHT = 700;
 const LEVELS = 12; // brightness buckets for batched drawing
-/** Click / tap scatter: dots within SCATTER_R fly out and come back slowly for SLOW_MS. */
+/** Highlight above the brightness ceiling (cursor, wave, click ring): with the dots at 80% / 95% there is little
+ *  room left under 1, so the excess turns the dot's colour towards white instead, in HOT steps. */
+const HOT = 4;
+const HOT_RGB = [255, 255, 255];
+const HOT_SPAN = 0.45; // excess that gives the full shift
+/** Click / tap scatter: dots within SCATTER_R fly out and come back slowly for SLOW_MS. Values for the wordmark
+ *  as tall as on an iPhone at 390 px (HEIGHT_REF); a bigger wordmark scales them by k = its height / HEIGHT_REF
+ *  (radius, push and the click ring ×k, the slow return ×√k), so on a desktop the scatter is an enlarged copy of
+ *  the phone's (owner's choice on the demo, 9.10.2026). */
 const SCATTER_R = 115;
 const SLOW_MS = 1800;
+const HEIGHT_REF = 150;
+/** Dot grid step ×1.5 (9.10.2026, owner's demo): fewer, brighter dots — glowing dust, less shimmer when scrolling. */
+const GAP_MUL = 1.5;
 /** Light wave across the wordmark: every WAVE_EVERY ms, WAVE_MS long; brightness only, dots stay put. */
 const WAVE_EVERY = 7000;
 const WAVE_MS = 1800;
@@ -55,6 +66,8 @@ export class DustWordmark {
   private h = 0;
   private dpr = 1;
   private gap = 3;
+  /** scale of the scatter and the click ring: wordmark height / HEIGHT_REF (≈ 1 on a phone) */
+  private sk = 1;
   private running = false;
   private raf = 0;
   private visible = true;
@@ -176,6 +189,7 @@ export class DustWordmark {
       ox = margin;
       oy = hBox <= freeH ? topLimit + (freeH - hBox) / 2 : topLimit;
     }
+    this.sk = Math.max(1, (hRef * scale) / HEIGHT_REF);
     ox += left * scale;
     oy += top1 * scale;
 
@@ -203,7 +217,7 @@ export class DustWordmark {
       return n * 9;
     })();
     const maxDots = lite ? 6000 : desktop ? 26000 : 11000;
-    this.gap = Math.max(desktop ? 3 : 2.2, Math.sqrt(ink / maxDots));
+    this.gap = Math.max(desktop ? 3 : 2.2, Math.sqrt(ink / maxDots)) * GAP_MUL;
 
     const g = this.gap;
     const jitter = g * 0.48; // breaks the grid: dust, not pixels
@@ -221,6 +235,8 @@ export class DustWordmark {
       }
     }
     this.dots = dots;
+    // for checks in the browser
+    Object.assign(this.canvas.dataset, { dots: String(dots.length), gap: g.toFixed(2), k: this.sk.toFixed(2) });
     this.draw(performance.now());
   }
 
@@ -286,12 +302,14 @@ export class DustWordmark {
     const half = s / 2;
     const { x: mx, y: my, active } = this.pointer;
     const R = this.radius;
-    const band = 40;
+    const band = 40 * this.sk;
+    const speed = 0.45 * this.sk;
+    const amp0 = 5 * this.sk;
     const cap = this.cap;
     // light wave: a bright band going diagonally left to right
     const waveT = this.waveT0 ? now - this.waveT0 : -1;
     const wavePos = waveT >= 0 && waveT <= WAVE_MS ? -300 + (waveT / WAVE_MS) * (this.w + 0.4 * this.h + 600) : null;
-    const buckets: number[][] = Array.from({ length: LEVELS * 2 }, () => []);
+    const buckets: number[][] = Array.from({ length: LEVELS * 2 * HOT }, () => []);
 
     for (let i = 0; i < this.dots.length; i++) {
       const d = this.dots[i];
@@ -307,10 +325,10 @@ export class DustWordmark {
         const dx = d.hx - r.x;
         const dy = d.hy - r.y;
         const dist = Math.hypot(dx, dy) || 1;
-        const k = (dist - age * 0.45) / band;
+        const k = (dist - age * speed) / band;
         if (k > 3 || k < -3) continue;
         const env = Math.exp(-k * k) * Math.exp(-age / 1300);
-        const amp = 5 * env * Math.cos(k * 1.5);
+        const amp = amp0 * env * Math.cos(k * 1.5);
         x += (dx / dist) * amp;
         y += (dy / dist) * amp;
         boost += env * 1.1; // the ring lights the dust up as it passes
@@ -320,19 +338,22 @@ export class DustWordmark {
         if (k < 3 && k > -3) boost += Math.exp(-k * k) * 0.45;
       }
       const base = d.main ? this.settings.main : this.settings.apex;
-      const alpha = Math.min(cap, d.a * base + boost * d.a);
+      const raw = d.a * base + boost * d.a;
+      const alpha = Math.min(cap, raw);
       if (alpha < 0.01) continue;
       const lvl = Math.min(LEVELS - 1, Math.round((alpha * (LEVELS - 1)) / cap));
-      const bucket = buckets[(d.main ? LEVELS : 0) + lvl];
+      const hot = raw > cap ? Math.min(HOT - 1, Math.ceil(((raw - cap) / HOT_SPAN) * (HOT - 1))) : 0;
+      const bucket = buckets[(hot * 2 + (d.main ? 1 : 0)) * LEVELS + lvl];
       bucket.push(x - half, y - half);
     }
     for (let b = 0; b < buckets.length; b++) {
       const list = buckets[b];
       if (!list.length) continue;
-      const main = b >= LEVELS;
       const lvl = b % LEVELS;
+      const main = Math.floor(b / LEVELS) % 2 === 1;
+      const t = Math.floor(b / (LEVELS * 2)) / (HOT - 1);
       const a = Math.max(0.01, (lvl * cap) / (LEVELS - 1));
-      const [r, g, bl] = main ? APEX : PAPER;
+      const [r, g, bl] = (main ? APEX : PAPER).map((c, j) => Math.round(c + (HOT_RGB[j] - c) * t * 0.7));
       ctx.fillStyle = `rgba(${r},${g},${bl},${a.toFixed(3)})`;
       for (let i = 0; i < list.length; i += 2) ctx.fillRect(list[i], list[i + 1], s, s);
     }
@@ -353,18 +374,20 @@ export class DustWordmark {
       if (p.x < 0 || p.y < 0 || p.x > this.w || p.y > this.h) return;
       const now = performance.now();
       // scatter: dots near the click fly out from it, then gather back slowly (soft springs for SLOW_MS)
-      const SR2 = SCATTER_R * SCATTER_R;
+      const k = this.sk;
+      const SRk = SCATTER_R * k;
+      const SR2 = SRk * SRk;
       for (const d of this.dots) {
         const dx = d.x - p.x;
         const dy = d.y - p.y;
         const q = dx * dx + dy * dy;
         if (q >= SR2 || q < 0.01) continue;
         const dist = Math.sqrt(q);
-        const f = (1 - dist / SCATTER_R) * (9 + Math.random() * 10);
-        d.vx += (dx / dist) * f + (Math.random() - 0.5) * 3;
-        d.vy += (dy / dist) * f + (Math.random() - 0.5) * 3;
+        const f = (1 - dist / SRk) * (9 + Math.random() * 10) * k;
+        d.vx += (dx / dist) * f + (Math.random() - 0.5) * 3 * k;
+        d.vy += (dy / dist) * f + (Math.random() - 0.5) * 3 * k;
       }
-      this.slowUntil = now + SLOW_MS;
+      this.slowUntil = now + SLOW_MS * Math.sqrt(k);
       this.ripples.push({ ...p, t0: now });
       if (this.ripples.length > 4) this.ripples.shift();
       this.wake();
