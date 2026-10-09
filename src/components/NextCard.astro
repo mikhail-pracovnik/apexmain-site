@@ -11,13 +11,11 @@ import { thumb } from '../lib/example-media';
 
 interface Props {
   locale: Locale;
-  /** Number shown on the pane: 07 */
-  number: number;
   place?: 'rail' | 'grid';
   /** Heading level inside the card. */
   level?: 'h3' | 'h2';
 }
-const { locale, number, place = 'rail', level: H = 'h3' } = Astro.props;
+const { locale, place = 'rail', level: H = 'h3' } = Astro.props;
 const d = t(locale);
 const n = d.examples.next;
 // grid order: neighbours differ in look (dark barbershop, light clinic, …); some mock-ups repeat
@@ -46,7 +44,7 @@ const pics = GRID.map((id) => thumb(id));
     </div>
     <div class="next-pane" aria-hidden="true">
       <span class="next-pane-bg glass glass-light"></span>
-      <span class="next-k">{String(number).padStart(2, '0')} · {n.kicker}</span>
+      <span class="next-k">{n.kicker}</span>
       <span class="next-t">{n.paneTitle}</span>
       <span class="next-s">{n.paneLine}</span>
     </div>
@@ -93,9 +91,8 @@ const pics = GRID.map((id) => thumb(id));
     outline: 2px solid var(--color-apex-deep);
     outline-offset: 3px;
   }
-  /* caption: the same as ExampleCard's */
+  /* caption: the same as ExampleCard's (not positioned: the title link's ::after covers the whole card) */
   .example-body {
-    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;

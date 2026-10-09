@@ -37,7 +37,7 @@ const nicheLabel = (id: string) => niches.find((n) => n.id === id)?.data.label[l
         ))
       }
       <li class="rail-item">
-        <NextCard locale={locale} number={examples.length + 1} />
+        <NextCard locale={locale} />
       </li>
     </Rail>
   </div>
@@ -47,13 +47,13 @@ const nicheLabel = (id: string) => niches.find((n) => n.id === id)?.data.label[l
 <style>
   .ex-head {
     display: grid;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
   }
   @media (min-width: 64rem) {
     .ex-head {
-      gap: 2rem;
-      margin-bottom: 2.75rem;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
     }
   }
 </style>

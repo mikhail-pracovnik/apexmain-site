@@ -2,13 +2,15 @@
  * Horizontal rails (components/Rail.astro). Native scrolling with scroll-snap does the work on touch;
  * this adds what a mouse and a keyboard need:
  *  - position indicator under the rail and two arrows (dimmed at the ends);
- *  - drag with the mouse: under 6 px it is a click, beyond that a drag; after a drag the click on the
+ *  - drag with the mouse: under 8 px it is a click, beyond that a drag; after a drag the click on the
  *    card is cancelled; on release the rail coasts (inertia) and settles on the nearest card;
+ *  - touch and pen: a card opens only on a short tap; a press that moved 8 px or more (a swipe of the rail
+ *    or of the page) does not click it;
  *  - ←/→ move by one card; a card that gets keyboard focus is brought fully into view.
  * Reduced motion: no inertia, no smooth scrolling.
  * The vertical mouse wheel is left alone (native: it scrolls the page, not the rail).
  */
-const DRAG_THRESHOLD = 6; // px
+const DRAG_THRESHOLD = 8; // px
 const FRICTION = 0.92; // per 16 ms frame
 const MIN_SPEED = 0.05; // px/ms
 
@@ -45,7 +47,10 @@ function initRail(rail: HTMLElement) {
     requestAnimationFrame(update);
   };
   vp.addEventListener('scroll', schedule, { passive: true });
-  new ResizeObserver(schedule).observe(vp);
+  // the track changes width when cards are hidden (the filter on the examples page)
+  const ro = new ResizeObserver(schedule);
+  ro.observe(vp);
+  ro.observe(vp.firstElementChild as Element);
   update();
 
   /** Move by one card. */
@@ -176,6 +181,33 @@ function initRail(rail: HTMLElement) {
   vp.addEventListener('pointerup', release);
   vp.addEventListener('pointercancel', release);
   vp.addEventListener('dragstart', (e) => e.preventDefault());
+
+  /* ---------- Tap vs swipe (touch, pen) ---------- */
+  // Browsers usually drop the click after a pan, but not always (a short flick, a slow diagonal swipe):
+  // a press that travelled DRAG_THRESHOLD or more, or was taken over by scrolling, is not a tap.
+  let tapX = 0;
+  let tapY = 0;
+  let moved = false;
+  vp.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse') return;
+    tapX = e.clientX;
+    tapY = e.clientY;
+    moved = false;
+  }, { passive: true });
+  vp.addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'mouse' || moved) return;
+    if (Math.hypot(e.clientX - tapX, e.clientY - tapY) >= DRAG_THRESHOLD) moved = true;
+  }, { passive: true });
+  vp.addEventListener('pointercancel', (e) => {
+    if (e.pointerType !== 'mouse') moved = true;
+  });
+  vp.addEventListener('click', (e) => {
+    // keyboard activation (detail 0) is always a click
+    if (!moved || e.detail === 0) return;
+    moved = false;
+    e.preventDefault();
+    e.stopPropagation();
+  }, true);
 }
 
 export function initRails() {

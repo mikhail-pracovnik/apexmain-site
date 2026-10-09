@@ -111,7 +111,8 @@ const pics: [PictureSet, string, string][] = [
   .example[hidden] {
     display: none;
   }
-  /* the title link covers the whole card; the "I want one" button sits above it */
+  /* the title link covers the whole card, picture included (its ::after is anchored to .example, so nothing
+     between them may be positioned); the "I want one" button sits above it */
   .example-open::after {
     content: '';
     position: absolute;
@@ -293,7 +294,6 @@ const pics: [PictureSet, string, string][] = [
   }
 
   .example-body {
-    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
