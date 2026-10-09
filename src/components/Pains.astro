@@ -21,7 +21,7 @@ const pains = await getPains();
   <div class="container-x">
     <header class="pains-head">
       <p class="eyebrow reveal">{d.pains.eyebrow}</p>
-      <h2 id="pains-title" class="h-section reveal" style="--i:1">{d.pains.title}</h2>
+      <h2 id="pains-title" class="h-section pains-title reveal" style="--i:1">{d.pains.title}</h2>
       <p class="lead-text reveal" style="--i:2">{d.pains.lead}</p>
     </header>
   </div>
@@ -52,6 +52,10 @@ const pains = await getPains();
 </section>
 
 <style>
+  /* whole words only: on narrow phones auto hyphenation split "заявки" */
+  .pains-title {
+    hyphens: manual;
+  }
   .pains-head {
     display: grid;
     gap: 1.25rem;
