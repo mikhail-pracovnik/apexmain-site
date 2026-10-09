@@ -1,6 +1,11 @@
 ---
+/**
+ * Examples page: the same horizontal rail as on the home page (Rail.astro), the category filter above it hides
+ * cards inside the rail (the last card, "Your business is next", always stays). A card opens its mock-up panel.
+ */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ExampleCard from '../../../components/ExampleCard.astro';
+import Rail from '../../../components/Rail.astro';
 import NextCard from '../../../components/NextCard.astro';
 import ExamplePanel from '../../../components/ExamplePanel.astro';
 import LeadForm from '../../../components/LeadForm.astro';
@@ -19,7 +24,7 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
 ---
 
 <BaseLayout locale={locale} title={d.meta.examplesTitle} description={d.meta.examplesDescription} path="examples">
-  <section class="section theme-light ex-page" data-label={d.sections.examples} aria-labelledby="ex-title">
+  <section class="section page-top theme-light ex-page" data-label={d.sections.examples} aria-labelledby="ex-title">
     <div class="container-x">
       <header class="ex-page-head">
         <h1 id="ex-title" class="h-page">{d.examplesPage.title}</h1>
@@ -37,14 +42,22 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
         }
       </div>
 
-      <div class="ex-grid" data-examples-grid>
+    </div>
+    <div class="reveal" style="--i:1" data-examples-grid>
+      <Rail locale={locale} label={d.examples.listLabel} kind="cards">
         {
           examples.map((e, i) => (
-            <ExampleCard example={e} locale={locale} nicheLabel={nicheLabel(e.data.niche)} index={i} level="h2" place="grid" />
+            <li class="rail-item" data-niche={e.data.niche}>
+              <ExampleCard example={e} locale={locale} nicheLabel={nicheLabel(e.data.niche)} index={i} level="h2" reveal={false} />
+            </li>
           ))
         }
-        <NextCard locale={locale} number={examples.length + 1} place="grid" level="h2" />
-      </div>
+        <li class="rail-item">
+          <NextCard locale={locale} level="h2" />
+        </li>
+      </Rail>
+    </div>
+    <div class="container-x">
       <p class="ex-empty" data-empty hidden>{d.examples.empty}</p>
       <p class="sr-only" role="status" aria-live="polite" data-filter-status></p>
     </div>
@@ -56,7 +69,7 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
 
 <script>
   const filter = document.querySelector<HTMLElement>('[data-filter]');
-  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-examples-grid] > [data-niche]'));
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-examples-grid] .rail-item[data-niche]'));
   const empty = document.querySelector<HTMLElement>('[data-empty]');
   const live = document.querySelector<HTMLElement>('[data-filter-status]');
   if (filter) {
@@ -70,10 +83,11 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
         c.hidden = !on;
         if (on) {
           shown++;
-          c.classList.add('is-in');
         }
       });
       if (empty) empty.hidden = shown > 0;
+      // the rail starts again from its first card
+      document.querySelector('[data-examples-grid] [data-rail-viewport]')?.scrollTo({ left: 0 });
       if (live) live.textContent = String(shown);
       if (push) {
         const u = new URL(location.href);
@@ -92,12 +106,18 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
   .ex-page-head {
     display: grid;
     gap: 1.25rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (min-width: 64rem) {
+    .ex-page-head {
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
   }
   .filter {
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem;
     padding-bottom: 0.25rem;
     overflow-x: auto;
     scrollbar-width: none;
@@ -129,14 +149,8 @@ const nicheLabel = (id: string) => allNiches.find((n) => n.id === id)?.data.labe
     border-color: var(--color-ink);
     color: var(--color-paper);
   }
-  .ex-grid {
-    display: grid;
-    gap: 3rem 1.5rem;
-  }
-  @media (min-width: 48rem) {
-    .ex-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  .rail-item[hidden] {
+    display: none !important;
   }
   .ex-empty {
     padding: 2rem 0;

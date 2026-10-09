@@ -1,7 +1,12 @@
 ---
-/** Services page: every service from src/content/services with who it is for and what is included. */
+/**
+ * Services page: every service from src/content/services with who it is for and what is included, in the same
+ * horizontal rail as on the home page (Rail.astro: swipe, drag, snapping, arrows, the next card peeking).
+ * Anchors (#site, …) from the home cards and the index below the title scroll the rail to the service.
+ */
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ServiceScene from '../../../components/ServiceScene.astro';
+import Rail from '../../../components/Rail.astro';
 import DarkBackdrop from '../../../components/DarkBackdrop.astro';
 import { t, url, fill, localeStaticPaths, type Locale } from '../../../i18n';
 import { getServices, formatPrice } from '../../../lib/content';
@@ -34,14 +39,17 @@ const contact = url(locale, 'contact');
         }
       </nav>
 
-      <div class="svc-list">
+    </div>
+    <div class="reveal" style="--i:1">
+      <Rail locale={locale} label={d.servicesPage.title} kind="cards">
         {
           services.map((s, i) => {
             const price = s.data.priceFrom
               ? fill(d.services.priceFrom, { price: formatPrice(s.data.priceFrom, d.services.currency) })
               : d.services.priceOnRequest;
             return (
-              <article class="svc reveal" id={s.id} aria-labelledby={`${s.id}-t`}>
+              <li class="rail-item">
+              <article class="svc" id={s.id} aria-labelledby={`${s.id}-t`}>
                 <div class="svc-media">{s.data.scene && <ServiceScene scene={s.data.scene} locale={locale} />}</div>
                 <div class="svc-body">
                   <p class="eyebrow">0{i + 1}</p>
@@ -73,10 +81,11 @@ const contact = url(locale, 'contact');
                   </div>
                 </div>
               </article>
+              </li>
             );
           })
         }
-      </div>
+      </Rail>
     </div>
   </section>
 </BaseLayout>
@@ -84,14 +93,25 @@ const contact = url(locale, 'contact');
 <style>
   .svc-head {
     display: grid;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (min-width: 64rem) {
+    .svc-head {
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
   }
   .svc-index {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 2.75rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (min-width: 64rem) {
+    .svc-index {
+      margin-bottom: 2rem;
+    }
   }
   .svc-index a {
     display: inline-flex;
@@ -111,13 +131,11 @@ const contact = url(locale, 'contact');
     font-size: 0.75rem;
     color: var(--color-muted);
   }
-  .svc-list {
-    display: grid;
-    gap: 1.25rem;
-  }
-  /* barely translucent, no blur (as the home cards): the page's light and grid show through a little */
+  /* barely translucent, no blur (as the home cards): the page's light and grid show through a little.
+     A rail card: the scene on top, the text below; the price and the button stay at the bottom. */
   .svc {
-    display: grid;
+    display: flex;
+    flex-direction: column;
     border: 1px solid rgb(255 255 255 / 0.14);
     border-radius: var(--radius-card);
     background: rgb(255 255 255 / 0.05);
@@ -126,40 +144,29 @@ const contact = url(locale, 'contact');
     overflow: hidden;
     scroll-margin-top: 6rem;
   }
-  @media (min-width: 64rem) {
-    .svc {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    }
-  }
   .svc-media {
     position: relative;
-    aspect-ratio: 16 / 10;
+    flex-shrink: 0;
+    aspect-ratio: 4 / 3;
     border-bottom: 1px solid var(--color-line);
   }
-  @media (min-width: 64rem) {
-    .svc-media {
-      aspect-ratio: auto;
-      min-height: 100%;
-      border-bottom: 0;
-      border-right: 1px solid var(--color-line);
-    }
-  }
   .svc-body {
-    display: grid;
-    gap: 1.25rem;
-    align-content: start;
-    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    padding: 1.25rem;
   }
   @media (min-width: 64rem) {
     .svc-body {
-      padding: 2.5rem;
+      padding: 1.5rem;
     }
   }
   .svc-title {
-    font-size: clamp(1.9rem, 4vw, 3.25rem);
+    font-size: clamp(1.5rem, 1.1rem + 1.2vw, 2rem);
   }
   .svc-desc {
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
     color: var(--color-muted);
   }
   .svc-block h3 {
@@ -192,6 +199,7 @@ const contact = url(locale, 'contact');
     background: var(--color-apex);
   }
   .svc-foot {
+    margin-top: auto;
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
